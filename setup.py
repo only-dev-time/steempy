@@ -13,11 +13,11 @@ from setuptools import find_packages, setup, Command
 from setuptools.command.test import test as TestCommand
 
 # Package meta-data.
-NAME = 'steem'
-DESCRIPTION = 'Official python steem library.'
-URL = 'https://github.com/steemit/steem-python'
-EMAIL = 'john@steemit.com'
-AUTHOR = 'Steemit'
+NAME = 'steem-lib'
+DESCRIPTION = 'Python library for interacting with the Steem blockchain.'
+URL = 'https://github.com/only-dev-time/steempy'
+EMAIL = '111915936+only-dev-time@users.noreply.github.com'
+AUTHOR = 'Moecki'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
@@ -131,9 +131,9 @@ class UploadCommand(Command):
 # Where the magic happens:
 setup(
     name=NAME,
-    version='1.0.2',
+    version='1.0.1',
     description=DESCRIPTION,
-    keywords=['steem', 'steemit', 'cryptocurrency', 'blockchain'],
+    keywords=['steem', 'cryptocurrency', 'blockchain'],
     # long_description=long_description,
     author=AUTHOR,
     author_email=EMAIL,

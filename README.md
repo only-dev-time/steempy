@@ -1,7 +1,8 @@
-# Official Python STEEM Library
+# Python Library for the Steem Blockchain
 
-`steem-python` is the official Steem library for Python. It comes with a
+`steempy` is a Steem library for Python. It comes with a
 BIP38 encrypted wallet and a practical CLI utility called `steempy`.
+The [base version](https://github.com/only-dev-time/steempy/releases/tag/v1.0.1) is a fork of the [official python library](https://github.com/steemit/steem-python), which is no longer maintained.
 
 This library currently works on Python 2.7, 3.5 and 3.6. Python 3.3 and 3.4 support forthcoming.
 
@@ -10,14 +11,14 @@ This library currently works on Python 2.7, 3.5 and 3.6. Python 3.3 and 3.4 supp
 With pip:
 
 ```
-pip3 install steem      # pip install steem for 2.7
+pip3 install steem-lib      # pip install steem-lib for 2.7
 ```
 
 From Source:
 
 ```
-git clone https://github.com/steemit/steem-python.git
-cd steem-python
+git clone https://github.com/only-dev-time/steempy.git
+cd steempy
 python3 setup.py install        # python setup.py install for 2.7
 ```
 
