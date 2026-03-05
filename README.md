@@ -11,7 +11,7 @@ This library currently works on Python 2.7, 3.5 and 3.6. Python 3.3 and 3.4 supp
 With pip:
 
 ```
-pip3 install steem-lib      # pip install steem-lib for 2.7
+pip3 install steempy      # pip install steempy for 2.7
 ```
 
 From Source:

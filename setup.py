@@ -13,7 +13,7 @@ from setuptools import find_packages, setup, Command
 from setuptools.command.test import test as TestCommand
 
 # Package meta-data.
-NAME = 'steem-lib'
+NAME = 'steempy'
 DESCRIPTION = 'Python library for interacting with the Steem blockchain.'
 URL = 'https://github.com/only-dev-time/steempy'
 EMAIL = '111915936+only-dev-time@users.noreply.github.com'
