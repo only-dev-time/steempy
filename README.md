@@ -1,62 +1,90 @@
 # Python Library for the Steem Blockchain
 
+[![CI](https://img.shields.io/badge/CI-GitHub%20Actions-2088FF?logo=githubactions&logoColor=white)](https://github.com/only-dev-time/steempy/actions)
+[![PyPI version](https://img.shields.io/pypi/v/steempy?logo=pypi)](https://pypi.org/project/steempy/)
+[![Python versions](https://img.shields.io/pypi/pyversions/steempy)](https://pypi.org/project/steempy/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 `steempy` is a Steem library for Python. It comes with a
 BIP38 encrypted wallet and a practical CLI utility called `steempy`.
 The [base version](https://github.com/only-dev-time/steempy/releases/tag/v1.0.1) is a fork of the [official python library](https://github.com/steemit/steem-python), which is no longer maintained.
 
-This library currently works on Python 2.7, 3.5 and 3.6. Python 3.3 and 3.4 support forthcoming.
+This library targets Python 3.7 to 3.12.
 
-# Installation
+## Installation
 
 With pip:
 
-```
-pip3 install steempy      # pip install steempy for 2.7
+```bash
+pip install steempy
 ```
 
-From Source:
+From source:
 
-```
+```bash
 git clone https://github.com/only-dev-time/steempy.git
 cd steempy
-python3 setup.py install        # python setup.py install for 2.7
+python -m pip install .
 ```
 
 ## Homebrew Build Prereqs
 
 If you're on a mac, you may need to do the following first:
 
-```
+```bash
 brew install openssl
 export CFLAGS="-I$(brew --prefix openssl)/include $CFLAGS"
 export LDFLAGS="-L$(brew --prefix openssl)/lib $LDFLAGS"
 ```
 
-# CLI tools bundled
+## CLI tools bundled
 
 The library comes with a few console scripts.
 
-* `steempy`:
-    * rudimentary blockchain CLI (needs some TLC and more TLAs)
-* `steemtail`:
-    * useful for e.g. `steemtail -f -j | jq --unbuffered --sort-keys .`
+* `steempy`: rudimentary blockchain CLI (needs some TLC and more TLAs)
+* `steemtail`: useful for e.g. `steemtail -f -j | jq --unbuffered --sort-keys .`
 
-# Documentation
+## Documentation
 
-Documentation is available at **http://steem.readthedocs.io**
+Documentation is maintained in this repository under [docs](docs).
+You can build it locally via `make -C docs html`.
 
-# Tests
+## Tests
 
-Some tests are included.  They can be run via:
+This repository now uses `tox` for multi-version test automation.
 
-* `python setup.py test`
+Basic workflow:
 
-# TODO
+* install `tox` in your dev environment
+* make sure Python 3.7 to 3.12 interpreters are available locally
+* run the matrix locally via `tox -e py37,py38,py39,py310,py311,py312`
 
-* more unit tests
-* 100% documentation coverage, consistent documentation
-* migrate to click CLI library
+Convenience Make targets:
 
-# Notice
+* `make test` runs tests on Python 3.12
+* `make test-all` runs the full Python 3.7 to 3.12 matrix
+* `make lint` runs style checks
+* `make package` builds `sdist` and `wheel` and validates metadata
+* `make install-check` installs the built wheel in fresh tox envs and runs smoke checks
+
+Release validation:
+
+* push builds run test matrix checks
+* tag pushes (`v*`) build package artifacts
+* tags upload to TestPyPI first
+* non-`rc` tags can upload to PyPI after TestPyPI + install checks
+
+## TODO
+
+* finalize Python 3.7 to 3.12 packaging compatibility (including crypto dependency modernization)
+* stabilize install smoke tests across the full tox matrix
+* finalize TestPyPI staging and tag-based PyPI release checklist
+* decide and publish a permanent documentation endpoint (GitHub Pages or Read the Docs)
+* increase unit and integration coverage for core blockchain operations
+* improve and align docs coverage with current CLI and release workflow
+* evaluate migration to a dedicated CLI framework (for example click)
+* ...
+
+## Notice
 
 This library is *under development*.  Beware.

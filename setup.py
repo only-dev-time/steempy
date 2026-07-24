@@ -13,51 +13,51 @@ from setuptools import find_packages, setup, Command
 from setuptools.command.test import test as TestCommand
 
 # Package meta-data.
-NAME = 'steempy'
-DESCRIPTION = 'Python library for interacting with the Steem blockchain.'
-URL = 'https://github.com/only-dev-time/steempy'
-EMAIL = '111915936+only-dev-time@users.noreply.github.com'
-AUTHOR = 'Moecki'
+NAME = "steempy"
+DESCRIPTION = "Python library for interacting with the Steem blockchain."
+URL = "https://github.com/only-dev-time/steempy"
+EMAIL = "111915936+only-dev-time@users.noreply.github.com"
+AUTHOR = "Moecki"
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    'appdirs',
-    'certifi',
-    'ecdsa>=0.13',
-    'funcy',
+    "appdirs",
+    "certifi",
+    "ecdsa>=0.13",
+    "funcy",
     'futures ; python_version < "3.0.0"',
-    'future',
-    'langdetect',
-    'prettytable',
-    'pycrypto>=1.9.1',
-    'pylibscrypt>=1.6.1',
-    'scrypt>=0.8.0',
-    'toolz',
-    'ujson',
-    'urllib3',
-    'voluptuous',
-    'w3lib'
+    "future",
+    "langdetect",
+    "prettytable",
+    "pycrypto>=1.9.1",
+    "pylibscrypt>=1.6.1",
+    "scrypt>=0.8.0",
+    "toolz",
+    "ujson",
+    "urllib3",
+    "voluptuous",
+    "w3lib",
 ]
 TEST_REQUIRED = [
-    'pep8',
-    'pytest',
+    "pep8",
+    "pytest",
     'pytest-pylint ; python_version >= "3.4.0"',
-    'pytest-xdist',
-    'pytest-runner',
-    'pytest-pep8',
-    'pytest-cov',
-    'yapf',
-    'autopep8'
+    "pytest-xdist",
+    "pytest-runner",
+    "pytest-pep8",
+    "pytest-cov",
+    "yapf",
+    "autopep8",
 ]
 
 BUILD_REQUIRED = [
-    'twine',
-    'pypandoc',
-    'recommonmark'
-    'wheel',
-    'setuptools',
-    'sphinx',
-    'sphinx_rtd_theme'
+    "twine",
+    "pypandoc",
+    "recommonmark",
+    "wheel",
+    "setuptools",
+    "sphinx",
+    "sphinx_rtd_theme",
 ]
 # The rest you shouldn't have to touch too much :)
 # ------------------------------------------------
@@ -73,15 +73,16 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 
 class PyTest(TestCommand):
-    user_options = [('pytest-args=', 'a', "Arguments to pass into py.test")]
+    user_options = [("pytest-args=", "a", "Arguments to pass into py.test")]
 
     def initialize_options(self):
         TestCommand.initialize_options(self)
         try:
             from multiprocessing import cpu_count
-            self.pytest_args = ['-n', str(cpu_count()), '--boxed']
+
+            self.pytest_args = ["-n", str(cpu_count()), "--boxed"]
         except (ImportError, NotImplementedError):
-            self.pytest_args = ['-n', '1', '--boxed']
+            self.pytest_args = ["-n", "1", "--boxed"]
 
     def finalize_options(self):
         TestCommand.finalize_options(self)
@@ -98,13 +99,13 @@ class PyTest(TestCommand):
 class UploadCommand(Command):
     """Support setup.py upload."""
 
-    description = 'Build and publish the package.'
+    description = "Build and publish the package."
     user_options = []
 
     @staticmethod
     def status(s):
         """Prints things in bold."""
-        print('\033[1m{0}\033[0m'.format(s))
+        print("\033[1m{0}\033[0m".format(s))
 
     def initialize_options(self):
         pass
@@ -114,16 +115,16 @@ class UploadCommand(Command):
 
     def run(self):
         try:
-            self.status('Removing previous builds…')
-            rmtree(os.path.join(here, 'dist'))
+            self.status("Removing previous builds…")
+            rmtree(os.path.join(here, "dist"))
         except OSError:
             pass
 
-        self.status('Building Source and Wheel (universal) distribution…')
-        os.system('{0} setup.py sdist bdist_wheel --universal'.format(sys.executable))
+        self.status("Building Source and Wheel (universal) distribution…")
+        os.system("{0} setup.py sdist bdist_wheel --universal".format(sys.executable))
 
-        self.status('Uploading the package to PyPi via Twine…')
-        os.system('twine upload dist/*')
+        self.status("Uploading the package to PyPi via Twine…")
+        os.system("twine upload dist/*")
 
         sys.exit()
 
@@ -131,45 +132,48 @@ class UploadCommand(Command):
 # Where the magic happens:
 setup(
     name=NAME,
-    version='1.0.1',
+    version="1.0.1",
     description=DESCRIPTION,
-    keywords=['steem', 'cryptocurrency', 'blockchain'],
+    keywords=["steem", "cryptocurrency", "blockchain"],
     # long_description=long_description,
     author=AUTHOR,
     author_email=EMAIL,
     url=URL,
-    packages=find_packages(exclude=('tests','scripts')),
+    packages=find_packages(exclude=("tests", "scripts")),
     entry_points={
-            'console_scripts': [
-                'piston=steem.cli:legacyentry',
-                'steempy=steem.cli:legacyentry',
-                'steemtail=steem.cli:steemtailentry',
-            ],
+        "console_scripts": [
+            "piston=steem.cli:legacyentry",
+            "steempy=steem.cli:legacyentry",
+            "steemtail=steem.cli:steemtailentry",
+        ],
     },
     install_requires=REQUIRED,
+    python_requires=">=3.7,<3.13",
     extras_require={
-        'dev': TEST_REQUIRED + BUILD_REQUIRED,
-        'build': BUILD_REQUIRED,
-        'test': TEST_REQUIRED
+        "dev": TEST_REQUIRED + BUILD_REQUIRED,
+        "build": BUILD_REQUIRED,
+        "test": TEST_REQUIRED,
     },
     tests_require=TEST_REQUIRED,
     include_package_data=True,
-    license='MIT',
-
+    license="MIT",
     classifiers=[
-            # Trove classifiers
-            # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Natural Language :: English', 'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Topic :: Software Development :: Libraries',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-        'Development Status :: 4 - Beta'
+        # Trove classifiers
+        # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Topic :: Software Development :: Libraries",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Development Status :: 4 - Beta",
     ],
     # $ setup.py publish support.
-    cmdclass={
-        'upload': UploadCommand,
-        'test': PyTest
-    },
+    cmdclass={"upload": UploadCommand, "test": PyTest},
 )
