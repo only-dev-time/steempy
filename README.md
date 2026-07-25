@@ -63,7 +63,7 @@ Convenience Make targets:
 
 * `make test` runs tests on Python 3.12
 * `make test-all` runs the full Python 3.8 to 3.12 matrix
-* `make lint` runs style checks
+* `make lint` runs ruff, isort, and mypy checks
 * `make package` builds `sdist` and `wheel` and validates metadata
 * `make install-check` installs the built wheel in fresh tox envs and runs smoke checks
 

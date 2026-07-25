@@ -23,8 +23,8 @@ install-check: package
 	tox -e install-py38,install-py39,install-py310,install-py311,install-py312
 
 fmt:
-	yapf --recursive --in-place --style pep8 $(PYTHON_FILES)
-	pycodestyle $(PYTHON_FILES)
+	isort $(PYTHON_FILES)
+	ruff check --fix $(PYTHON_FILES)
 
 install:
 	python setup.py install

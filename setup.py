@@ -9,8 +9,11 @@ import os
 import sys
 from shutil import rmtree
 
-from setuptools import find_packages, setup, Command
+from setuptools import Command
+from setuptools import find_packages
+from setuptools import setup
 from setuptools.command.test import test as TestCommand
+
 
 # Package meta-data.
 NAME = "steempy"
