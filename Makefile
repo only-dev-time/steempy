@@ -11,7 +11,7 @@ test: clean
 	tox -e py312
 
 test-all: clean
-	tox -e py37,py38,py39,py310,py311,py312
+	tox -e py38,py39,py310,py311,py312
 
 lint:
 	tox -e lint
@@ -20,7 +20,7 @@ package: clean
 	tox -e package
 
 install-check: package
-	tox -e install-py37,install-py38,install-py39,install-py310,install-py311,install-py312
+	tox -e install-py38,install-py39,install-py310,install-py311,install-py312
 
 fmt:
 	yapf --recursive --in-place --style pep8 $(PYTHON_FILES)
