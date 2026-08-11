@@ -32,7 +32,7 @@ REQUIRED = [
     "future",
     "langdetect",
     "prettytable",
-    "pycrypto>=1.9.1",
+    "pycryptodome>=3.20.0",
     "pylibscrypt>=1.6.1",
     "scrypt>=0.8.0",
     "toolz",
