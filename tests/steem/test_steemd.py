@@ -7,7 +7,7 @@ def test_get_version():
     s = Steemd()
     response = s.call('get_version', api='login_api')
     version = response['blockchain_version']
-    assert version[0:4] == '0.20'
+    assert version[0:4] == '0.23'
 
 
 def test_get_dgp():
@@ -32,7 +32,7 @@ def test_get_block():
         assert b, 'block %d was blank' % num
         assert num == int(b['block_id'][:8], base=16)
 
-    non_existent_block = 99999999
+    non_existent_block = 999999999
     b = s.get_block(non_existent_block)
     assert not b, 'block %d expected to be blank' % non_existent_block
 
