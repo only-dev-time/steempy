@@ -7,8 +7,6 @@ on:
 
 jobs:
   build-matrix:
-    env:
-      PIP_CONSTRAINT: constraints/toolchain.txt
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -29,12 +27,10 @@ jobs:
 
       - name: Build wheel and validate metadata
         run: |
-          python -m build --wheel --outdir dist-matrix
+          python -m build --no-isolation --wheel --outdir dist-matrix
           python -m twine check dist-matrix/*
 
   package:
-    env:
-      PIP_CONSTRAINT: constraints/toolchain.txt
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -58,8 +54,6 @@ jobs:
           path: dist/*
 
   tox-install-matrix:
-    env:
-      PIP_CONSTRAINT: constraints/toolchain.txt
     needs: package
     runs-on: ubuntu-latest
     strategy:

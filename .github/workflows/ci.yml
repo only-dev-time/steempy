@@ -28,13 +28,21 @@ on:
 
 jobs:
   tests:
-    env:
-      PIP_CONSTRAINT: constraints/toolchain.txt
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        include:
+          - python-version: "3.8"
+            toxenv: py38
+          - python-version: "3.9"
+            toxenv: py39
+          - python-version: "3.10"
+            toxenv: py310
+          - python-version: "3.11"
+            toxenv: py311
+          - python-version: "3.12"
+            toxenv: py312
 
     steps:
       - uses: actions/checkout@v5
@@ -49,11 +57,9 @@ jobs:
           python -m pip install -c constraints/toolchain.txt setuptools wheel build twine tox
 
       - name: Run tests via tox
-        run: tox -e py${{ matrix.python-version }}
+        run: tox -e ${{ matrix.toxenv }}
 
   lint:
-    env:
-      PIP_CONSTRAINT: constraints/toolchain.txt
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
