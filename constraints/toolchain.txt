@@ -1,0 +1,13 @@
+# Build/CI toolchain constraints.
+#
+# Important: these pins are NOT runtime requirements of steempy itself.
+# They only stabilize local/CI/release tooling (pip/setuptools behavior).
+# End-user installs from PyPI still resolve runtime dependencies from setup.py.
+#
+# Version markers keep the toolchain compatible across supported Python versions.
+pip==24.3.1; python_version < "3.10"
+pip==26.2.1; python_version >= "3.10"
+
+setuptools==75.3.4; python_version < "3.9"
+setuptools==80.9.0; python_version == "3.9"
+setuptools==84.0.0; python_version >= "3.10"
