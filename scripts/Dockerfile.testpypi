@@ -18,8 +18,9 @@ RUN apt-get update \
 RUN ${PYTHON_BIN} -m venv ${VENV_PATH}
 
 # Install steempy from TestPyPI and fall back to PyPI for dependencies.
+# Include pre-releases so RC builds from TestPyPI can be installed for smoke tests.
 RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir \
+    && pip install --no-cache-dir --pre \
         --index-url https://test.pypi.org/simple/ \
         --extra-index-url https://pypi.org/simple \
         steempy
