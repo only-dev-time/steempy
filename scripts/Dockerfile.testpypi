@@ -1,0 +1,28 @@
+# Only for testing steempy against TestPyPI in a Docker container.
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV VENV_PATH=/opt/venv
+ENV PATH="/opt/venv/bin:${PATH}"
+
+ARG PYTHON_BIN=python3
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        python3 \
+        python3-pip \
+        python3-venv \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN ${PYTHON_BIN} -m venv ${VENV_PATH}
+
+# Install steempy from TestPyPI and fall back to PyPI for dependencies.
+# Include pre-releases so RC builds from TestPyPI can be installed for smoke tests.
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir --pre \
+        --index-url https://test.pypi.org/simple/ \
+        --extra-index-url https://pypi.org/simple \
+        steempy
+
+CMD ["bash", "-lc", "python -c \"import steem, steembase; print('steempy', steem.__version__)\" && steempy --version; smoke_status=$?; echo \"smoke_status=${smoke_status}\"; exec bash"]

@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 try:
     from Crypto.Cipher import AES
 except ImportError:
-    raise ImportError("Missing dependency: pycrypto")
+    raise ImportError("Missing dependency: pycryptodome")
 
 SCRYPT_MODULE = os.environ.get('SCRYPT_MODULE', None)
 if not SCRYPT_MODULE:

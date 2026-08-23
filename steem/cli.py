@@ -2,11 +2,12 @@ import argparse
 import json
 import logging
 import os
-import pkg_resources
 import pprint
 import re
 import steem as stm
 import sys
+
+from importlib.metadata import version
 
 from prettytable import PrettyTable
 from steembase.storage import configStorage
@@ -75,7 +76,7 @@ def legacyentry():
         '--version',
         action='version',
         version='%(prog)s {version}'.format(
-            version=pkg_resources.require("steem")[0].version))
+            version=version("steempy")))
 
     subparsers = parser.add_subparsers(help='sub-command help')
     """
