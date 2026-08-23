@@ -1,13 +1,13 @@
 # Python Library for the Steem Blockchain
 
-[![CI](https://img.shields.io/badge/CI-GitHub%20Actions-2088FF?logo=githubactions&logoColor=white)](https://github.com/only-dev-time/steempy/actions)
+[![CI](https://github.com/only-dev-time/steempy/actions/workflows/ci.yml/badge.svg)](https://github.com/only-dev-time/steempy/actions/workflows/ci.yml)
 [![PyPI version](https://img.shields.io/pypi/v/steempy?logo=pypi)](https://pypi.org/project/steempy/)
 [![Python versions](https://img.shields.io/pypi/pyversions/steempy)](https://pypi.org/project/steempy/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 `steempy` is a Steem library for Python. It comes with a
 BIP38 encrypted wallet and a practical CLI utility called `steempy`.
-The [base version](https://github.com/only-dev-time/steempy/releases/tag/v1.0.1) is a fork of the [official python library](https://github.com/steemit/steem-python), which is no longer maintained.
+The [base version](https://github.com/only-dev-time/steempy/releases/tag/v1.0.1) is a fork of the [official python library](https://github.com/steemit/steem-python), which is no longer maintained. This repository continues that work as a maintained, actively developed fork for current Python and release workflows.
 
 This library targets Python 3.8 to 3.12.
 
@@ -65,7 +65,9 @@ Convenience Make targets:
 * `make test-all` runs the full Python 3.8 to 3.12 matrix
 * `make lint` runs ruff, isort, and mypy checks
 * `make package` builds `sdist` and `wheel` and validates metadata
+* `make build-check` builds tagged wheels for each Python version and validates metadata
 * `make install-check` installs the built wheel in fresh tox envs and runs smoke checks
+* `make verify-release` runs the full local release workflow: build checks, package build, and install validation
 
 Release validation:
 
@@ -76,9 +78,6 @@ Release validation:
 
 ## TODO
 
-* finalize Python 3.8 to 3.12 packaging compatibility (including crypto dependency modernization)
-* stabilize install smoke tests across the full tox matrix
-* finalize TestPyPI staging and tag-based PyPI release checklist
 * decide and publish a permanent documentation endpoint (GitHub Pages or Read the Docs)
 * increase unit and integration coverage for core blockchain operations
 * improve and align docs coverage with current CLI and release workflow
