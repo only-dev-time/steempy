@@ -1,12 +1,16 @@
 import hashlib
 import os
 import re
-from binascii import hexlify, unhexlify
-from steem.utils import compat_bytes, compat_chr
+from binascii import hexlify
+from binascii import unhexlify
 
 import ecdsa
 
-from .base58 import ripemd160, Base58
+from steem.utils import compat_bytes
+from steem.utils import compat_chr
+
+from .base58 import Base58
+from .base58 import ripemd160
 from .dictionary import words as BrainKeyDictionary
 
 

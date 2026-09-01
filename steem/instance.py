@@ -1,5 +1,7 @@
-import steem as stm
 import sys
+
+import steem as stm
+
 
 _shared_steemd_instance = None
 

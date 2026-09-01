@@ -1,16 +1,31 @@
 import importlib
 import json
-from binascii import hexlify, unhexlify
 import re
 import struct
+from binascii import hexlify
+from binascii import unhexlify
 from collections import OrderedDict
 
 from steem.utils import compat_bytes
+
 from .account import PublicKey
 from .operationids import operations
-from .types import (Int16, Uint16, Uint32, Uint64, String, HexString, Bytes,
-                    Array, PointInTime, Bool, Optional, Map, Id, JsonObj,
-                    StaticVariant)
+from .types import Array
+from .types import Bool
+from .types import Bytes
+from .types import HexString
+from .types import Id
+from .types import Int16
+from .types import JsonObj
+from .types import Map
+from .types import Optional
+from .types import PointInTime
+from .types import StaticVariant
+from .types import String
+from .types import Uint16
+from .types import Uint32
+from .types import Uint64
+
 
 default_prefix = "STM"
 

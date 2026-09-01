@@ -1,12 +1,10 @@
 import unittest
 
-from steem.utils import (
-    construct_identifier,
-    sanitize_permlink,
-    derive_permlink,
-    resolve_identifier,
-    fmt_time,
-)
+from steem.utils import construct_identifier
+from steem.utils import derive_permlink
+from steem.utils import fmt_time
+from steem.utils import resolve_identifier
+from steem.utils import sanitize_permlink
 
 
 class Testcases(unittest.TestCase):

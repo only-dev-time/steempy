@@ -1,5 +1,5 @@
-from steem.steemd import Steemd
 from steem.commit import Commit
+from steem.steemd import Steemd
 from steembase.exceptions import RPCError
 
 

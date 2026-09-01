@@ -1,7 +1,11 @@
 import unittest
+
+from steembase.account import Address
+from steembase.account import BrainKey
+from steembase.account import PasswordKey
+from steembase.account import PrivateKey
+from steembase.account import PublicKey
 from steembase.base58 import Base58
-from steembase.account import BrainKey, Address, PublicKey, \
-    PrivateKey, PasswordKey
 
 
 class Testcases(unittest.TestCase):

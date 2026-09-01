@@ -1,11 +1,15 @@
-import json
-import sys
-import struct
-import time
 import array
-from binascii import hexlify, unhexlify
+import json
+import struct
+import sys
+import time
+from binascii import hexlify
+from binascii import unhexlify
 from calendar import timegm
-from steem.utils import compat_bytes, compat_json
+
+from steem.utils import compat_bytes
+from steem.utils import compat_json
+
 
 object_type = {
     "dynamic_global_property": 0,

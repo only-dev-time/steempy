@@ -1,9 +1,12 @@
-from binascii import hexlify, unhexlify
 import hashlib
-import sys
-import string
 import logging
+import string
+import sys
+from binascii import hexlify
+from binascii import unhexlify
+
 from steem.utils import compat_bytes
+
 
 log = logging.getLogger(__name__)
 

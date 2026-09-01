@@ -3,20 +3,23 @@ import logging
 import re
 from datetime import datetime
 
-from funcy.colls import walk_values, get_in
+from funcy.colls import get_in
+from funcy.colls import walk_values
 from funcy.flow import silent
 from funcy.seqs import flatten
-from steembase.exceptions import (
-    PostDoesNotExist,
-    VotingInvalidOnArchivedPost,
-)
+
+from steembase.exceptions import PostDoesNotExist
+from steembase.exceptions import VotingInvalidOnArchivedPost
 from steembase.operations import CommentOptions
 
 from .amount import Amount
 from .commit import Commit
 from .instance import shared_steemd_instance
-from .utils import construct_identifier, resolve_identifier
-from .utils import parse_time, remove_from_dict
+from .utils import construct_identifier
+from .utils import parse_time
+from .utils import remove_from_dict
+from .utils import resolve_identifier
+
 
 log = logging.getLogger(__name__)
 

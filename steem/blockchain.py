@@ -1,12 +1,14 @@
 import hashlib
 import json
+import logging
 import time
 import warnings
 
-from .instance import shared_steemd_instance, stm
-from .utils import parse_time, compat_bytes
+from .instance import shared_steemd_instance
+from .instance import stm
+from .utils import compat_bytes
+from .utils import parse_time
 
-import logging
 
 logger = logging.getLogger(__name__)
 

@@ -1,12 +1,15 @@
 import unittest
 from binascii import hexlify
+from collections import OrderedDict
 from pprint import pprint
+
+import steem as stm
+from steem.utils import compat_bytes
+from steem.utils import compat_chr
+from steembase import operations
 from steembase.account import PrivateKey
 from steembase.transactions import SignedTransaction
-from steembase import operations
-from collections import OrderedDict
-from steem.utils import compat_bytes, compat_chr
-import steem as stm
+
 
 wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
 ref_block_num = 34294

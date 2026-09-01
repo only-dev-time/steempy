@@ -2,15 +2,20 @@ import hashlib
 import json
 import struct
 import sys
-from binascii import hexlify, unhexlify
+from binascii import hexlify
+from binascii import unhexlify
 from collections import OrderedDict
 
 from Crypto.Cipher import AES
 
-from .operations import Memo
-from .base58 import base58encode, base58decode
-from .account import PrivateKey, PublicKey
 from steem.utils import compat_bytes
+
+from .account import PrivateKey
+from .account import PublicKey
+from .base58 import base58decode
+from .base58 import base58encode
+from .operations import Memo
+
 
 default_prefix = "STM"
 

@@ -2,6 +2,7 @@
 import logging
 
 from funcy.seqs import first
+
 from steembase.chains import known_chains
 from steembase.http_client import HttpClient
 from steembase.storage import configStorage
@@ -10,10 +11,11 @@ from steembase.types import PointInTime
 
 from .block import Block
 from .blockchain import Blockchain
-from .post import Post
-from .utils import resolve_identifier
-from .utils import compat_compose_dictionary
 from .instance import get_config_node_list
+from .post import Post
+from .utils import compat_compose_dictionary
+from .utils import resolve_identifier
+
 
 logger = logging.getLogger(__name__)
 

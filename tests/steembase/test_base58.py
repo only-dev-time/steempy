@@ -1,8 +1,13 @@
-import unittest
 import re
-from steembase.base58 import (Base58, base58decode, base58encode,
-                              base58CheckEncode, base58CheckDecode,
-                              gphBase58CheckEncode, gphBase58CheckDecode)
+import unittest
+
+from steembase.base58 import Base58
+from steembase.base58 import base58CheckDecode
+from steembase.base58 import base58CheckEncode
+from steembase.base58 import base58decode
+from steembase.base58 import base58encode
+from steembase.base58 import gphBase58CheckDecode
+from steembase.base58 import gphBase58CheckEncode
 
 
 class Testcases(unittest.TestCase):

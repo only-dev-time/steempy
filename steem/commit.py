@@ -2,28 +2,33 @@ import json
 import logging
 import random
 import re
+from datetime import datetime
+from datetime import timedelta
+
 import voluptuous as vo
-from datetime import datetime, timedelta
 from funcy.colls import none
 from funcy.flow import silent
 from funcy.seqs import first
+
 from steembase import memo
 from steembase import operations
-from steembase.account import PrivateKey, PublicKey
-from steembase.exceptions import AccountExistsException, MissingKeyError
+from steembase.account import PrivateKey
+from steembase.account import PublicKey
+from steembase.exceptions import AccountExistsException
+from steembase.exceptions import MissingKeyError
 from steembase.storage import configStorage
+
 from .account import Account
 from .amount import Amount
 from .converter import Converter
 from .instance import shared_steemd_instance
 from .transactionbuilder import TransactionBuilder
-from .utils import (
-    derive_permlink,
-    fmt_time_string,
-    keep_in_dict,
-    resolve_identifier,
-)
+from .utils import derive_permlink
+from .utils import fmt_time_string
+from .utils import keep_in_dict
+from .utils import resolve_identifier
 from .wallet import Wallet
+
 
 log = logging.getLogger(__name__)
 
@@ -507,7 +512,8 @@ class Commit(object):
             raise AccountExistsException
 
         " Generate new keys from password"
-        from steembase.account import PasswordKey, PublicKey
+        from steembase.account import PasswordKey
+        from steembase.account import PublicKey
         if password:
             posting_key = PasswordKey(account_name, password, role="posting")
             active_key = PasswordKey(account_name, password, role="active")

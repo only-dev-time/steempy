@@ -1,6 +1,7 @@
 from funcy.flow import silent
 from funcy.funcs import complement
-from funcy.seqs import take, first
+from funcy.seqs import first
+from funcy.seqs import take
 
 from .account import Account
 from .instance import shared_steemd_instance

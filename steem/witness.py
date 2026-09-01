@@ -1,6 +1,6 @@
-from .instance import shared_steemd_instance
-
 from steembase.exceptions import WitnessDoesNotExistsException
+
+from .instance import shared_steemd_instance
 
 
 class Witness(dict):

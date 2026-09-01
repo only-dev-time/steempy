@@ -1,8 +1,9 @@
-import unittest
 import os
 import sys
-from steembase.account import PrivateKey
+import unittest
+
 import steembase.bip38
+from steembase.account import PrivateKey
 
 
 class Testcases(unittest.TestCase):

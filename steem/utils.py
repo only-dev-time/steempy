@@ -3,17 +3,19 @@ import json
 import logging
 import os
 import re
-import time
 import sys
+import time
+from builtins import bytes
 from datetime import datetime
 
 import future
-from builtins import bytes
-
 import w3lib.url
-from langdetect import DetectorFactory, detect
+from langdetect import DetectorFactory
+from langdetect import detect
 from langdetect.lang_detect_exception import LangDetectException
-from toolz import update_in, assoc
+from toolz import assoc
+from toolz import update_in
+
 
 if sys.version >= '3.0':
     from urllib.parse import urlparse

@@ -12,6 +12,7 @@ from appdirs import user_data_dir
 from steem.aes import AESCipher
 from steem.utils import compat_bytes
 
+
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 log.addHandler(logging.StreamHandler())

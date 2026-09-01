@@ -4,14 +4,14 @@ import logging
 import os
 import pprint
 import re
-import steem as stm
 import sys
-
 from importlib.metadata import version
 
 from prettytable import PrettyTable
-from steembase.storage import configStorage
+
+import steem as stm
 from steembase.account import PrivateKey
+from steembase.storage import configStorage
 
 from .account import Account
 from .amount import Amount
@@ -20,8 +20,10 @@ from .blockchain import Blockchain
 from .dex import Dex
 from .instance import shared_steemd_instance
 from .post import Post
-from .utils import construct_identifier, strfage
+from .utils import construct_identifier
+from .utils import strfage
 from .witness import Witness
+
 
 availableConfigurationKeys = [
     "default_account",
@@ -1131,8 +1133,9 @@ def legacyentry():
             ))
 
     elif args.command == "importaccount":
-        from steembase.account import PasswordKey
         import getpass
+
+        from steembase.account import PasswordKey
         password = getpass.getpass("Account Passphrase: ")
         account = Account(args.account)
         imported = False

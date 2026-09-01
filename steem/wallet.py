@@ -1,12 +1,14 @@
 import logging
 import os
 
-from .instance import shared_steemd_instance
 from steembase import bip38
 from steembase.account import PrivateKey
-from steembase.exceptions import (InvalidWifError, WalletExists)
+from steembase.exceptions import InvalidWifError
+from steembase.exceptions import WalletExists
 
 from .account import Account
+from .instance import shared_steemd_instance
+
 
 log = logging.getLogger(__name__)
 
@@ -69,7 +71,8 @@ class Wallet:
             """ If no keys are provided manually we load the SQLite
                 keyStorage
             """
-            from steembase.storage import (keyStorage, KeyEncryptionKey)
+            from steembase.storage import KeyEncryptionKey
+            from steembase.storage import keyStorage
             self.keyEncryptionKey = KeyEncryptionKey
             self.keyStorage = keyStorage
 

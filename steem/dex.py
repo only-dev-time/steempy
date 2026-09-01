@@ -1,6 +1,7 @@
 import random
 
-from steembase import transactions, operations
+from steembase import operations
+from steembase import transactions
 from steembase.storage import configStorage as config
 
 from .amount import Amount

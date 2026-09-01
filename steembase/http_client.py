@@ -1,17 +1,23 @@
 # coding=utf-8
+import concurrent.futures
 import json
 import logging
 import socket
-import time
 import sys
+import time
 from functools import partial
 from itertools import cycle
-import concurrent.futures
+
 import certifi
 import urllib3
-from steembase.exceptions import RPCError, RPCErrorRecoverable
 from urllib3.connection import HTTPConnection
-from urllib3.exceptions import MaxRetryError, ReadTimeoutError, ProtocolError
+from urllib3.exceptions import MaxRetryError
+from urllib3.exceptions import ProtocolError
+from urllib3.exceptions import ReadTimeoutError
+
+from steembase.exceptions import RPCError
+from steembase.exceptions import RPCErrorRecoverable
+
 
 if sys.version >= '3.5':
     from http.client import RemoteDisconnected
@@ -19,8 +25,8 @@ if sys.version >= '3.5':
 if sys.version >= '3.0':
     from urllib.parse import urlparse
 else:
-    from urlparse import urlparse
     from httplib import HTTPException
+    from urlparse import urlparse
 
 logger = logging.getLogger(__name__)
 

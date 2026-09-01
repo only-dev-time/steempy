@@ -2,11 +2,15 @@ import hashlib
 import logging
 import os
 import sys
-from binascii import hexlify, unhexlify
+from binascii import hexlify
+from binascii import unhexlify
+
+from steem.utils import compat_bytes
 
 from .account import PrivateKey
-from .base58 import Base58, base58decode
-from steem.utils import compat_bytes
+from .base58 import Base58
+from .base58 import base58decode
+
 
 log = logging.getLogger(__name__)
 
