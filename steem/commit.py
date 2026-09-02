@@ -259,7 +259,7 @@ class Commit(object):
 
         # deal with the category and tags
         if isinstance(tags, str):
-            tags = list(set(filter(None, (re.split("[\W_]", tags)))))
+            tags = list(set(filter(None, (re.split(r"[\W_]", tags)))))
 
         category = None
         tags = tags or json_metadata.get('tags', [])

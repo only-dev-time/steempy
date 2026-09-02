@@ -91,7 +91,7 @@ class Testcases(unittest.TestCase):
         02f561e0b57a552df3fa1df2d87a906b7a9fc33a83d5d15fa68a644ecb0806b49a
         03e7595c3e6b58f907bee951dc29796f3757307e700ecf3d09307a0cc4a564eba3"""
 
-        for x in re.split('\s+', ml):
+        for x in re.split(r'\s+', ml):
             self.assertEqual(x, gphBase58CheckDecode(gphBase58CheckEncode(x)))
 
     def test_Base58CheckDecode(self):
@@ -139,7 +139,7 @@ class Testcases(unittest.TestCase):
             03e7595c3e6b58f907bee951dc29796f3757307e700ecf3d09307a0cc4a564eba3
         """
 
-        for x in re.split('\s+', ml):
+        for x in re.split(r'\s+', ml):
             self.assertEqual(x, base58CheckDecode(base58CheckEncode(0x80, x)))
 
     def test_Base58(self):

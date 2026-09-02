@@ -272,8 +272,8 @@ def json_expand(json_op, key_name='json'):
 
 def sanitize_permlink(permlink):
     permlink = permlink.strip()
-    permlink = re.sub("_|\s|\.", "-", permlink)
-    permlink = re.sub("[^\w-]", "", permlink)
+    permlink = re.sub(r"_|\s|\.", "-", permlink)
+    permlink = re.sub(r"[^\w-]", "", permlink)
     permlink = re.sub("[^a-zA-Z0-9-]", "", permlink)
     permlink = permlink.lower()
     return permlink
@@ -296,7 +296,7 @@ def resolve_identifier(identifier):
     # in case the user supplied the @ sign.
     identifier = identifier.replace('@', '')
 
-    match = re.match("([\w\-\.]*)/([\w\-]*)", identifier)
+    match = re.match(r"([\w\-\.]*)/([\w\-]*)", identifier)
     if not hasattr(match, "group"):
         raise ValueError("Invalid identifier")
     return match.group(1), match.group(2)
@@ -369,7 +369,7 @@ def strfdelta(tdelta, fmt):
 
 
 def is_valid_account_name(name):
-    return re.match('^[a-z][a-z0-9\-.]{2,15}$', name)
+    return re.match(r'^[a-z][a-z0-9\-.]{2,15}$', name)
 
 
 def compat_compose_dictionary(dictionary, **kwargs):
