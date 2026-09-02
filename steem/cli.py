@@ -868,7 +868,7 @@ def legacyentry():
                     t.add_row([account])
                     print(t)
                 else:
-                    print("Public Key not known" % obj)
+                    print("Public Key not known (%s)" % obj)
             # Post identifier
             elif re.match(".*@.{3,16}/.*$", obj):
                 post = Post(obj)
@@ -882,7 +882,7 @@ def legacyentry():
                         t.add_row([key, value])
                     print(t)
                 else:
-                    print("Post now known" % obj)
+                    print("Post now known (%s)" % obj)
             else:
                 print("Couldn't identify object to read")
 
