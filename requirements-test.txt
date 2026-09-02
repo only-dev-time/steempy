@@ -1,7 +1,7 @@
 pytest
 pytest-cov
 pytest-xdist
-ruff
+ruff==0.16.0
 # for python 3.8 mympy==1.14.1 is needed
 mypy==1.14.1
 isort
