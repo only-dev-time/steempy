@@ -157,7 +157,7 @@ def decode_memo(priv, message):
     try:
         return _unpad(message.decode('utf8'), 16)
     except:  # noqa FIXME(sneak)
-        raise ValueError(message)
+        raise ValueError(message) from None
 
 
 def involved_keys(message):

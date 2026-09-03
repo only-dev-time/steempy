@@ -194,7 +194,9 @@ class SignedTransaction(GrapheneObject):
         # restore signatures
         self.data["signatures"] = sigs
 
-    def verify(self, pubkeys=[], chain=None):
+    def verify(self, pubkeys=None, chain=None):
+        if pubkeys is None:
+            pubkeys = []
         if not chain:
             raise ValueError("Chain needs to be provided!")
         chain_params = self.getChainParams(chain)

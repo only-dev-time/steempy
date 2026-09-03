@@ -92,7 +92,7 @@ class Wallet:
             try:
                 key = PrivateKey(wif)
             except:  # noqa FIXME(sneak)
-                raise InvalidWifError
+                raise InvalidWifError from None
             Wallet.keys[format(key.pubkey, self.prefix)] = str(key)
 
     def unlock(self, user_passphrase=None):
@@ -212,7 +212,7 @@ class Wallet:
             pub = format(PrivateKey(wif).pubkey, self.prefix)
         except:  # noqa FIXME(sneak)
             raise InvalidWifError(
-                "Invalid Private Key Format. Please use WIF!")
+                "Invalid Private Key Format. Please use WIF!") from None
 
         if self.keyStorage:
             # Test if wallet exists

@@ -211,9 +211,11 @@ def time_diff(time1, time2):
     return parse_time(time1) - parse_time(time2)
 
 
-def keep_in_dict(obj, allowed_keys=list()):
+def keep_in_dict(obj, allowed_keys=None):
     """ Prune a class or dictionary of all but allowed keys.
     """
+    if allowed_keys is None:
+        allowed_keys = []
     if type(obj) == dict:
         items = obj.items()
     else:
@@ -222,9 +224,11 @@ def keep_in_dict(obj, allowed_keys=list()):
     return {k: v for k, v in items if k in allowed_keys}
 
 
-def remove_from_dict(obj, remove_keys=list()):
+def remove_from_dict(obj, remove_keys=None):
     """ Prune a class or dictionary of specified keys.
     """
+    if remove_keys is None:
+        remove_keys = []
     if type(obj) == dict:
         items = obj.items()
     else:

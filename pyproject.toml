@@ -15,7 +15,7 @@ exclude = [
 
 [tool.ruff.lint]
 select = ["E", "F"]
-extend-select = ["W"]
+extend-select = ["W", "B"]
 ignore = [
     "F401",
     "F403",

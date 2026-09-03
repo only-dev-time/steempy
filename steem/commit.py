@@ -138,7 +138,7 @@ class Commit(object):
 
         return tx.broadcast()
 
-    def sign(self, unsigned_trx, wifs=[]):
+    def sign(self, unsigned_trx, wifs=None):
         """ Sign a provided transaction with the provided key(s)
 
             :param dict unsigned_trx: The transaction to be signed and returned
@@ -147,6 +147,9 @@ class Commit(object):
                 from the wallet as defined in "missing_signatures" key
                 of the transactions.
         """
+        if wifs is None:
+            wifs = []
+
         tx = TransactionBuilder(
             unsigned_trx,
             steemd_instance=self.steemd,
@@ -399,12 +402,12 @@ class Commit(object):
             active_key=None,
             posting_key=None,
             memo_key=None,
-            additional_owner_keys=[],
-            additional_active_keys=[],
-            additional_posting_keys=[],
-            additional_owner_accounts=[],
-            additional_active_accounts=[],
-            additional_posting_accounts=[],
+            additional_owner_keys=None,
+            additional_active_keys=None,
+            additional_posting_keys=None,
+            additional_owner_accounts=None,
+            additional_active_accounts=None,
+            additional_posting_accounts=None,
             store_keys=True,
             store_owner_key=False,
             delegation_fee_steem='0 STEEM',
@@ -493,6 +496,19 @@ class Commit(object):
         """
         assert len(
             account_name) <= 16, "Account name must be at most 16 chars long"
+
+        if additional_owner_keys is None:
+            additional_owner_keys = []
+        if additional_active_keys is None:
+            additional_active_keys = []
+        if additional_posting_keys is None:
+            additional_posting_keys = []
+        if additional_owner_accounts is None:
+            additional_owner_accounts = []
+        if additional_active_accounts is None:
+            additional_active_accounts = []
+        if additional_posting_accounts is None:
+            additional_posting_accounts = []
 
         if not creator:
             creator = configStorage.get("default_account")
@@ -1165,7 +1181,7 @@ class Commit(object):
                     [foreign_account["name"], weight])
             except:  # noqa FIXME(sneak)
                 raise ValueError(
-                    "Unknown foreign account or unvalid public key")
+                    "Unknown foreign account or unvalid public key") from None
         if threshold:
             authority["weight_threshold"] = threshold
             self._test_weights_treshold(authority)
@@ -1228,7 +1244,7 @@ class Commit(object):
                            authority["account_auths"]))
             except:  # noqa FIXME(sneak)
                 raise ValueError(
-                    "Unknown foreign account or unvalid public key")
+                    "Unknown foreign account or unvalid public key") from None
 
         removed_weight = affected_items[0][1]
 
@@ -1319,8 +1335,8 @@ class Commit(object):
     def custom_json(self,
                     id,
                     json,
-                    required_auths=[],
-                    required_posting_auths=[]):
+                    required_auths=None,
+                    required_posting_auths=None):
         """ Create a custom json operation
 
             :param str id: identifier for the custom json (max length 32 bytes)
@@ -1329,6 +1345,11 @@ class Commit(object):
             :param list required_auths: (optional) required auths
             :param list required_posting_auths: (optional) posting auths
         """
+        if required_auths is None:
+            required_auths = []
+        if required_posting_auths is None:
+            required_posting_auths = []
+
         account = None
         if len(required_auths):
             account = required_auths[0]
@@ -1367,7 +1388,7 @@ class Commit(object):
         return self.custom_json(
             id="follow", json=json_body, required_posting_auths=[account])
 
-    def unfollow(self, unfollow, what=["blog"], account=None):
+    def unfollow(self, unfollow, what=None, account=None):
         """ Unfollow another account's blog
 
             :param str unfollow: Follow this account
@@ -1376,11 +1397,13 @@ class Commit(object):
             :param str account: (optional) the account to allow access
                 to (defaults to ``default_account``)
         """
+        if what is None:
+            what = ["blog"]
         # FIXME: removing 'blog' from the array requires to first read
         # the follow.what from the blockchain
         return self.follow(unfollow, what=[], account=account)
 
-    def follow(self, follow, what=["blog"], account=None):
+    def follow(self, follow, what=None, account=None):
         """ Follow another account's blog
 
             :param str follow: Follow this account
@@ -1389,6 +1412,8 @@ class Commit(object):
             :param str account: (optional) the account to allow access
                 to (defaults to ``default_account``)
         """
+        if what is None:
+            what = ["blog"]
         if not account:
             account = configStorage.get("default_account")
         if not account:

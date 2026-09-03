@@ -378,7 +378,7 @@ class KeyEncryptionKey(object):
         try:
             decrypted_kek = aes.decrypt(encrypted_kek)
         except:  # noqa FIXME(sneak)
-            raise WrongKEKException
+            raise WrongKEKException from None
         if checksum != self.deriveChecksum(decrypted_kek):
             raise WrongKEKException
         self.decrypted_KEK = decrypted_kek

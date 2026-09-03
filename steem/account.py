@@ -151,7 +151,7 @@ class Account(dict):
         return followers
 
     def has_voted(self, post):
-        active_votes = {v["voter"]: v for v in getattr(post, "active_votes")}
+        active_votes = {v["voter"]: v for v in post.active_votes}
         return self.name in active_votes
 
     def curation_stats(self):
@@ -288,23 +288,25 @@ class Account(dict):
             op_type, op = event['op']
             block_props = dissoc(event, 'op')
 
+            # TODO Ruff Rule B023 check: This function is defined inside a loop.
+            # TODO Check how it could be refactored to avoid this.
             def construct_op(account_name):
                 # verbatim output from steemd
                 if raw_output:
-                    return item
+                    return item # noqa B023
 
                 # index can change during reindexing in
                 # future hard-forks. Thus we cannot take it for granted.
-                immutable = op.copy()
-                immutable.update(block_props)
+                immutable = op.copy() # noqa B023
+                immutable.update(block_props) # noqa B023
                 immutable.update({
                     'account': account_name,
-                    'type': op_type,
+                    'type': op_type, # noqa B023
                 })
                 _id = Blockchain.hash_op(immutable)
                 immutable.update({
                     '_id': _id,
-                    'index': index,
+                    'index': index, # noqa B023
                 })
                 return immutable
 

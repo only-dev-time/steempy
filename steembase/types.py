@@ -81,7 +81,7 @@ def JsonObj(data):
             return data.__str__()
         except:  # noqa FIXME(sneak)
             raise ValueError('JsonObj could not parse %s:\n%s' %
-                             (type(data).__name__, data.__class__))
+                             (type(data).__name__, data.__class__)) from None
 
 
 class Uint8:

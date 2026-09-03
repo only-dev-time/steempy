@@ -55,7 +55,7 @@ class Operation:
                 klass = self.get_class(self.name)
             except:  # noqa FIXME(sneak)
                 raise NotImplementedError(
-                    "Unimplemented Operation %s" % self.name)
+                    "Unimplemented Operation %s" % self.name) from None
             else:
                 self.op = klass(op[1])
         else:
@@ -118,7 +118,7 @@ class GrapheneObject(object):
         if self.data is None:
             return bytes()
         b = b""
-        for name, value in self.data.items():
+        for _name, value in self.data.items():
             if isinstance(value, str):
                 b += compat_bytes(value, 'utf-8')
             else:

@@ -163,10 +163,10 @@ class Blockchain(object):
                     return _client.call(_method, *_args, api=_api)
                 except Exception as e:
                     logger.error(
-                        'Error: %s' % str(s),
+                        'Error: %s' % str(e),
                         extra=dict(
                             exc=e,
-                            response=retval,
+                            response=None,
                             api_name=_api,
                             api_method=_method,
                             api_args=_args))
@@ -206,7 +206,7 @@ class Blockchain(object):
             sleep_interval = block_interval / 4
             head_block = get_reliable_current_block(_reliable_client)
 
-            for block_num in range(start_block, head_block + 1):
+            for block_num in range(start_block, head_block + 1): # noqa B007
                 if full_blocks:
                     yield get_reliable_current_block(_reliable_client,
                                                      head_block)
@@ -223,12 +223,14 @@ class Blockchain(object):
             time.sleep(sleep_interval)
             start_block = head_block + 1
 
-    def stream(self, filter_by=list(), *args, **kwargs):
+    def stream(self, filter_by=None, *args, **kwargs):
         """ Yield a stream of operations, starting with current head block.
 
             Args:
                 filter_by (str, list): List of operations to filter for
         """
+        if filter_by is None:
+            filter_by = []
         if isinstance(filter_by, str):
             filter_by = [filter_by]
 
@@ -262,7 +264,7 @@ class Blockchain(object):
                         yield updated_op
 
     def history(self,
-                filter_by=list(),
+                filter_by=None,
                 start_block=1,
                 end_block=None,
                 raw_output=False,
@@ -280,6 +282,9 @@ class Blockchain(object):
         raw_output (bool): (Defaults to False). If True, return ops in a
             unmodified steemd structure. """
 
+        if filter_by is None:
+            filter_by = []
+
         return self.stream(
             filter_by=filter_by,
             start_block=start_block,
@@ -293,7 +298,7 @@ class Blockchain(object):
 
     def replay(self, **kwargs):
         warnings.warn('Blockchain.replay() is deprecated. ' +
-                      'Please use Blockchain.history() instead.')
+                      'Please use Blockchain.history() instead.', stacklevel=2)
         return self.history(**kwargs)
 
     @staticmethod
@@ -306,6 +311,6 @@ class Blockchain(object):
         """ Fetch the full list of STEEM usernames. """
         _ = args, kwargs
         warnings.warn(
-            'Blockchain.get_all_usernames() is now Steemd.get_all_usernames().'
+            'Blockchain.get_all_usernames() is now Steemd.get_all_usernames().', stacklevel=2
         )
         return self.steem.get_all_usernames()

@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 try:
     from Crypto.Cipher import AES
 except ImportError:
-    raise ImportError("Missing dependency: pycryptodome")
+    raise ImportError("Missing dependency: pycryptodome") from None
 
 SCRYPT_MODULE = os.environ.get('SCRYPT_MODULE', None)
 if not SCRYPT_MODULE:
@@ -31,17 +31,17 @@ if not SCRYPT_MODULE:
 
             SCRYPT_MODULE = "pylibscrypt"
         except ImportError:
-            raise ImportError("Missing dependency: scrypt or pylibscrypt")
+            raise ImportError("Missing dependency: scrypt or pylibscrypt") from None
 elif 'pylibscrypt' in SCRYPT_MODULE:
     try:
         import pylibscrypt as scrypt
     except ImportError:
-        raise ImportError("Missing dependency: pylibscrypt explicitly set but missing")
+        raise ImportError("Missing dependency: pylibscrypt explicitly set but missing") from None
 elif 'scrypt' in SCRYPT_MODULE:
     try:
         import scrypt
     except ImportError:
-            raise ImportError("Missing dependency: scrypt explicitly set but missing")
+            raise ImportError("Missing dependency: scrypt explicitly set but missing") from None
 
 
 log.debug("Using scrypt module: %s" % SCRYPT_MODULE)

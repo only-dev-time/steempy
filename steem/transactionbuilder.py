@@ -82,7 +82,7 @@ class TransactionBuilder(dict):
                 PrivateKey(wif)
                 self.wifs.append(wif)
             except:  # noqa FIXME(sneak)
-                raise InvalidKeyFormat
+                raise InvalidKeyFormat from None
 
     def constructTx(self):
         if isinstance(self.op, list):

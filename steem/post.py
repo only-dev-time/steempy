@@ -157,11 +157,16 @@ class Post(dict):
         return map(silent(Post), replies)
 
     @staticmethod
-    def get_all_replies(root_post=None, comments=list(), all_comments=list()):
+    def get_all_replies(root_post=None, comments=None, all_comments=None):
         """ Recursively fetch all the child comments, and return them as a list.
 
         Usage: all_comments = Post.get_all_replies(Post('foo/bar'))
         """
+        if comments is None:
+            comments = []
+        if all_comments is None:
+            all_comments = []
+
         # see if our root post has any comments
         if root_post:
             return Post.get_all_replies(comments=list(root_post.get_replies()))
