@@ -383,7 +383,7 @@ class Wallet:
             name = account["name"]
             if not name:
                 continue
-            type = account["type"]
+            permission_type = account["type"]
             if name not in r:
                 r[name] = {
                     "posting": False,
@@ -391,7 +391,7 @@ class Wallet:
                     "active": False,
                     "memo": False
                 }
-            r[name][type] = True
+            r[name][permission_type] = True
         return r
 
     def getPublicKeys(self):

@@ -5,7 +5,7 @@ import os
 import re
 import sys
 import time
-from builtins import bytes
+from builtins import bytes  # noqa: A004
 from datetime import datetime
 
 import future

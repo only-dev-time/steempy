@@ -389,16 +389,16 @@ class ObjectId:
 
     def __init__(self, object_str, type_verify=None):
         if len(object_str.split(".")) == 3:
-            space, type, id = object_str.split(".")
-            self.space = int(space)
-            self.type = int(type)
-            self.instance = Id(int(id))
+            o_space, o_type, o_id = object_str.split(".")
+            self.space = int(o_space)
+            self.type = int(o_type)
+            self.instance = Id(int(o_id))
             self.Id = object_str
             if type_verify:
-                assert object_type[type_verify] == int(type), \
+                assert object_type[type_verify] == int(o_type), \
                     "Object id does not match object type! " + \
                     "Excpected %d, got %d" % \
-                    (object_type[type_verify], int(type))
+                    (object_type[type_verify], int(o_type))
         else:
             raise Exception("Object id is invalid")
 

@@ -367,6 +367,6 @@ class HttpClient(object):
 
         return nodes
 
-    def _isString(self, input):
-        return isinstance(input, str) or \
-               (sys.version < '3.0' and isinstance(input, unicode))
+    def _isString(self, value):
+        return isinstance(value, str) or \
+               (sys.version < '3.0' and isinstance(value, unicode))

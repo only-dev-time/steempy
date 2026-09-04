@@ -1327,7 +1327,7 @@ class Commit(object):
             witness=witness, account=account, approve=False)
 
     def custom_json(self,
-                    id,
+                    custom_json_id,
                     json,
                     required_auths=None,
                     required_posting_auths=None):
@@ -1356,7 +1356,7 @@ class Commit(object):
                 "json": json,
                 "required_auths": required_auths,
                 "required_posting_auths": required_posting_auths,
-                "id": id
+                "id": custom_json_id
             })
         return self.finalizeOp(op, account, "posting")
 
@@ -1380,7 +1380,7 @@ class Commit(object):
             }
         ]
         return self.custom_json(
-            id="follow", json=json_body, required_posting_auths=[account])
+            custom_json_id="follow", json=json_body, required_posting_auths=[account])
 
     def unfollow(self, unfollow, what=None, account=None):
         """ Unfollow another account's blog
@@ -1421,7 +1421,7 @@ class Commit(object):
             }
         ]
         return self.custom_json(
-            id="follow", json=json_body, required_posting_auths=[account])
+            custom_json_id="follow", json=json_body, required_posting_auths=[account])
 
     def update_account_profile(self, profile, account=None):
         """ Update an account's meta data (json_meta)
