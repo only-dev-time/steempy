@@ -106,11 +106,11 @@ def ensure_decoded(thing):
                 logger.debug('ensure_decoded thing is double encoded')
                 return double_encoded_dict
     except Exception as e:
-        extra = dict(
-            thing=thing,
-            single_encoded_dict=single_encoded_dict,
-            double_encoded_dict=double_encoded_dict,
-            error=e)
+        extra = {
+            "thing":thing,
+            "single_encoded_dict":single_encoded_dict,
+            "double_encoded_dict":double_encoded_dict,
+            "error":e}
         logger.error('ensure_decoded error', extra=extra)
         return None
 
@@ -130,7 +130,7 @@ def findkeys(node, kv):
 
 def extract_keys_from_meta(meta, keys):
     if isinstance(keys, str):
-        keys = list([keys])
+        keys = [keys]
     extracted = []
     for key in keys:
         for item in findkeys(meta, key):
@@ -151,19 +151,18 @@ def canonicalize_url(url, **kwargs):
     try:
         canonical_url = w3lib.url.canonicalize_url(url, **kwargs)
     except Exception as e:
-        logger.warning('url preparation error', extra=dict(url=url, error=e))
+        logger.warning('url preparation error', extra={"url":url, "error":e})
         return None
     if canonical_url != url:
         logger.debug('canonical_url changed %s to %s', url, canonical_url)
     try:
         parsed_url = urlparse(canonical_url)
         if not parsed_url.scheme and not parsed_url.netloc:
-            _log = dict(
-                url=url, canonical_url=canonical_url, parsed_url=parsed_url)
+            _log = {"url":url, "canonical_url":canonical_url, "parsed_url":parsed_url}
             logger.warning('bad url encountered', extra=_log)
             return None
     except Exception as e:
-        logger.warning('url parse error', extra=dict(url=url, error=e))
+        logger.warning('url parse error', extra={"url":url, "error":e})
         return None
     return canonical_url
 
@@ -259,7 +258,7 @@ def construct_identifier(*args):
 
     # remove the @ sign in case it was passed in by the user.
     author = author.replace('@', '')
-    fields = dict(author=author, permlink=permlink)
+    fields = {"author":author, "permlink":permlink}
     return "{author}/{permlink}".format(**fields)
 
 

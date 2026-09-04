@@ -313,7 +313,7 @@ class HttpClient(object):
             # TODO: unclear why this case is here; need to explicitly
             #       define exceptions for which we refuse to retry.
             except Exception as e:
-                extra = dict(err=e, request=self.request)
+                extra = {"err": e, "request": self.request}
                 logger.error('Unexpected exception! Please report at ' +
                              'https://github.com/steemit/steem-python/issues' +
                              ' -- %s: %s', e.__class__.__name__, e, extra=extra)

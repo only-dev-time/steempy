@@ -353,9 +353,7 @@ class Map:
         return b
 
     def __str__(self):
-        r = []
-        for e in self.data:
-            r.append([str(e[0]), str(e[1])])
+        r = [[str(e[0]), str(e[1])] for e in self.data]
         return json.dumps(r)
 
 

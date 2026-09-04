@@ -576,19 +576,13 @@ class Commit(object):
         posting_accounts_authority = []
 
         # additional authorities
-        for k in additional_owner_keys:
-            owner_key_authority.append([k, 1])
-        for k in additional_active_keys:
-            active_key_authority.append([k, 1])
-        for k in additional_posting_keys:
-            posting_key_authority.append([k, 1])
+        owner_key_authority.extend([[k, 1] for k in additional_owner_keys])
+        active_key_authority.extend([[k, 1] for k in additional_active_keys])
+        posting_key_authority.extend([[k, 1] for k in additional_posting_keys])
 
-        for k in additional_owner_accounts:
-            owner_accounts_authority.append([k, 1])
-        for k in additional_active_accounts:
-            active_accounts_authority.append([k, 1])
-        for k in additional_posting_accounts:
-            posting_accounts_authority.append([k, 1])
+        owner_accounts_authority.extend([[k, 1] for k in additional_owner_accounts])
+        active_accounts_authority.extend([[k, 1] for k in additional_active_accounts])
+        posting_accounts_authority.extend([[k, 1] for k in additional_posting_accounts])
 
         props = self.steemd.get_chain_properties()
         required_fee_steem = Amount(props["account_creation_fee"]).amount * 30

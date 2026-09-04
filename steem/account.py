@@ -225,7 +225,7 @@ class Account(dict):
             :param bool load_extras: Fetch extra information related to the
                 account (this might take a while).
         """
-        extras = dict()
+        extras = {}
         if load_extras:
             followers = self.get_followers()
             following = self.get_following()

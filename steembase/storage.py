@@ -319,9 +319,7 @@ class Configuration(DataDir):
         connection = sqlite3.connect(self.sqlDataBaseFile)
         cursor = connection.cursor()
         cursor.execute(query)
-        r = {}
-        for key, value in cursor.fetchall():
-            r[key] = value
+        r = dict(cursor.fetchall())
         return iter(r)
 
     def __len__(self):

@@ -161,15 +161,15 @@ class Blockchain(object):
             while True:
                 try:
                     return _client.call(_method, *_args, api=_api)
-                except Exception as e:
+                except Exception as e: # noqa PERF203
                     logger.error(
                         'Error: %s' % str(e),
-                        extra=dict(
-                            exc=e,
-                            response=None,
-                            api_name=_api,
-                            api_method=_method,
-                            api_args=_args))
+                        extra={
+                            "exc":e,
+                            "response":None,
+                            "api_name":_api,
+                            "api_method":_method,
+                            "api_args":_args})
                     time.sleep(1)
 
         def get_reliable_block_interval(_client):

@@ -125,9 +125,7 @@ class Steemd(HttpClient):
             raise Exception("Invalid choice of '--sort'!")
 
         func = getattr(self, "get_discussions_by_%s" % sort)
-        r = []
-        for p in func(discussion_query):
-            r.append(Post(p, steemd_instance=self))
+        r = [Post(p, steemd_instance=self) for p in func(discussion_query)]
         return r
 
     def stream_comments(self, *args, **kwargs):

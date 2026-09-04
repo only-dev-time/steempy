@@ -894,7 +894,7 @@ def legacyentry():
             for key in args.unsafe_import_key:
                 try:
                     steem.commit.wallet.addPrivateKey(key)
-                except Exception as e:
+                except Exception as e:  # noqa PERF203
                     print(str(e))
         else:
             import getpass
@@ -931,7 +931,7 @@ def legacyentry():
             for key in args.unsafe_import_key:
                 try:
                     print(PrivateKey(key).pubkey)
-                except Exception as e:
+                except Exception as e:  # noqa PERF203
                     print(str(e))
         else:
             import getpass
@@ -1409,8 +1409,7 @@ def print_permissions(account):
     for permission in ["owner", "active", "posting"]:
         auths = []
         for type_ in ["account_auths", "key_auths"]:
-            for authority in account[permission][type_]:
-                auths.append("%s (%d)" % (authority[0], authority[1]))
+            auths.extend(f"{authority[0]} ({authority[1]})" for authority in account[permission][type_])
         t.add_row([
             permission,
             account[permission]["weight_threshold"],

@@ -118,7 +118,7 @@ class GrapheneObject(object):
         if self.data is None:
             return bytes()
         b = b""
-        for _name, value in self.data.items():
+        for value in self.data.values():
             if isinstance(value, str):
                 b += compat_bytes(value, 'utf-8')
             else:
@@ -743,9 +743,7 @@ class WitnessSetProperties(GrapheneObject):
                     props[k[0]] = (hexlify(String(k[1]).__bytes__())).decode()
                 else:
                     props[k[0]] = (k[1])
-            props_list = []
-            for k in props:
-                props_list.append(([String(k), HexString(props[k])]))
+            props_list = [[String(k), HexString(props[k])] for k in props]
             props_list = sorted(
                 props_list,
                 key=lambda x: str(x[0]),

@@ -69,10 +69,7 @@ class SignedTransaction(GrapheneObject):
                     [Signature(unhexlify(a)) for a in kwargs["signatures"]])
 
             if "operations" in kwargs:
-                if all([
-                    not isinstance(a, Operation)
-                    for a in kwargs["operations"]
-                ]):
+                if all(not isinstance(a, Operation) for a in kwargs["operations"]):
                     kwargs['operations'] = Array(
                         [Operation(a) for a in kwargs["operations"]])
                 else:

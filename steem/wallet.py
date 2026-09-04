@@ -370,11 +370,7 @@ class Wallet:
         """ Return all accounts installed in the wallet database
         """
         pubkeys = self.getPublicKeys()
-        accounts = []
-        for pubkey in pubkeys:
-            # Filter those keys not for our network
-            if pubkey[:len(self.prefix)] == self.prefix:
-                accounts.append(self.getAccount(pubkey))
+        accounts = [self.getAccount(pubkey) for pubkey in pubkeys if pubkey[:len(self.prefix)] == self.prefix]
         return accounts
 
     def getAccountsWithPermissions(self):
