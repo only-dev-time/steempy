@@ -10,13 +10,13 @@ from funcy.colls import none
 from funcy.flow import silent
 from funcy.seqs import first
 
-from steembase import memo
+from steembase import memo as memo_module
 from steembase import operations
 from steembase.account import PrivateKey
 from steembase.account import PublicKey
 from steembase.exceptions import AccountExistsException
 from steembase.exceptions import MissingKeyError
-from steembase.storage import configStorage
+from steembase.storage import config_storage
 
 from .account import Account
 from .amount import Amount
@@ -100,7 +100,38 @@ class Commit(object):
 
         self.wallet = Wallet(self.steemd, **kwargs)
 
-    def finalizeOp(self, ops, account, permission):
+    def finalizeOp(self, ops, account, permission): #noqa: N802
+        """ **Deprecated. Use ``finalize_op`` instead.**
+
+            This method obtains the required private keys if present in
+            the wallet, finalizes the transaction, signs it and
+            broadacasts it
+
+            :param operation ops: The operation (or list of operaions) to
+                broadcast
+
+            :param operation account: The account that authorizes the
+                operation
+            :param string permission: The required permission for
+                signing (active, owner, posting)
+
+            ... note::
+
+                If ``ops`` is a list of operation, they all need to be
+                signable by the same key! Thus, you cannot combine ops
+                that require active permission with ops that require
+                posting permission. Neither can you use different
+                accounts for different operations!
+        """
+        import warnings
+        warnings.warn(
+            "finalizeOp() is deprecated; use finalize_op()",
+            DeprecationWarning,
+            stacklevel=2,
+            )
+        return self.finalize_op(ops, account, permission)
+
+    def finalize_op(self, ops, account, permission):
         """ This method obtains the required private keys if present in
             the wallet, finalizes the transaction, signs it and
             broadacasts it
@@ -127,13 +158,13 @@ class Commit(object):
             wallet_instance=self.wallet,
             no_broadcast=self.no_broadcast,
             expiration=self.expiration)
-        tx.appendOps(ops)
+        tx.append_ops(ops)
 
         if self.unsigned:
-            tx.addSigningInformation(account, permission)
+            tx.add_signing_information(account, permission)
             return tx
         else:
-            tx.appendSigner(account, permission)
+            tx.append_signer(account, permission)
             tx.sign()
 
         return tx.broadcast()
@@ -156,7 +187,7 @@ class Commit(object):
             wallet_instance=self.wallet,
             no_broadcast=self.no_broadcast,
             expiration=self.expiration)
-        tx.appendMissingSignatures(wifs)
+        tx.append_missing_signatures(wifs)
         tx.sign()
         return tx.json()
 
@@ -358,7 +389,7 @@ class Commit(object):
                 })
             ops.append(vote_op)
 
-        return self.finalizeOp(ops, author, "posting")
+        return self.finalize_op(ops, author, "posting")
 
     def vote(self, identifier, weight, account=None):
         """ Vote for a post
@@ -377,7 +408,7 @@ class Commit(object):
                 steempy set default_account <account>
         """
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide a voter account")
 
@@ -391,7 +422,7 @@ class Commit(object):
                 "weight": int(weight * STEEMIT_1_PERCENT)
             })
 
-        return self.finalizeOp(op, account, "posting")
+        return self.finalize_op(op, account, "posting")
 
     def create_account(
             self,
@@ -511,7 +542,7 @@ class Commit(object):
             additional_posting_accounts = []
 
         if not creator:
-            creator = configStorage.get("default_account")
+            creator = config_storage.get("default_account")
         if not creator:
             raise ValueError(
                 "Not creator account given. Define it with " +
@@ -546,10 +577,10 @@ class Commit(object):
             # store private keys
             if store_keys:
                 if store_owner_key:
-                    self.wallet.addPrivateKey(owner_privkey)
-                self.wallet.addPrivateKey(active_privkey)
-                self.wallet.addPrivateKey(posting_privkey)
-                self.wallet.addPrivateKey(memo_privkey)
+                    self.wallet.add_private_key(owner_privkey)
+                self.wallet.add_private_key(active_privkey)
+                self.wallet.add_private_key(posting_privkey)
+                self.wallet.add_private_key(memo_privkey)
         elif owner_key and posting_key and active_key and memo_key:
             posting_pubkey = PublicKey(
                 posting_key, prefix=self.steemd.chain_params["prefix"])
@@ -635,7 +666,7 @@ class Commit(object):
 
         op = operations.AccountCreateWithDelegation(**s)
 
-        return self.finalizeOp(op, creator, "active")
+        return self.finalize_op(op, creator, "active")
 
     def transfer(self, to, amount, asset, memo="", account=None):
         """ Transfer SBD or STEEM to another account.
@@ -654,20 +685,19 @@ class Commit(object):
 
         """
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
 
         assert asset in ['STEEM', 'SBD']
 
         if memo and memo[0] == "#":
-            from steembase import memo as Memo
-            memo_wif = self.wallet.getMemoKeyForAccount(account)
+            memo_wif = self.wallet.get_memo_key_for_account(account)
             if not memo_wif:
                 raise MissingKeyError("Memo key for %s missing!" % account)
             to_account = Account(to, steemd_instance=self.steemd)
             nonce = random.getrandbits(64)
-            memo = Memo.encode_memo(
+            memo = memo_module.encode_memo(
                 PrivateKey(memo_wif),
                 PublicKey(
                     to_account["memo_key"],
@@ -688,7 +718,7 @@ class Commit(object):
                 "memo":
                     memo
             })
-        return self.finalizeOp(op, account, "active")
+        return self.finalize_op(op, account, "active")
 
     def withdraw_vesting(self, amount, account=None):
         """ Withdraw VESTS from the vesting account.
@@ -701,7 +731,7 @@ class Commit(object):
 
     """
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
 
@@ -714,7 +744,7 @@ class Commit(object):
                         float(amount), prec=6, asset="VESTS"),
             })
 
-        return self.finalizeOp(op, account, "active")
+        return self.finalize_op(op, account, "active")
 
     def transfer_to_vesting(self, amount, to=None, account=None):
         """ Vest STEEM
@@ -729,7 +759,7 @@ class Commit(object):
 
     """
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
 
@@ -747,7 +777,7 @@ class Commit(object):
                         float(amount), prec=3, asset='STEEM')
             })
 
-        return self.finalizeOp(op, account, "active")
+        return self.finalize_op(op, account, "active")
 
     def convert(self, amount, account=None, request_id=None):
         """ Convert SteemDollars to Steem (takes one week to settle)
@@ -762,7 +792,7 @@ class Commit(object):
 
         """
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
 
@@ -781,7 +811,7 @@ class Commit(object):
                         float(amount), prec=3, asset='SBD')
             })
 
-        return self.finalizeOp(op, account, "active")
+        return self.finalize_op(op, account, "active")
 
     def transfer_to_savings(self, amount, asset, memo, to=None, account=None):
         """ Transfer SBD or STEEM into a 'savings' account.
@@ -797,7 +827,7 @@ class Commit(object):
         assert asset in ['STEEM', 'SBD']
 
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
 
@@ -816,7 +846,7 @@ class Commit(object):
                 "memo":
                     memo,
             })
-        return self.finalizeOp(op, account, "active")
+        return self.finalize_op(op, account, "active")
 
     def transfer_from_savings(self,
                               amount,
@@ -840,7 +870,7 @@ class Commit(object):
         assert asset in ['STEEM', 'SBD']
 
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
 
@@ -866,7 +896,7 @@ class Commit(object):
                 "memo":
                     memo,
             })
-        return self.finalizeOp(op, account, "active")
+        return self.finalize_op(op, account, "active")
 
     def transfer_from_savings_cancel(self, request_id, account=None):
         """ Cancel a withdrawal from 'savings' account.
@@ -877,7 +907,7 @@ class Commit(object):
             if not ``default_account``
         """
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
 
@@ -885,7 +915,7 @@ class Commit(object):
             "from": account,
             "request_id": request_id,
         })
-        return self.finalizeOp(op, account, "active")
+        return self.finalize_op(op, account, "active")
 
     def claim_reward_balance(self,
                              reward_steem='0 STEEM',
@@ -906,7 +936,7 @@ class Commit(object):
             ``default_account`` is used.
         """
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
 
@@ -927,7 +957,7 @@ class Commit(object):
                 "reward_sbd": reward_sbd,
                 "reward_vests": reward_vests,
             })
-        return self.finalizeOp(op, account, "posting")
+        return self.finalize_op(op, account, "posting")
 
     def delegate_vesting_shares(self, to_account, vesting_shares,
                                 account=None):
@@ -942,7 +972,7 @@ class Commit(object):
             ``default_account`` is used.
         """
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
 
@@ -952,7 +982,7 @@ class Commit(object):
                 "delegatee": to_account,
                 "vesting_shares": str(Amount(vesting_shares)),
             })
-        return self.finalizeOp(op, account, "active")
+        return self.finalize_op(op, account, "active")
 
     def witness_feed_publish(self,
                              steem_usd_price,
@@ -967,7 +997,7 @@ class Commit(object):
             if not ``default_account``
         """
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
 
@@ -979,7 +1009,7 @@ class Commit(object):
                     "quote": "%s STEEM" % quote,
                 }
             })
-        return self.finalizeOp(op, account, "active")
+        return self.finalize_op(op, account, "active")
 
     def witness_update(self, signing_key, url, props, account=None):
         """ Update witness
@@ -999,7 +1029,7 @@ class Commit(object):
 
         """
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
 
@@ -1017,7 +1047,7 @@ class Commit(object):
                 "fee": "0.000 STEEM",
                 "prefix": self.steemd.chain_params["prefix"]
             })
-        return self.finalizeOp(op, account, "active")
+        return self.finalize_op(op, account, "active")
 
     def witness_set_properties(self, signing_key, props, account=None):
         """ Update witness
@@ -1036,7 +1066,7 @@ class Commit(object):
 
         """
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
 
@@ -1051,22 +1081,22 @@ class Commit(object):
                 "props": props,
                 "extensions": []
             })
-        return self.finalizeOp(op, account, "active")
+        return self.finalize_op(op, account, "active")
 
     def decode_memo(self, enc_memo):
         """ Try to decode an encrypted memo
         """
         assert enc_memo[
                    0] == "#", "decode memo requires memos to start with '#'"
-        keys = memo.involved_keys(enc_memo)
+        keys = memo_module.involved_keys(enc_memo)
         wif = None
         for key in keys:
-            wif = self.wallet.getPrivateKeyForPublicKey(str(key))
+            wif = self.wallet.get_private_key_for_public_key(str(key))
             if wif:
                 break
         if not wif:
             raise MissingKeyError
-        return memo.decode_memo(PrivateKey(wif), enc_memo)
+        return memo_module.decode_memo(PrivateKey(wif), enc_memo)
 
     def interest(self, account):
         """ Caluclate interest for an account
@@ -1107,7 +1137,7 @@ class Commit(object):
                 receive them as STEEM. (defaults to ``False``)
         """
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
 
@@ -1119,7 +1149,7 @@ class Commit(object):
                 "auto_vest": auto_vest
             })
 
-        return self.finalizeOp(op, account, "active")
+        return self.finalize_op(op, account, "active")
 
     @staticmethod
     def _test_weights_treshold(authority):
@@ -1153,7 +1183,7 @@ class Commit(object):
                 by signatures to be able to interact
         """
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
 
@@ -1189,9 +1219,9 @@ class Commit(object):
                 'prefix': self.steemd.chain_params["prefix"]
             })
         if permission == "owner":
-            return self.finalizeOp(op, account["name"], "owner")
+            return self.finalize_op(op, account["name"], "owner")
         else:
-            return self.finalizeOp(op, account["name"], "active")
+            return self.finalize_op(op, account["name"], "active")
 
     def disallow(self,
                  foreign,
@@ -1210,7 +1240,7 @@ class Commit(object):
                 by signatures to be able to interact
         """
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
 
@@ -1264,9 +1294,9 @@ class Commit(object):
                 "json_metadata": account["json_metadata"]
             })
         if permission == "owner":
-            return self.finalizeOp(op, account["name"], "owner")
+            return self.finalize_op(op, account["name"], "owner")
         else:
-            return self.finalizeOp(op, account["name"], "active")
+            return self.finalize_op(op, account["name"], "active")
 
     def update_memo_key(self, key, account=None):
         """ Update an account's memo public key
@@ -1279,7 +1309,7 @@ class Commit(object):
                 to (defaults to ``default_account``)
         """
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
 
@@ -1291,7 +1321,7 @@ class Commit(object):
                 "memo_key": key,
                 "json_metadata": account["json_metadata"]
             })
-        return self.finalizeOp(op, account["name"], "active")
+        return self.finalize_op(op, account["name"], "active")
 
     def approve_witness(self, witness, account=None, approve=True):
         """ Vote **for** a witness. This method adds a witness to your
@@ -1303,7 +1333,7 @@ class Commit(object):
                 to (defaults to ``default_account``)
         """
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
         account = Account(account, steemd_instance=self.steemd)
@@ -1312,7 +1342,7 @@ class Commit(object):
             "witness": witness,
             "approve": approve,
         })
-        return self.finalizeOp(op, account["name"], "active")
+        return self.finalize_op(op, account["name"], "active")
 
     def disapprove_witness(self, witness, account=None):
         """ Remove vote for a witness. This method removes
@@ -1358,7 +1388,7 @@ class Commit(object):
                 "required_posting_auths": required_posting_auths,
                 "id": custom_json_id
             })
-        return self.finalizeOp(op, account, "posting")
+        return self.finalize_op(op, account, "posting")
 
     def resteem(self, identifier, account=None):
         """ Resteem a post
@@ -1368,7 +1398,7 @@ class Commit(object):
                 to (defaults to ``default_account``)
         """
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
         author, permlink = resolve_identifier(identifier)
@@ -1409,7 +1439,7 @@ class Commit(object):
         if what is None:
             what = ["blog"]
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
 
@@ -1432,7 +1462,7 @@ class Commit(object):
                 to (defaults to ``default_account``)
         """
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
         account = Account(account, steemd_instance=self.steemd)
@@ -1442,7 +1472,7 @@ class Commit(object):
                 "memo_key": account["memo_key"],
                 "json_metadata": profile
             })
-        return self.finalizeOp(op, account["name"], "active")
+        return self.finalize_op(op, account["name"], "active")
 
     def comment_options(self, identifier, options, account=None):
         """ Set the comment options
@@ -1465,7 +1495,7 @@ class Commit(object):
 
         """
         if not account:
-            account = configStorage.get("default_account")
+            account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
         account = Account(account, steemd_instance=self.steemd)
@@ -1486,7 +1516,7 @@ class Commit(object):
                 "allow_curation_rewards":
                     options.get("allow_curation_rewards", True),
             })
-        return self.finalizeOp(op, account["name"], "posting")
+        return self.finalize_op(op, account["name"], "posting")
 
 
 if __name__ == "__main__":

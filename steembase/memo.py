@@ -64,12 +64,12 @@ def init_aes(shared_secret, nonce):
     return AES.new(key, AES.MODE_CBC, iv), check
 
 
-def _pad(s, BS):
-    numBytes = (BS - len(s) % BS)
-    return s + numBytes * struct.pack('B', numBytes)
+def _pad(s, bs):
+    num_bytes = (bs - len(s) % bs)
+    return s + num_bytes * struct.pack('B', num_bytes)
 
 
-def _unpad(s, BS):
+def _unpad(s, bs):
     count = int(struct.unpack('B', compat_bytes(s[-1], 'ascii'))[0])
     if compat_bytes(s[-count::], 'ascii') == count * struct.pack('B', count):
         return s[:-count]
@@ -93,9 +93,9 @@ def encode_memo(priv, pub, nonce, message, **kwargs):
     raw = compat_bytes(message, 'utf8')
 
     " Padding "
-    BS = 16
-    if len(raw) % BS:
-        raw = _pad(raw, BS)
+    bs = 16
+    if len(raw) % bs:
+        raw = _pad(raw, bs)
     " Encryption "
     cipher = hexlify(aes.encrypt(raw)).decode('ascii')
     prefix = kwargs.pop("prefix", default_prefix)

@@ -1,7 +1,7 @@
 import random
 import unittest
 
-from steembase import memo as Memo
+from steembase import memo as memo_module
 from steembase.account import PrivateKey
 
 
@@ -20,8 +20,8 @@ class Testcases(unittest.TestCase):
                 "1124safafASFasc",
         ]:
             nonce = random.getrandbits(64)
-            memo = Memo.encode_memo(
+            memo = memo_module.encode_memo(
                 PrivateKey(from_priv),
                 PrivateKey(to_priv).pubkey, nonce, msg)
-            plain = Memo.decode_memo(PrivateKey(to_priv), memo)
+            plain = memo_module.decode_memo(PrivateKey(to_priv), memo)
             self.assertEqual(msg, plain)

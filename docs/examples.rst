@@ -166,13 +166,13 @@ This script will also teach us how to create and sign transactions ourselves.
         operations = [operations.Transfer(**x) for x in transfers]
 
         # tell TransactionBuilder to use our serialized transfers
-        tb.appendOps(operations)
+        tb.append_ops(operations)
 
         # we need to tell TransactionBuilder about
         # everyone who needs to sign the transaction.
         # since all payments are made from `richguy`,
         # we just need to do this once
-        tb.appendSigner('richguy', 'active')
+        tb.append_signer('richguy', 'active')
 
         # sign the transaction
         tb.sign()

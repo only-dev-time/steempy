@@ -239,9 +239,9 @@ class Account(dict):
                 "conversion_requests": self.get_conversion_requests(),
             }
 
-        composedDict = self.copy()
-        composedDict.update(extras)
-        composedDict.update(
+        composed_dict = self.copy()
+        composed_dict.update(extras)
+        composed_dict.update(
             {
                 "profile": self.profile,
                 "sp": self.sp,
@@ -250,7 +250,7 @@ class Account(dict):
             }
         )
 
-        return composedDict
+        return composed_dict
 
     def get_account_history(self,
                             index,

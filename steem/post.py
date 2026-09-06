@@ -342,4 +342,4 @@ class Post(dict):
                     options.get("allow_curation_rewards", self[
                         "allow_curation_rewards"]),
             })
-        return self.commit.finalizeOp(op, self["author"], "posting")
+        return self.commit.finalize_op(op, self["author"], "posting")

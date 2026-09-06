@@ -23,7 +23,7 @@ class Testcases(unittest.TestCase):
         self.maxDiff = None
         self.steem = stm.Steem()
 
-    def test_Comment(self):
+    def test_comment(self):
         op = operations.Comment(
             **{
                 "parent_author": "foobara",
@@ -53,7 +53,7 @@ class Testcases(unittest.TestCase):
                    "4d3a6e6da124b340668d25bbcf85ffa23ca622b307ffe10cf182bb82")
         self.assertEqual(compare[:-130], tx_wire[:-130])
 
-    def test_Vote(self):
+    def test_vote(self):
         op = operations.Vote(
             **{
                 "voter": "foobara",
@@ -159,7 +159,7 @@ class Testcases(unittest.TestCase):
                    "9258ac4d800adff92a84630b567e5ff48cd4b5f716d6")
         self.assertEqual(compare[:-130], tx_wire[:-130])
 
-    def test_Transfer(self):
+    def test_transfer(self):
         op = operations.Transfer(**{
             "from": "foo",
             "to": "baar",
@@ -183,7 +183,7 @@ class Testcases(unittest.TestCase):
                    "3e")
         self.assertEqual(compare[:-130], tx_wire[:-130])
 
-    def test_Transfer_to_vesting(self):
+    def test_transfer_to_vesting(self):
         op = operations.TransferToVesting(**{
             "from": "foo",
             "to": "baar",
@@ -227,7 +227,7 @@ class Testcases(unittest.TestCase):
             "50a")
         self.assertEqual(compare[:-130], tx_wire[:-130])
 
-    def test_Transfer_to_savings(self):
+    def test_transfer_to_savings(self):
         op = operations.TransferToSavings(
             **{
                 "from": "testuser",
@@ -252,7 +252,7 @@ class Testcases(unittest.TestCase):
             "51d97c9eee5e0ecb7b6c32a29af6f56697f0c7516e70a75ce")
         self.assertEqual(compare[:-130], tx_wire[:-130])
 
-    def test_Transfer_from_savings(self):
+    def test_transfer_from_savings(self):
         op = operations.TransferFromSavings(
             **{
                 "from": "testuser",
@@ -278,7 +278,7 @@ class Testcases(unittest.TestCase):
             "103d9ca6470d629b9971adddf757c829bb47cc96b29662f294bebb4fb2")
         self.assertEqual(compare[:-130], tx_wire[:-130])
 
-    def test_Cancel_transfer_from_savings(self):
+    def test_cancel_transfer_from_savings(self):
         op = operations.CancelTransferFromSavings(**{
             "from": "tesuser",
             "request_id": 9001,
@@ -829,16 +829,16 @@ class Testcases(unittest.TestCase):
             expiration=expiration,
             operations=ops)
         tx = tx.sign([wif], chain=self.steem.chain_params)
-        txWire = hexlify(compat_bytes(tx)).decode("ascii")
+        tx_wire = hexlify(compat_bytes(tx)).decode("ascii")
         compare = ("f68585abf4dce7c804570113057865726f6306706973746f6e"
                    "00ca9a3b000000000353424400000000102701010100020a67"
                    "6f6f642d6b61726d61d007046e756c6c881300011f59634e65"
                    "55fec7c01cb7d4921601c37c250c6746022cc35eaefdd90405"
                    "d7771b2f65b44e97b7f3159a6d52cb20640502d2503437215f"
                    "0907b2e2213940f34f2c")
-        self.assertEqual(compare[:-130], txWire[:-130])
+        self.assertEqual(compare[:-130], tx_wire[:-130])
 
-    def compareConstructedTX(self):
+    def compare_constructed_tx(self):
         #    def test_online(self):
         #        self.maxDiff = None
         op = operations.CommentOptions(
@@ -869,4 +869,4 @@ class Testcases(unittest.TestCase):
 
 if __name__ == '__main__':
     t = Testcases()
-    t.compareConstructedTX()
+    t.compare_constructed_tx()

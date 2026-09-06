@@ -19,7 +19,7 @@ from .account import PublicKey
 from .chains import known_chains
 from .operations import GrapheneObject
 from .operations import Operation
-from .operations import isArgsThisClass
+from .operations import is_args_this_class
 from .types import Array
 from .types import PointInTime
 from .types import Set
@@ -53,7 +53,7 @@ class SignedTransaction(GrapheneObject):
     """
 
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -85,7 +85,22 @@ class SignedTransaction(GrapheneObject):
                     ('signatures', kwargs['signatures']),
                 ]))
 
-    def recoverPubkeyParameter(self, digest, signature, pubkey):
+    def recoverPubkeyParameter(self, digest, signature, pubkey):  # noqa: N802
+        """ **Deprecated. Use ``recover_pubkey_parameter`` instead.**
+
+            Use to derive a number that allows to easily recover the
+            public key from the signature
+        """
+        import warnings
+        warnings.warn(
+            "recoverPubkeyParameter() is deprecated; use "
+            "recover_pubkey_parameter() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.recover_pubkey_parameter(digest, signature, pubkey)
+
+    def recover_pubkey_parameter(self, digest, signature, pubkey):
         """ Use to derive a number that allows to easily recover the
             public key from the signature
         """
@@ -99,11 +114,25 @@ class SignedTransaction(GrapheneObject):
             else:
                 p = self.recover_public_key(digest, signature, i)
                 if (p.to_string() == pubkey.to_string()
-                        or self.compressedPubkey(p) == pubkey.to_string()):
+                        or self.compressed_pubkey(p) == pubkey.to_string()):
                     return i
         return None
 
-    def derSigToHexSig(self, s):
+    def derSigToHexSig(self, s):  # noqa: N802
+        """ **Deprecated. Use ``der_sig_to_hex_sig`` instead.**
+
+            Format DER to HEX signature
+        """
+        import warnings
+        warnings.warn(
+            "derSigToHexSig() is deprecated; use der_sig_to_hex_sig() "
+            "instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.der_sig_to_hex_sig(s)
+
+    def der_sig_to_hex_sig(self, s):
         """ Format DER to HEX signature
         """
         s, junk = ecdsa.der.remove_sequence(unhexlify(s))
@@ -114,7 +143,21 @@ class SignedTransaction(GrapheneObject):
         y, s = ecdsa.der.remove_integer(s)
         return '%064x%064x' % (x, y)
 
-    def compressedPubkey(self, pk):
+    def compressedPubkey(self, pk):  # noqa: N802
+        """ **Deprecated. Use ``compressed_pubkey`` instead.**
+
+            Format a public key to compressed format
+        """
+        import warnings
+        warnings.warn(
+            "compressedPubkey() is deprecated; use compressed_pubkey() "
+            "instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.compressed_pubkey(pk)
+
+    def compressed_pubkey(self, pk):
         order = pk.curve.generator.order()
         p = pk.pubkey.point
         x_str = ecdsa.util.number_to_string(p.x(), order)
@@ -124,10 +167,10 @@ class SignedTransaction(GrapheneObject):
     def recover_public_key(self, digest, signature, i):
         """ Recover the public key from the the signature
         """
-        # See http: //www.secg.org/download/aid-780/sec1-v2.pdf
+        # See https: //www.secg.org/sec1-v2.pdf
         # section 4.1.6 primarily
         curve = ecdsa.SECP256k1.curve
-        G = ecdsa.SECP256k1.generator
+        G = ecdsa.SECP256k1.generator  # noqa: N806
         order = ecdsa.SECP256k1.order
         yp = (i % 2)
         r, s = ecdsa.util.sigdecode_string(signature, order)
@@ -143,12 +186,11 @@ class SignedTransaction(GrapheneObject):
         beta = ecdsa.numbertheory.square_root_mod_prime(alpha, curve.p())
         y = beta if (beta - yp) % 2 == 0 else curve.p() - beta
         # 1.4 Constructor of Point is supposed to check if nR is at infinity.
-        R = ecdsa.ellipticcurve.Point(curve, x, y, order)
+        R = ecdsa.ellipticcurve.Point(curve, x, y, order)  # noqa: N806
         # 1.5 Compute e
         e = ecdsa.util.string_to_number(digest)
         # 1.6 Compute Q = r^-1(sR - eG)
-        Q = ecdsa.numbertheory.inverse_mod(r, order) * (s * R +
-                                                        (-e % order) * G)
+        Q = ecdsa.numbertheory.inverse_mod(r, order) * (s * R + (-e % order) * G) # noqa: N806
         # Not strictly necessary, but let's verify the message for
         # paranoia's sake.
         if not ecdsa.VerifyingKey.from_public_point(
@@ -157,12 +199,36 @@ class SignedTransaction(GrapheneObject):
             return None
         return ecdsa.VerifyingKey.from_public_point(Q, curve=ecdsa.SECP256k1)
 
-    def getKnownChains(self):
+    def getKnownChains(self):  # noqa: N802
+        """ **Deprecated. Use ``get_known_chains`` instead.**
+        """
+        import warnings
+        warnings.warn(
+            "getKnownChains() is deprecated; use get_known_chains() "
+            "instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.get_known_chains()
+
+    def get_known_chains(self):
         return known_chains
 
-    def getChainParams(self, chain):
+    def getChainParams(self, chain):  # noqa: N802
+        """ **Deprecated. Use ``get_chain_params`` instead.**
+        """
+        import warnings
+        warnings.warn(
+            "getChainParams() is deprecated; use get_chain_params() "
+            "instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.get_chain_params(chain)
+
+    def get_chain_params(self, chain):
         # Which network are we on:
-        chains = self.getKnownChains()
+        chains = self.get_known_chains()
         if isinstance(chain, str) and chain in chains:
             chain_params = chains[chain]
         elif isinstance(chain, dict):
@@ -173,8 +239,20 @@ class SignedTransaction(GrapheneObject):
             raise Exception("sign() needs a 'chain_id' in chain params!")
         return chain_params
 
-    def deriveDigest(self, chain):
-        chain_params = self.getChainParams(chain)
+    def deriveDigest(self, chain):  # noqa: N802
+        """ **Deprecated. Use ``derive_digest`` instead.**
+        """
+        import warnings
+        warnings.warn(
+            "deriveDigest() is deprecated; use derive_digest() "
+            "instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.derive_digest(chain)
+
+    def derive_digest(self, chain):
+        chain_params = self.get_chain_params(chain)
         # Chain ID
         self.chainid = chain_params["chain_id"]
 
@@ -196,53 +274,53 @@ class SignedTransaction(GrapheneObject):
             pubkeys = []
         if not chain:
             raise ValueError("Chain needs to be provided!")
-        chain_params = self.getChainParams(chain)
-        self.deriveDigest(chain)
+        chain_params = self.get_chain_params(chain)
+        self.derive_digest(chain)
         signatures = self.data["signatures"].data
-        pubKeysFound = []
+        pub_keys_found = []
 
         for signature in signatures:
             sig = compat_bytes(signature)[1:]
             if sys.version >= '3.0':
-                recoverParameter = (compat_bytes(signature)[0]) - 4 - 27  # recover parameter only
+                recover_parameter = (compat_bytes(signature)[0]) - 4 - 27  # recover parameter only
             else:
-                recoverParameter = ord((compat_bytes(signature)[0])) - 4 - 27
+                recover_parameter = ord((compat_bytes(signature)[0])) - 4 - 27
 
             if USE_SECP256K1:
                 ALL_FLAGS = secp256k1.lib.SECP256K1_CONTEXT_VERIFY | \
-                            secp256k1.lib.SECP256K1_CONTEXT_SIGN
+                            secp256k1.lib.SECP256K1_CONTEXT_SIGN # noqa: N806
                 # Placeholder
                 pub = secp256k1.PublicKey(flags=ALL_FLAGS)
                 # Recover raw signature
-                sig = pub.ecdsa_recoverable_deserialize(sig, recoverParameter)
+                sig = pub.ecdsa_recoverable_deserialize(sig, recover_parameter)
                 # Recover PublicKey
-                verifyPub = secp256k1.PublicKey(
+                verify_pub = secp256k1.PublicKey(
                     pub.ecdsa_recover(compat_bytes(self.message), sig))
                 # Convert recoverable sig to normal sig
-                normalSig = verifyPub.ecdsa_recoverable_convert(sig)
+                normal_sig = verify_pub.ecdsa_recoverable_convert(sig)
                 # Verify
-                verifyPub.ecdsa_verify(compat_bytes(self.message), normalSig)
+                verify_pub.ecdsa_verify(compat_bytes(self.message), normal_sig)
                 phex = hexlify(
-                    verifyPub.serialize(compressed=True)).decode('ascii')
-                pubKeysFound.append(phex)
+                    verify_pub.serialize(compressed=True)).decode('ascii')
+                pub_keys_found.append(phex)
             else:
-                p = self.recover_public_key(self.digest, sig, recoverParameter)
+                p = self.recover_public_key(self.digest, sig, recover_parameter)
                 # Will throw an exception of not valid
                 p.verify_digest(
                     sig, self.digest, sigdecode=ecdsa.util.sigdecode_string)
-                phex = hexlify(self.compressedPubkey(p)).decode('ascii')
-                pubKeysFound.append(phex)
+                phex = hexlify(self.compressed_pubkey(p)).decode('ascii')
+                pub_keys_found.append(phex)
 
         for pubkey in pubkeys:
             if not isinstance(pubkey, PublicKey):
                 raise Exception("Pubkeys must be array of 'PublicKey'")
 
-            k = pubkey.unCompressed()[2:]
-            if k not in pubKeysFound and repr(pubkey) not in pubKeysFound:
+            k = pubkey.uncompressed()[2:]
+            if k not in pub_keys_found and repr(pubkey) not in pub_keys_found:
                 k = PublicKey(PublicKey(k).compressed())
                 f = format(k, chain_params["prefix"])
                 raise Exception("Signature for %s missing!" % f)
-        return pubKeysFound
+        return pub_keys_found
 
     def _is_canonical(self, sig):
         return (not (sig[0] & 0x80)
@@ -260,7 +338,7 @@ class SignedTransaction(GrapheneObject):
         """
         if not chain:
             raise ValueError("Chain needs to be provided!")
-        self.deriveDigest(chain)
+        self.derive_digest(chain)
 
         # Get Unique private keys
         self.privkeys = []
@@ -328,12 +406,12 @@ class SignedTransaction(GrapheneObject):
 
                     # Make sure signature is canonical!
                     #
-                    lenR = sigder[3]
-                    lenS = sigder[5 + lenR]
-                    if lenR is 32 and lenS is 32:
+                    len_r = sigder[3]
+                    len_s = sigder[5 + len_r]
+                    if len_r is 32 and len_s is 32:
                         # Derive the recovery parameter
                         #
-                        i = self.recoverPubkeyParameter(
+                        i = self.recover_pubkey_parameter(
                             self.digest, signature, sk.get_verifying_key())
                         i += 4  # compressed
                         i += 27  # compact

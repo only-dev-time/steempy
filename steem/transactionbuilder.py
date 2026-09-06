@@ -40,15 +40,15 @@ class TransactionBuilder(dict):
             raise ValueError("Invalid Transaction (self.tx) Format")
         super(TransactionBuilder, self).__init__(tx or {})
 
-    def appendOps(self, ops):
+    def append_ops(self, ops):
         if isinstance(ops, list):
             for op in ops:
                 self.op.append(op)
         else:
             self.op.append(ops)
-        self.constructTx()
+        self.construct_tx()
 
-    def appendSigner(self, account, permission):
+    def append_signer(self, account, permission):
         assert permission in ["active", "owner",
                               "posting"], "Invalid permission"
         account = Account(account, steemd_instance=self.steemd)
@@ -60,7 +60,7 @@ class TransactionBuilder(dict):
                 return []
             r = []
             for authority in account[permission]["key_auths"]:
-                wif = self.wallet.getPrivateKeyForPublicKey(authority[0])
+                wif = self.wallet.get_private_key_for_public_key(authority[0])
                 if wif:
                     r.append([wif, authority[1]])
 
@@ -76,7 +76,7 @@ class TransactionBuilder(dict):
         keys = fetchkeys(account)
         self.wifs.extend([x[0] for x in keys])
 
-    def appendWif(self, wif):
+    def append_wif(self, wif):
         if wif:
             try:
                 PrivateKey(wif)
@@ -84,7 +84,7 @@ class TransactionBuilder(dict):
             except:  # noqa FIXME(sneak)
                 raise InvalidKeyFormat from None
 
-    def constructTx(self):
+    def construct_tx(self):
         if isinstance(self.op, list):
             ops = [Operation(o) for o in self.op]
         else:
@@ -154,13 +154,13 @@ class TransactionBuilder(dict):
 
         return self
 
-    def addSigningInformation(self, account, permission):
-        """ This is a private method that adds side information to a
+    def add_signing_information(self, account, permission):
+        """ This method adds side information to a
             unsigned/partial transaction in order to simplify later
             signing (e.g. for multisig or coldstorage)
         """
-        accountObj = Account(account, steemd_instance=self.steemd)
-        authority = accountObj[permission]
+        account_obj = Account(account, steemd_instance=self.steemd)
+        authority = account_obj[permission]
         # We add a required_authorities to be able to identify
         # how to sign later. This is an array, because we
         # may later want to allow multiple operations per tx
@@ -186,9 +186,69 @@ class TransactionBuilder(dict):
     def json(self):
         return dict(self)
 
-    def appendMissingSignatures(self, wifs):
+    def append_missing_signatures(self, wifs):
         missing_signatures = self.get("missing_signatures", [])
         for pub in missing_signatures:
-            wif = self.wallet.getPrivateKeyForPublicKey(pub)
+            wif = self.wallet.get_private_key_for_public_key(pub)
             if wif:
-                self.appendWif(wif)
+                self.append_wif(wif)
+
+    def appendOps(self, ops):  # noqa: N802
+        import warnings
+        warnings.warn(
+            "appendOps() is deprecated; use append_ops()",
+            DeprecationWarning,
+            stacklevel=2,
+            )
+        self.append_ops(ops)
+
+    def appendSigner(self, account, permission):  # noqa: N802
+        import warnings
+        warnings.warn(
+            "appendSigner() is deprecated; use append_signer()",
+            DeprecationWarning,
+            stacklevel=2,
+            )
+        return self.append_signer(account, permission)
+
+    def appendWif(self, wif):  # noqa: N802
+        import warnings
+        warnings.warn(
+            "appendWif() is deprecated; use append_wif()",
+            DeprecationWarning,
+            stacklevel=2,
+            )
+        self.append_wif(wif)
+
+    def constructTx(self):  # noqa: N802
+        import warnings
+        warnings.warn(
+            "constructTx() is deprecated; use construct_tx()",
+            DeprecationWarning,
+            stacklevel=2,
+            )
+        self.construct_tx()
+
+    def addSigningInformation(self, account, permission):  # noqa: N802
+        """ **Deprecated. Use ``add_signing_information`` instead.**
+
+            This is a private method that adds side information to a
+            unsigned/partial transaction in order to simplify later
+            signing (e.g. for multisig or coldstorage)
+        """
+        import warnings
+        warnings.warn(
+            "addSigningInformation() is deprecated; use add_signing_information()",
+            DeprecationWarning,
+            stacklevel=2,
+            )
+        self.add_signing_information(account, permission)
+
+    def appendMissingSignatures(self, wifs):  # noqa: N802
+        import warnings
+        warnings.warn(
+            "appendMissingSignatures() is deprecated; use append_missing_signatures()",
+            DeprecationWarning,
+            stacklevel=2,
+            )
+        self.append_missing_signatures(wifs)

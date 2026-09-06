@@ -9,7 +9,7 @@ from steembase.base58 import Base58
 
 
 class Testcases(unittest.TestCase):
-    def test_B85hexgetb58_btc(self):
+    def test_b85hexgetb58_btc(self):
         self.assertEqual([
             "5HqUkGuo62BfcJU5vNhTXKJRXuUi9QSE6jp8C3uBJ2BVHtB8WSd",
             "5JWcdkhL3w4RkVPcZMdJsjos22yB5cSkPExerktvKnRNZR5gx1S",
@@ -51,7 +51,7 @@ class Testcases(unittest.TestCase):
                 Base58("5Jete5oFNjjk3aUMkKuxgAXsp7ZyhgJbYNiNjHLvq5xzXkiqw7R")),
         ])
 
-    def test_B85hexgetb58(self):
+    def test_b85hexgetb58(self):
         self.assertEqual([
             'BTS2CAbTi1ZcgMJ5otBFZSGZJKJenwGa9NvkLxsrS49Kr8JsiSGc',
             'BTShL45FEyUVSVV1LXABQnh4joS9FsUaffRtsdarB5uZjPsrwMZF',
@@ -76,7 +76,7 @@ class Testcases(unittest.TestCase):
                        "66762e9ad69d8"), "BTS")
         ])
 
-    def test_Address(self):
+    def test_address(self):
         self.assertEqual([
             format(
                 Address("BTSFN9r6VYzBK8EKtMewfNbfiGCr56pHDBFi", prefix="BTS"),
@@ -101,7 +101,7 @@ class Testcases(unittest.TestCase):
             "BTS3qXyZnjJneeAddgNDYNYXbF7ARZrRv5dr",
         ])
 
-    def test_PubKey(self):
+    def test_pubkey(self):
         self.assertEqual([
             format(
                 PublicKey(
@@ -181,7 +181,7 @@ class Testcases(unittest.TestCase):
             "1Gu5191CVHmaoU3Zz3prept87jjnpFDrXL",
         ])
 
-    def test_PublicKey(self):
+    def test_publickey(self):
         self.assertEqual([
             str(
                 PublicKey(
@@ -211,7 +211,7 @@ class Testcases(unittest.TestCase):
             "BTS7u8m6zUNuzPNK1tPPLtnipxgqV9mVmTzrFNJ9GvovvSTCkVUra"
         ])
 
-    def test_Privatekey(self):
+    def test_privatekey(self):
         self.assertEqual([
             str(
                 PrivateKey(
@@ -240,7 +240,7 @@ class Testcases(unittest.TestCase):
             'b84abd64d66ee1dd614230ebbe9d9c6d66d78d93927c395196666762e9ad69d8'
         ])
 
-    def test_BrainKey(self):
+    def test_brainkey(self):
         self.assertEqual([
             str(
                 BrainKey(
@@ -286,7 +286,7 @@ class Testcases(unittest.TestCase):
             "5HqSHfckRKmZLqqWW7p2iU18BYvyjxQs2sksRWhXMWXsNEtxPZU",
         ])
 
-    def test_BrainKey_normalize(self):
+    def test_brainkey_normalize(self):
         b = "COLORER BICORN KASBEKE FAERIE LOCHIA GOMUTI SOVKHOZ Y GERMAL " \
             "AUNTIE PERFUMY TIME FEATURE GANGAN CELEMIN MATZO"
         self.assertEqual([
@@ -299,7 +299,7 @@ class Testcases(unittest.TestCase):
             BrainKey(b.replace(" ", "  ")).get_brainkey(),
         ], [b, b, b, b, b, b, b])
 
-    def test_BrainKey_sequences(self):
+    def test_brainkey_sequences(self):
         b = BrainKey(
             "COLORER BICORN KASBEKE FAERIE LOCHIA GOMUTI SOVKHOZ Y GERMAL "
             "AUNTIE PERFUMY TIME FEATURE GANGAN CELEMIN MATZO")
@@ -319,7 +319,7 @@ class Testcases(unittest.TestCase):
             p = b.next_sequence().get_private()
             self.assertEqual(str(p), i)
 
-    def test_PasswordKey(self):
+    def test_passwordkey(self):
         a = [
             "Aang7foN3oz1Ungai2qua5toh3map8ladei1eem2ohsh2shuo8aeji9Thoseo7ah",
             "iep1Mees9eghiifahwei5iidi0Sazae9aigaeT7itho3quoo2dah5zuvobaelau5",

@@ -16,7 +16,6 @@ from .types import Bytes
 from .types import HexString
 from .types import Id
 from .types import Int16
-from .types import JsonObj
 from .types import Map
 from .types import Optional
 from .types import PointInTime
@@ -25,6 +24,7 @@ from .types import String
 from .types import Uint16
 from .types import Uint32
 from .types import Uint64
+from .types import json_obj
 
 
 default_prefix = "STM"
@@ -136,13 +136,13 @@ class GrapheneObject(object):
             if isinstance(value, String):
                 d.update({name: str(value)})
             else:
-                d.update({name: JsonObj(value)})
+                d.update({name: json_obj(value)})
         return d
 
     def __str__(self):
         return json.dumps(self.__json__())
 
-    def toJson(self):
+    def to_json(self):
         return self.__json__()
 
     def json(self):
@@ -151,7 +151,7 @@ class GrapheneObject(object):
 
 class Permission(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             prefix = kwargs.pop("prefix", default_prefix)
@@ -172,22 +172,22 @@ class Permission(GrapheneObject):
                 reverse=False,
             )
 
-            accountAuths = Map([[String(e[0]), Uint16(e[1])]
+            account_auths = Map([[String(e[0]), Uint16(e[1])]
                                 for e in kwargs["account_auths"]])
-            keyAuths = Map([[PublicKey(e[0], prefix=prefix),
+            key_auths = Map([[PublicKey(e[0], prefix=prefix),
                              Uint16(e[1])] for e in kwargs["key_auths"]])
             super(Permission, self).__init__(
                 OrderedDict([
                     ('weight_threshold', Uint32(
                         int(kwargs["weight_threshold"]))),
-                    ('account_auths', accountAuths),
-                    ('key_auths', keyAuths),
+                    ('account_auths', account_auths),
+                    ('key_auths', key_auths),
                 ]))
 
 
 class Memo(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             prefix = kwargs.pop("prefix", default_prefix)
@@ -207,7 +207,7 @@ class Memo(GrapheneObject):
 
 class Vote(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -223,7 +223,7 @@ class Vote(GrapheneObject):
 
 class Comment(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -271,7 +271,7 @@ class Amount:
 
 class ExchangeRate(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -286,7 +286,7 @@ class ExchangeRate(GrapheneObject):
 
 class WitnessProps(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -304,7 +304,7 @@ class WitnessProps(GrapheneObject):
 
 class Beneficiary(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -358,7 +358,7 @@ class CommentOptionExtensions(StaticVariant):
 
 class AccountCreate(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -389,7 +389,7 @@ class AccountCreate(GrapheneObject):
 
 class AccountCreateWithDelegation(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -422,7 +422,7 @@ class AccountCreateWithDelegation(GrapheneObject):
 
 class AccountUpdate(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -458,7 +458,7 @@ class AccountUpdate(GrapheneObject):
 
 class ChangeRecoveryAccount(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             super(ChangeRecoveryAccount, self).__init__(
@@ -471,7 +471,7 @@ class ChangeRecoveryAccount(GrapheneObject):
 
 class Transfer(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -489,7 +489,7 @@ class Transfer(GrapheneObject):
 
 class TransferToVesting(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -504,7 +504,7 @@ class TransferToVesting(GrapheneObject):
 
 class WithdrawVesting(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -518,7 +518,7 @@ class WithdrawVesting(GrapheneObject):
 
 class TransferToSavings(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -536,7 +536,7 @@ class TransferToSavings(GrapheneObject):
 
 class TransferFromSavings(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -556,7 +556,7 @@ class TransferFromSavings(GrapheneObject):
 
 class CancelTransferFromSavings(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -570,7 +570,7 @@ class CancelTransferFromSavings(GrapheneObject):
 
 class ClaimRewardBalance(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -586,7 +586,7 @@ class ClaimRewardBalance(GrapheneObject):
 
 class DelegateVestingShares(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -601,7 +601,7 @@ class DelegateVestingShares(GrapheneObject):
 
 class LimitOrderCreate(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -619,7 +619,7 @@ class LimitOrderCreate(GrapheneObject):
 
 class LimitOrderCancel(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -633,7 +633,7 @@ class LimitOrderCancel(GrapheneObject):
 
 class SetWithdrawVestingRoute(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -649,7 +649,7 @@ class SetWithdrawVestingRoute(GrapheneObject):
 
 class Convert(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -664,7 +664,7 @@ class Convert(GrapheneObject):
 
 class FeedPublish(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -678,7 +678,7 @@ class FeedPublish(GrapheneObject):
 
 class WitnessUpdate(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -704,7 +704,7 @@ class WitnessSetProperties(GrapheneObject):
     Based on https://github.com/holgern/beem/blob/6cc303d1b0fdfb096da78d3ff331aaa79a18ad8f/beembase/operations.py#L278-L318
     """
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -759,7 +759,7 @@ class WitnessSetProperties(GrapheneObject):
 
 class AccountWitnessVote(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -774,7 +774,7 @@ class AccountWitnessVote(GrapheneObject):
 
 class CustomJson(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -804,7 +804,7 @@ class CustomJson(GrapheneObject):
 
 class CommentOptions(GrapheneObject):
     def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
+        if is_args_this_class(self, args):
             self.data = args[0].data
         else:
             if len(args) == 1 and len(kwargs) == 0:
@@ -833,5 +833,5 @@ class CommentOptions(GrapheneObject):
                 ]))
 
 
-def isArgsThisClass(self, args):
+def is_args_this_class(self, args):
     return len(args) == 1 and type(args[0]).__name__ == type(self).__name__

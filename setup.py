@@ -4,7 +4,6 @@
 # Note: To use the 'upload' functionality of this file, you must:
 #   $ pip install twine
 
-import io
 import os
 import sys
 from shutil import rmtree
@@ -12,7 +11,6 @@ from shutil import rmtree
 from setuptools import Command
 from setuptools import find_packages
 from setuptools import setup
-from setuptools.command.test import test as TestCommand
 
 
 # Package meta-data.
@@ -75,30 +73,6 @@ here = os.path.abspath(os.path.dirname(__file__))
 #     long_description = '\n' + f.read()
 
 
-class PyTest(TestCommand):
-    user_options = [("pytest-args=", "a", "Arguments to pass into py.test")]
-
-    def initialize_options(self):
-        TestCommand.initialize_options(self)
-        try:
-            from multiprocessing import cpu_count
-
-            self.pytest_args = ["-n", str(cpu_count()), "--boxed"]
-        except (ImportError, NotImplementedError):
-            self.pytest_args = ["-n", "1", "--boxed"]
-
-    def finalize_options(self):
-        TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
-
-    def run_tests(self):
-        import pytest
-
-        errno = pytest.main(self.pytest_args)
-        sys.exit(errno)
-
-
 class UploadCommand(Command):
     """Support setup.py upload."""
 
@@ -157,7 +131,6 @@ setup(
         "build": BUILD_REQUIRED,
         "test": TEST_REQUIRED,
     },
-    tests_require=TEST_REQUIRED,
     include_package_data=True,
     license="MIT",
     classifiers=[
@@ -177,5 +150,5 @@ setup(
         "Development Status :: 4 - Beta",
     ],
     # $ setup.py publish support.
-    cmdclass={"upload": UploadCommand, "test": PyTest},
+    cmdclass={"upload": UploadCommand},
 )

@@ -1,5 +1,6 @@
 import logging
 import os
+import warnings
 
 from steembase import bip38
 from steembase.account import PrivateKey
@@ -40,20 +41,20 @@ class Wallet:
           any account. This mode is only used for *foreign*
           signatures!
     """
-    decryptedKEK = None
+    decrypted_kek = None
 
     # Keys from database
-    configStorage = None
-    keyEncryptionKey = None
-    keyStorage = None
+    config_storage = None
+    key_encryption_key = None
+    key_storage = None
 
     # Manually provided keys
     keys = {}  # struct with pubkey as key and wif as value
-    keyMap = {}  # type:wif pairs to force certain keys
+    key_map = {}  # type:wif pairs to force certain keys
 
     def __init__(self, steemd_instance=None, **kwargs):
-        from steembase.storage import configStorage
-        self.configStorage = configStorage
+        from steembase.storage import config_storage
+        self.config_storage = config_storage
 
         # RPC
         self.steemd = steemd_instance or shared_steemd_instance()
@@ -63,27 +64,27 @@ class Wallet:
             self.prefix = self.steemd.chain_params["prefix"]
         else:
             # If not connected, load prefix from config
-            self.prefix = self.configStorage["prefix"]
+            self.prefix = self.config_storage["prefix"]
 
         if "keys" in kwargs:
-            self.setKeys(kwargs["keys"])
+            self.set_keys(kwargs["keys"])
         else:
             """ If no keys are provided manually we load the SQLite
                 keyStorage
             """
             from steembase.storage import KeyEncryptionKey
-            from steembase.storage import keyStorage
-            self.keyEncryptionKey = KeyEncryptionKey
-            self.keyStorage = keyStorage
+            from steembase.storage import key_storage
+            self.key_encryption_key = KeyEncryptionKey
+            self.key_storage = key_storage
 
-    def setKeys(self, loadkeys):
+    def set_keys(self, loadkeys):
         """ This method is strictly only for in memory keys that are
             passed to Wallet/Steem with the ``keys`` argument
         """
         log.debug(
             "Force setting of private keys. Not using the wallet database!")
         if isinstance(loadkeys, dict):
-            Wallet.keyMap = loadkeys
+            Wallet.key_map = loadkeys
             loadkeys = list(loadkeys.values())
         elif not isinstance(loadkeys, list):
             loadkeys = [loadkeys]
@@ -99,66 +100,66 @@ class Wallet:
         """ Unlock the wallet database
         """
         if not self.created():
-            self.newWallet()
+            self.new_wallet()
 
-        if (self.decryptedKEK is None
-                and self.configStorage[self.keyEncryptionKey.config_key]):
+        if (self.decrypted_kek is None
+                and self.config_storage[self.key_encryption_key.config_key]):
             if user_passphrase is None:
-                user_passphrase = self.getUserPassphrase()
-            kek = self.keyEncryptionKey(user_passphrase)
-            self.decryptedKEK = kek.decrypted_KEK
+                user_passphrase = self.get_user_passphrase()
+            kek = self.key_encryption_key(user_passphrase)
+            self.decrypted_kek = kek.decrypted_kek
 
     def lock(self):
         """ Lock the wallet database
         """
-        self.decryptedKEK = None
+        self.decrypted_kek = None
 
     def locked(self):
         """ Is the wallet database locked?
         """
-        return False if self.decryptedKEK else True
+        return False if self.decrypted_kek else True
 
-    def changeUserPassphrase(self):
+    def change_user_passphrase(self):
         """ Change the user entered password for the wallet database
         """
         # Open Existing Wallet
-        pwd = self.getUserPassphrase()
-        kek = self.keyEncryptionKey(pwd)
-        self.decryptedKEK = kek.decrypted_KEK
+        pwd = self.get_user_passphrase()
+        kek = self.key_encryption_key(pwd)
+        self.decrypted_kek = kek.decrypted_kek
         # Provide new passphrase
         print("Please provide the new passphrase")
-        newpwd = self.getUserPassphrase(confirm=True)
+        newpwd = self.get_user_passphrase(confirm=True)
         # Change passphrase
-        kek.changePassphrase(newpwd)
+        kek.change_passphrase(newpwd)
 
     def created(self):
         """ Do we have a wallet database already?
         """
-        if len(self.getPublicKeys()):
+        if len(self.get_public_keys()):
             # Already keys installed
             return True
-        elif self.keyEncryptionKey.config_key in self.configStorage:
+        elif self.key_encryption_key.config_key in self.config_storage:
             # no keys but a KeyEncryptionKey
             return True
         else:
             return False
 
-    def newWallet(self):
+    def new_wallet(self):
         """ Create a new wallet database
         """
         if self.created():
             raise WalletExists("You already have created a wallet!")
         print("Please provide a passphrase for the new wallet")
-        pwd = self.getUserPassphrase(confirm=True)
-        kek = self.keyEncryptionKey(pwd)
-        self.decryptedKEK = kek.decrypted_KEK
+        pwd = self.get_user_passphrase(confirm=True)
+        kek = self.key_encryption_key(pwd)
+        self.decrypted_kek = kek.decrypted_kek
 
     def encrypt_wif(self, wif):
         """ Encrypt a wif key
         """
         self.unlock()
         return format(
-            bip38.encrypt(PrivateKey(wif), self.decryptedKEK), "encwif")
+            bip38.encrypt(PrivateKey(wif), self.decrypted_kek), "encwif")
 
     def decrypt_wif(self, encwif):
         """ decrypt a wif key
@@ -170,9 +171,9 @@ class Wallet:
         except:  # noqa FIXME(sneak)
             pass
         self.unlock()
-        return format(bip38.decrypt(encwif, self.decryptedKEK), "wif")
+        return format(bip38.decrypt(encwif, self.decrypted_kek), "wif")
 
-    def getUserPassphrase(self, confirm=False, text='Passphrase: '):
+    def get_user_passphrase(self, confirm=False, text='Passphrase: '):
         """ Obtain a passphrase from the user
         """
         import getpass
@@ -182,14 +183,14 @@ class Wallet:
         if confirm:
             # Loop until both match
             while True:
-                pw = self.getUserPassphrase(confirm=False)
+                pw = self.get_user_passphrase(confirm=False)
                 if not pw:
                     print("You cannot choose an empty password! " +
                           "If you want to automate the use of the library, " +
                           "please use the `UNLOCK` environmental variable!")
                     continue
                 else:
-                    pwck = self.getUserPassphrase(
+                    pwck = self.get_user_passphrase(
                         confirm=False, text="Confirm Passphrase: ")
                     if pw == pwck:
                         return pw
@@ -199,7 +200,7 @@ class Wallet:
             # return just one password
             return getpass.getpass(text)
 
-    def addPrivateKey(self, wif):
+    def add_private_key(self, wif):
         """ Add a private key to the wallet database
         """
 
@@ -214,13 +215,13 @@ class Wallet:
             raise InvalidWifError(
                 "Invalid Private Key Format. Please use WIF!") from None
 
-        if self.keyStorage:
+        if self.key_storage:
             # Test if wallet exists
             if not self.created():
-                self.newWallet()
-            self.keyStorage.add(self.encrypt_wif(wif), pub)
+                self.new_wallet()
+            self.key_storage.add(self.encrypt_wif(wif), pub)
 
-    def getPrivateKeyForPublicKey(self, pub):
+    def get_private_key_for_public_key(self, pub):
         """ Obtain the private key for a given public key
 
             :param str pub: Public Key
@@ -236,94 +237,94 @@ class Wallet:
         else:
             # Test if wallet exists
             if not self.created():
-                self.newWallet()
+                self.new_wallet()
 
             return self.decrypt_wif(
-                self.keyStorage.getPrivateKeyForPublicKey(pub))
+                self.key_storage.get_private_key_for_public_key(pub))
 
-    def removePrivateKeyFromPublicKey(self, pub):
+    def remove_private_key_from_public_key(self, pub):
         """ Remove a key from the wallet database
         """
-        if self.keyStorage:
+        if self.key_storage:
             # Test if wallet exists
             if not self.created():
-                self.newWallet()
-            self.keyStorage.delete(pub)
+                self.new_wallet()
+            self.key_storage.delete(pub)
 
-    def removeAccount(self, account):
+    def remove_account(self, account):
         """ Remove all keys associated with a given account
         """
-        accounts = self.getAccounts()
+        accounts = self.get_accounts()
         for a in accounts:
             if a["name"] == account:
-                self.removePrivateKeyFromPublicKey(a["pubkey"])
+                self.remove_private_key_from_public_key(a["pubkey"])
 
-    def getOwnerKeyForAccount(self, name):
+    def get_owner_key_for_account(self, name):
         """ Obtain owner Private Key for an account from the wallet database
         """
-        if "owner" in Wallet.keyMap:
-            return Wallet.keyMap.get("owner")
+        if "owner" in Wallet.key_map:
+            return Wallet.key_map.get("owner")
         else:
             account = self.steemd.get_account(name)
             if not account:
                 return
             for authority in account["owner"]["key_auths"]:
-                key = self.getPrivateKeyForPublicKey(authority[0])
+                key = self.get_private_key_for_public_key(authority[0])
                 if key:
                     return key
             return False
 
-    def getPostingKeyForAccount(self, name):
+    def get_posting_key_for_account(self, name):
         """ Obtain owner Posting Key for an account from the wallet database
         """
-        if "posting" in Wallet.keyMap:
-            return Wallet.keyMap.get("posting")
+        if "posting" in Wallet.key_map:
+            return Wallet.key_map.get("posting")
         else:
             account = self.steemd.get_account(name)
             if not account:
                 return
             for authority in account["posting"]["key_auths"]:
-                key = self.getPrivateKeyForPublicKey(authority[0])
+                key = self.get_private_key_for_public_key(authority[0])
                 if key:
                     return key
             return False
 
-    def getMemoKeyForAccount(self, name):
+    def get_memo_key_for_account(self, name):
         """ Obtain owner Memo Key for an account from the wallet database
         """
-        if "memo" in Wallet.keyMap:
-            return Wallet.keyMap.get("memo")
+        if "memo" in Wallet.key_map:
+            return Wallet.key_map.get("memo")
         else:
             account = self.steemd.get_account(name)
             if not account:
                 return
-            key = self.getPrivateKeyForPublicKey(account["memo_key"])
+            key = self.get_private_key_for_public_key(account["memo_key"])
             if key:
                 return key
             return False
 
-    def getActiveKeyForAccount(self, name):
+    def get_active_key_for_account(self, name):
         """ Obtain owner Active Key for an account from the wallet database
         """
-        if "active" in Wallet.keyMap:
-            return Wallet.keyMap.get("active")
+        if "active" in Wallet.key_map:
+            return Wallet.key_map.get("active")
         else:
             account = self.steemd.get_account(name)
             if not account:
                 return
             for authority in account["active"]["key_auths"]:
-                key = self.getPrivateKeyForPublicKey(authority[0])
+                key = self.get_private_key_for_public_key(authority[0])
                 if key:
                     return key
             return False
 
-    def getAccountFromPrivateKey(self, wif):
+    def get_account_from_private_key(self, wif):
         """ Obtain account name from private key
         """
         pub = format(PrivateKey(wif).pubkey, self.prefix)
-        return self.getAccountFromPublicKey(pub)
+        return self.get_account_from_public_key(pub)
 
-    def getAccountFromPublicKey(self, pub):
+    def get_account_from_public_key(self, pub):
         """ Obtain account name from public key
         """
         # FIXME, this only returns the first associated key.
@@ -336,10 +337,10 @@ class Wallet:
         else:
             return names[0]
 
-    def getAccount(self, pub):
+    def get_account(self, pub):
         """ Get the account data for a public key
         """
-        name = self.getAccountFromPublicKey(pub)
+        name = self.get_account_from_public_key(pub)
         if not name:
             return {"name": None, "type": None, "pubkey": pub}
         else:
@@ -347,15 +348,15 @@ class Wallet:
                 account = Account(name)
             except:  # noqa FIXME(sneak)
                 return
-            keyType = self.getKeyType(account, pub)
+            key_type = self.get_key_type(account, pub)
             return {
                 "name": name,
                 "account": account,
-                "type": keyType,
+                "type": key_type,
                 "pubkey": pub
             }
 
-    def getKeyType(self, account, pub):
+    def get_key_type(self, account, pub):
         """ Get key type
         """
         for authority in ["owner", "posting", "active"]:
@@ -366,18 +367,18 @@ class Wallet:
             return "memo"
         return None
 
-    def getAccounts(self):
+    def get_accounts(self):
         """ Return all accounts installed in the wallet database
         """
-        pubkeys = self.getPublicKeys()
-        accounts = [self.getAccount(pubkey) for pubkey in pubkeys if pubkey[:len(self.prefix)] == self.prefix]
+        pubkeys = self.get_public_keys()
+        accounts = [self.get_account(pubkey) for pubkey in pubkeys if pubkey[:len(self.prefix)] == self.prefix]
         return accounts
 
-    def getAccountsWithPermissions(self):
+    def get_accounts_with_permissions(self):
         """ Return a dictionary for all installed accounts with their
             corresponding installed permissions
         """
-        accounts = [self.getAccount(a) for a in self.getPublicKeys()]
+        accounts = [self.get_account(a) for a in self.get_public_keys()]
         r = {}
         for account in accounts:
             name = account["name"]
@@ -394,10 +395,194 @@ class Wallet:
             r[name][permission_type] = True
         return r
 
-    def getPublicKeys(self):
+    def get_public_keys(self):
         """ Return all installed public keys
         """
-        if self.keyStorage:
-            return self.keyStorage.getPublicKeys()
+        if self.key_storage:
+            return self.key_storage.get_public_keys()
         else:
             return list(Wallet.keys.keys())
+
+    def setKeys(self, loadkeys):  # noqa: N802
+        """ **Deprecated. Use ``set_keys()`` instead.**
+
+            This method is strictly only for in memory keys that are
+            passed to Wallet/Steem with the ``keys`` argument
+        """
+        warnings.warn(
+            "setKeys() is deprecated. Use set_keys() instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return self.set_keys(loadkeys)
+
+    def changeUserPassphrase(self):  # noqa: N802
+        """ **Deprecated. Use ``set_keys()`` instead.**
+
+            Change the user entered password for the wallet database
+        """
+        warnings.warn(
+            "changeUserPassphrase() is deprecated; use "
+            "change_user_passphrase() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.change_user_passphrase()
+
+    def newWallet(self):  # noqa: N802
+        """ **Deprecated. Use ``new_wallet()`` instead.**
+
+            Create a new wallet database
+        """
+        warnings.warn(
+            "newWallet() is deprecated; use new_wallet() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.new_wallet()
+
+    def getUserPassphrase(self, confirm=False, text='Passphrase: '):  # noqa: N802
+        """ **Deprecated. Use ``get_user_passphrase()`` instead.**
+
+            Obtain a passphrase from the user
+        """
+        warnings.warn(
+            "getUserPassphrase() is deprecated; use get_user_passphrase() "
+            "instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.get_user_passphrase(confirm, text)
+
+    def addPrivateKey(self, wif):  # noqa: N802
+        """ **Deprecated. Use ``add_private_key()`` instead.**
+
+            Add a private key to the wallet database
+        """
+        warnings.warn(
+            "addPrivateKey() is deprecated; use add_private_key() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.add_private_key(wif)
+
+    def getPrivateKeyForPublicKey(self, pub):  # noqa: N802
+        warnings.warn(
+            "getPrivateKeyForPublicKey() is deprecated; use "
+            "get_private_key_for_public_key() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.get_private_key_for_public_key(pub)
+
+    def removePrivateKeyFromPublicKey(self, pub):  # noqa: N802
+        warnings.warn(
+            "removePrivateKeyFromPublicKey() is deprecated; use "
+            "remove_private_key_from_public_key() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.remove_private_key_from_public_key(pub)
+
+    def removeAccount(self, account):  # noqa: N802
+        warnings.warn(
+            "removeAccount() is deprecated; use remove_account() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.remove_account(account)
+
+    def getOwnerKeyForAccount(self, name):  # noqa: N802
+        warnings.warn(
+            "getOwnerKeyForAccount() is deprecated; use "
+            "get_owner_key_for_account() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.get_owner_key_for_account(name)
+
+    def getPostingKeyForAccount(self, name):  # noqa: N802
+        warnings.warn(
+            "getPostingKeyForAccount() is deprecated; use "
+            "get_posting_key_for_account() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.get_posting_key_for_account(name)
+
+    def getMemoKeyForAccount(self, name):  # noqa: N802
+        warnings.warn(
+            "getMemoKeyForAccount() is deprecated; use "
+            "get_memo_key_for_account() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.get_memo_key_for_account(name)
+
+    def getActiveKeyForAccount(self, name):  # noqa: N802
+        warnings.warn(
+            "getActiveKeyForAccount() is deprecated; use "
+            "get_active_key_for_account() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.get_active_key_for_account(name)
+
+    def getAccountFromPrivateKey(self, wif):  # noqa: N802
+        warnings.warn(
+            "getAccountFromPrivateKey() is deprecated; use "
+            "get_account_from_private_key() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.get_account_from_private_key(wif)
+
+    def getAccountFromPublicKey(self, pub):  # noqa: N802
+        warnings.warn(
+            "getAccountFromPublicKey() is deprecated; use "
+            "get_account_from_public_key() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.get_account_from_public_key(pub)
+
+    def getAccount(self, pub):  # noqa: N802
+        warnings.warn(
+            "getAccount() is deprecated; use get_account() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.get_account(pub)
+
+    def getKeyType(self, account, pub):  # noqa: N802
+        warnings.warn(
+            "getKeyType() is deprecated; use get_key_type() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.get_key_type(account, pub)
+
+    def getAccounts(self):  # noqa: N802
+        warnings.warn(
+            "getAccounts() is deprecated; use get_accounts() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.get_accounts()
+
+    def getAccountsWithPermissions(self):  # noqa: N802
+        warnings.warn(
+            "getAccountsWithPermissions() is deprecated; use "
+            "get_accounts_with_permissions() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.get_accounts_with_permissions()
+
+    def getPublicKeys(self):  # noqa: N802
+        warnings.warn(
+            "getPublicKeys() is deprecated; use get_public_keys() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.get_public_keys()

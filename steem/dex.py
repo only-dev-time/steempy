@@ -2,7 +2,7 @@ import random
 
 from steembase import operations
 from steembase import transactions
-from steembase.storage import configStorage as config
+from steembase.storage import config_storage
 
 from .amount import Amount
 from .instance import shared_steemd_instance
@@ -20,6 +20,7 @@ class Dex(object):
 
     def __init__(self, steemd_instance=None):
         self.steemd = steemd_instance or shared_steemd_instance()
+        # TODO add an own commit instance to this class, so that we can use directly commit methods
 
     def _get_asset(self, symbol):
         """ Return the properties of the assets tradeable on the
@@ -177,8 +178,8 @@ class Dex(object):
             is priced in SBD per STEEM.
         """
         if not account:
-            if "default_account" in config:
-                account = config["default_account"]
+            if "default_account" in config_storage:
+                account = config_storage["default_account"]
         if not account:
             raise ValueError("You need to provide an account")
 
@@ -203,7 +204,7 @@ class Dex(object):
                 "expiration":
                     transactions.fmt_time_from_now(expiration)
             })
-        return self.steemd.commit.finalizeOp(op, account, "active")
+        return self.steemd.commit.finalize_op(op, account, "active")
 
     def sell(self,
              amount,
@@ -239,8 +240,8 @@ class Dex(object):
             is priced in SBD per STEEM.
         """
         if not account:
-            if "default_account" in config:
-                account = config["default_account"]
+            if "default_account" in config_storage:
+                account = config_storage["default_account"]
         if not account:
             raise ValueError("You need to provide an account")
         # We buy quote and pay with base
@@ -264,7 +265,7 @@ class Dex(object):
                 "expiration":
                     transactions.fmt_time_from_now(expiration)
             })
-        return self.steemd.commit.finalizeOp(op, account, "active")
+        return self.steemd.commit.finalize_op(op, account, "active")
 
     def cancel(self, orderid, account=None):
         """ Cancels an order you have placed in a given market.
@@ -276,8 +277,8 @@ class Dex(object):
 
         """
         if not account:
-            if "default_account" in config:
-                account = config["default_account"]
+            if "default_account" in config_storage:
+                account = config_storage["default_account"]
         if not account:
             raise ValueError("You need to provide an account")
 
@@ -285,4 +286,4 @@ class Dex(object):
             "owner": account,
             "orderid": orderid,
         })
-        return self.steemd.commit.finalizeOp(op, account, "active")
+        return self.steemd.commit.finalize_op(op, account, "active")

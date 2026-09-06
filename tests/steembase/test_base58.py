@@ -2,12 +2,12 @@ import re
 import unittest
 
 from steembase.base58 import Base58
-from steembase.base58 import base58CheckDecode
-from steembase.base58 import base58CheckEncode
+from steembase.base58 import base58_check_decode
+from steembase.base58 import base58_check_encode
 from steembase.base58 import base58decode
 from steembase.base58 import base58encode
-from steembase.base58 import gphBase58CheckDecode
-from steembase.base58 import gphBase58CheckEncode
+from steembase.base58 import gph_base58_check_decode
+from steembase.base58 import gph_base58_check_encode
 
 
 class Testcases(unittest.TestCase):
@@ -41,18 +41,18 @@ class Testcases(unittest.TestCase):
                          '1ac9edc4ecd13bc1f80cc8148e')
         ])
 
-    def test_gphBase58CheckEncode(self):
+    def test_gph_base58_check_encode(self):
         self.assertEqual([
-            gphBase58CheckEncode(
+            gph_base58_check_encode(
                 "02e649f63f8e8121345fd7f47d0d185a3ccaa843115cd2e9"
                 "392dcd9b82263bc680"),
-            gphBase58CheckEncode(
+            gph_base58_check_encode(
                 "021c7359cd885c0e319924d97e3980206ad64387aff54908"
                 "241125b3a88b55ca16"),
-            gphBase58CheckEncode(
+            gph_base58_check_encode(
                 "02f561e0b57a552df3fa1df2d87a906b7a9fc33a83d5d15f"
                 "a68a644ecb0806b49a"),
-            gphBase58CheckEncode(
+            gph_base58_check_encode(
                 "03e7595c3e6b58f907bee951dc29796f3757307e700ecf3d"
                 "09307a0cc4a564eba3")
         ], [
@@ -62,7 +62,7 @@ class Testcases(unittest.TestCase):
             "8b82mpnH8YX1E9RHnU2a2YgLTZ8ooevEGP9N15c1yFqhoBvJur"
         ])
 
-    def test_gphBase58CheckDecode(self):
+    def test_gph_base58_check_decode(self):
         self.assertEqual([
             "02e649f63f8e8121345fd7f47d0d185a3ccaa84311"
             "5cd2e9392dcd9b82263bc680",
@@ -73,13 +73,13 @@ class Testcases(unittest.TestCase):
             "03e7595c3e6b58f907bee951dc29796f3757307e70"
             "0ecf3d09307a0cc4a564eba3",
         ], [
-            gphBase58CheckDecode(
+            gph_base58_check_decode(
                 "6dumtt9swxCqwdPZBGXh9YmHoEjFFnNfwHaTqRbQTghGAY2gRz"),
-            gphBase58CheckDecode(
+            gph_base58_check_decode(
                 "5725vivYpuFWbeyTifZ5KevnHyqXCi5hwHbNU9cYz1FHbFXCxX"),
-            gphBase58CheckDecode(
+            gph_base58_check_decode(
                 "6kZKHSuxqAwdCYsMvwTcipoTsNE2jmEUNBQufGYywpniBKXWZK"),
-            gphBase58CheckDecode(
+            gph_base58_check_decode(
                 "8b82mpnH8YX1E9RHnU2a2YgLTZ8ooevEGP9N15c1yFqhoBvJur")
         ])
 
@@ -92,9 +92,9 @@ class Testcases(unittest.TestCase):
         03e7595c3e6b58f907bee951dc29796f3757307e700ecf3d09307a0cc4a564eba3"""
 
         for x in re.split(r'\s+', ml):
-            self.assertEqual(x, gphBase58CheckDecode(gphBase58CheckEncode(x)))
+            self.assertEqual(x, gph_base58_check_decode(gph_base58_check_encode(x)))
 
-    def test_Base58CheckDecode(self):
+    def test_base58_check_decode(self):
         self.assertEqual([
             "02e649f63f8e8121345fd7f47d0d185a3ccaa84"
             "3115cd2e9392dcd9b82263bc680",
@@ -110,27 +110,27 @@ class Testcases(unittest.TestCase):
             "6e5cc4653d46e690c709ed9e0570a2c75a286ad7c1bc69a648aae6855d919d3e",
             "b84abd64d66ee1dd614230ebbe9d9c6d66d78d93927c395196666762e9ad69d8"
         ], [
-            base58CheckDecode(
+            base58_check_decode(
                 "KwKM6S22ZZDYw5dxBFhaRyFtcuWjaoxqDDfyCcBYSevnjdfm9Cjo"),
-            base58CheckDecode(
+            base58_check_decode(
                 "KwHpCk3sLE6VykHymAEyTMRznQ1Uh5ukvFfyDWpGToT7Hf5jzrie"),
-            base58CheckDecode(
+            base58_check_decode(
                 "KwKTjyQbKe6mfrtsf4TFMtqAf5as5bSp526s341PQEQvq5ZzEo5W"),
-            base58CheckDecode(
+            base58_check_decode(
                 "KwMJJgtyBxQ9FEvUCzJmvr8tXxB3zNWhkn14mWMCTGSMt5GwGLgz"),
-            base58CheckDecode(
+            base58_check_decode(
                 "5HqUkGuo62BfcJU5vNhTXKJRXuUi9QSE6jp8C3uBJ2BVHtB8WSd"),
-            base58CheckDecode(
+            base58_check_decode(
                 "5JWcdkhL3w4RkVPcZMdJsjos22yB5cSkPExerktvKnRNZR5gx1S"),
-            base58CheckDecode(
+            base58_check_decode(
                 "5HvVz6XMx84aC5KaaBbwYrRLvWE46cH6zVnv4827SBPLorg76oq"),
-            base58CheckDecode(
+            base58_check_decode(
                 "5Jete5oFNjjk3aUMkKuxgAXsp7ZyhgJbYNiNjHLvq5xzXkiqw7R"),
-            base58CheckDecode(
+            base58_check_decode(
                 "5KDT58ksNsVKjYShG4Ls5ZtredybSxzmKec8juj7CojZj6LPRF7")
         ])
 
-    def test_base58CheckEncodeDecode(self):
+    def test_base58_check_encode_decode(self):
         ml = """
             02e649f63f8e8121345fd7f47d0d185a3ccaa843115cd2e9392dcd9b82263bc680
             03457298c4b2c56a8d572c051ca3109dabfe360beb144738180d6c964068ea3e58
@@ -140,9 +140,9 @@ class Testcases(unittest.TestCase):
         """
 
         for x in re.split(r'\s+', ml):
-            self.assertEqual(x, base58CheckDecode(base58CheckEncode(0x80, x)))
+            self.assertEqual(x, base58_check_decode(base58_check_encode(0x80, x)))
 
-    def test_Base58(self):
+    def test_base58(self):
         self.assertEqual([
             format(
                 Base58(

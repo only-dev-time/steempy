@@ -11,7 +11,7 @@ from steem.utils import compat_chr
 
 from .base58 import Base58
 from .base58 import ripemd160
-from .dictionary import words as BrainKeyDictionary
+from .dictionary import words as brainkey_dictionary
 
 
 class PasswordKey(object):
@@ -116,13 +116,13 @@ class BrainKey(object):
         """
         word_count = 16
         brainkey = [None] * word_count
-        dict_lines = BrainKeyDictionary.split(',')
+        dict_lines = brainkey_dictionary.split(',')
         assert len(dict_lines) == 49744
         for j in range(0, word_count):
             num = int.from_bytes(os.urandom(2), byteorder="little")
-            rndMult = num / 2 ** 16  # returns float between 0..1 (inclusive)
-            wIdx = round(len(dict_lines) * rndMult)
-            brainkey[j] = dict_lines[wIdx]
+            rnd_mult = num / 2 ** 16  # returns float between 0..1 (inclusive)
+            word_index = round(len(dict_lines) * rnd_mult)
+            brainkey[j] = dict_lines[word_index]
         return " ".join(brainkey).upper()
 
 
@@ -209,9 +209,9 @@ class PublicKey(object):
 
         .. note:: By default, graphene-based networks deal with **compressed**
                   public keys. If an **uncompressed** key is required, the
-                  method ``unCompressed`` can be used::
+                  method ``uncompressed`` can be used::
 
-                      PublicKey("xxxxx").unCompressed()
+                      PublicKey("xxxxx").uncompressed()
 
     """
 
@@ -244,7 +244,7 @@ class PublicKey(object):
             compat_bytes(compat_chr(2 + (p.y() & 1)), 'ascii') + x_str).decode('ascii')
         return (compressed)
 
-    def unCompressed(self):
+    def uncompressed(self):
         """ Derive uncompressed key """
         public_key = repr(self._pk)
         prefix = public_key[0:2]
@@ -258,7 +258,7 @@ class PublicKey(object):
 
     def point(self):
         """ Return the point for the public key """
-        string = unhexlify(self.unCompressed())
+        string = unhexlify(self.uncompressed())
         return ecdsa.VerifyingKey.from_string(
             string[1:], curve=ecdsa.SECP256k1).pubkey.point
 
@@ -281,6 +281,18 @@ class PublicKey(object):
         """ Returns the raw public key (has length 33)"""
         return compat_bytes(self._pk)
 
+    def unCompressed(self):  # noqa: N802
+        """ **Deprecated. Use ``uncompressed()`` instead.**
+
+            Derive uncompressed public key
+        """
+        import warnings
+        warnings.warn(
+            "unCompressed() is deprecated; use uncompressed() instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return self.uncompressed()
 
 class PrivateKey(object):
     """ Derives the compressed and uncompressed public keys and

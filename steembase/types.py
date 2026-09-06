@@ -67,7 +67,20 @@ def variable_buffer(s):
     return varint(len(s)) + s
 
 
-def JsonObj(data):
+def JsonObj(data):  # noqa: N802
+    """ **Deprecated. Use ``json_obj`` instead.**
+
+        Returns json object from data
+    """
+    import warnings
+    warnings.warn(
+        "JsonObj() is deprecated; use json_obj() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return json_obj(data)
+
+def json_obj(data):
     """ Returns json object from data
     """
     try:
@@ -80,7 +93,7 @@ def JsonObj(data):
         try:
             return data.__str__()
         except:  # noqa FIXME(sneak)
-            raise ValueError('JsonObj could not parse %s:\n%s' %
+            raise ValueError('json_obj could not parse %s:\n%s' %
                              (type(data).__name__, data.__class__)) from None
 
 
@@ -257,7 +270,7 @@ class Array:
             elif isinstance(a, String):
                 r.append(str(a))
             else:
-                r.append(JsonObj(a))
+                r.append(json_obj(a))
         return json.dumps(r)
 
 

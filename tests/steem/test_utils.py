@@ -8,22 +8,22 @@ from steem.utils import sanitize_permlink
 
 
 class Testcases(unittest.TestCase):
-    def test_constructIdentifier(self):
+    def test_construct_identifier(self):
         self.assertEqual(construct_identifier("A", "B"), "A/B")
 
-    def test_sanitizePermlink(self):
+    def test_sanitize_permlink(self):
         self.assertEqual(sanitize_permlink("aAf_0.12"), "aaf-0-12")
         self.assertEqual(sanitize_permlink("[](){}"), "")
 
-    def test_derivePermlink(self):
+    def test_derive_permlink(self):
         self.assertEqual(derive_permlink("Hello World"), "hello-world")
         self.assertEqual(derive_permlink("aAf_0.12"), "aaf-0-12")
         self.assertEqual(derive_permlink("[](){}"), "")
 
-    def test_resolveIdentifier(self):
+    def test_resolve_identifier(self):
         self.assertEqual(resolve_identifier("A/B"), ("A", "B"))
 
-    def test_formatTime(self):
+    def test_format_time(self):
         self.assertEqual(fmt_time(1463480746), "20160517t102546")
 
 

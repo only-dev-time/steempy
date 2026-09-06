@@ -11,7 +11,7 @@ from prettytable import PrettyTable
 
 import steem as stm
 from steembase.account import PrivateKey
-from steembase.storage import configStorage
+from steembase.storage import config_storage
 
 from .account import Account
 from .amount import Amount
@@ -25,7 +25,7 @@ from .utils import strfage
 from .witness import Witness
 
 
-availableConfigurationKeys = [
+available_configuration_keys = [
     "default_account",
     "default_vote_weight",
     "nodes",
@@ -48,7 +48,7 @@ def legacyentry():
     parser.add_argument(
         '--node',
         type=str,
-        default=configStorage["node"],
+        default=config_storage["node"],
         help='URL for public Steem API (default: "https://api.steemit.com")'
     )
 
@@ -88,7 +88,7 @@ def legacyentry():
     setconfig.add_argument(
         'key',
         type=str,
-        choices=availableConfigurationKeys,
+        choices=available_configuration_keys,
         help='Configuration key')
     setconfig.add_argument('value', type=str, help='Configuration value')
     setconfig.set_defaults(command="set")
@@ -184,12 +184,12 @@ def legacyentry():
         '--account',
         type=str,
         required=False,
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='The voter account name')
     parser_upvote.add_argument(
         '--weight',
         type=float,
-        default=configStorage["default_vote_weight"],
+        default=config_storage["default_vote_weight"],
         required=False,
         help='Actual weight (from 0.1 to 100.0)')
     """
@@ -200,7 +200,7 @@ def legacyentry():
     parser_downvote.add_argument(
         '--account',
         type=str,
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='The voter account name')
     parser_downvote.add_argument(
         'post',
@@ -210,7 +210,7 @@ def legacyentry():
     parser_downvote.add_argument(
         '--weight',
         type=float,
-        default=configStorage["default_vote_weight"],
+        default=config_storage["default_vote_weight"],
         required=False,
         help='Actual weight (from 0.1 to 100.0)')
     """
@@ -232,7 +232,7 @@ def legacyentry():
         '--account',
         type=str,
         required=False,
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='Transfer from this account')
     """
         Command "powerup"
@@ -246,7 +246,7 @@ def legacyentry():
         '--account',
         type=str,
         required=False,
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='Powerup from this account')
     parser_powerup.add_argument(
         '--to',
@@ -267,7 +267,7 @@ def legacyentry():
         '--account',
         type=str,
         required=False,
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='powerdown from this account')
     """
         Command "powerdownroute"
@@ -278,7 +278,7 @@ def legacyentry():
     parser_powerdownroute.add_argument(
         'to',
         type=str,
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='The account receiving either VESTS/SteemPower or STEEM.')
     parser_powerdownroute.add_argument(
         '--percentage',
@@ -288,7 +288,7 @@ def legacyentry():
     parser_powerdownroute.add_argument(
         '--account',
         type=str,
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='The account which is powering down')
     parser_powerdownroute.add_argument(
         '--auto_vest',
@@ -308,7 +308,7 @@ def legacyentry():
         '--account',
         type=str,
         required=False,
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='Convert from this account')
     """
         Command "balance"
@@ -320,7 +320,7 @@ def legacyentry():
         'account',
         type=str,
         nargs="*",
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='balance of these account (multiple accounts allowed)')
     """
         Command "interest"
@@ -332,7 +332,7 @@ def legacyentry():
         'account',
         type=str,
         nargs="*",
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='Inspect these accounts')
     """
         Command "permissions"
@@ -344,7 +344,7 @@ def legacyentry():
         'account',
         type=str,
         nargs="?",
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='Account to show permissions for')
     """
         Command "allow"
@@ -356,7 +356,7 @@ def legacyentry():
         '--account',
         type=str,
         nargs="?",
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='The account to allow action for')
     parser_allow.add_argument(
         'foreign_account',
@@ -394,7 +394,7 @@ def legacyentry():
         '--account',
         type=str,
         nargs="?",
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='The account to disallow action for')
     parser_disallow.add_argument(
         'foreign_account',
@@ -425,7 +425,7 @@ def legacyentry():
         '--account',
         type=str,
         required=False,
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='Account that pays the fee')
     parser_newaccount.add_argument(
         '--fee',
@@ -447,18 +447,18 @@ def legacyentry():
         default=["active", "posting", "memo"],  # no owner
         help='Import specified keys (owner, active, posting, memo)')
     """
-        Command "updateMemoKey"
+        Command "updatememokey"
     """
-    parser_updateMemoKey = subparsers.add_parser(
+    parser_updatememokey = subparsers.add_parser(
         'updatememokey', help='Update an account\'s memo key')
-    parser_updateMemoKey.set_defaults(command="updatememokey")
-    parser_updateMemoKey.add_argument(
+    parser_updatememokey.set_defaults(command="updatememokey")
+    parser_updatememokey.add_argument(
         '--account',
         type=str,
         nargs="?",
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='The account to updateMemoKey action for')
-    parser_updateMemoKey.add_argument(
+    parser_updatememokey.add_argument(
         '--key', type=str, default=None, help='The new memo key')
     """
         Command "approvewitness"
@@ -472,7 +472,7 @@ def legacyentry():
         '--account',
         type=str,
         required=False,
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='Your account')
     """
         Command "disapprovewitness"
@@ -486,7 +486,7 @@ def legacyentry():
         '--account',
         type=str,
         required=False,
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='Your account')
     """
         Command "sign"
@@ -541,7 +541,7 @@ def legacyentry():
         '--account',
         type=str,
         required=False,
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='Buy with this account (defaults to "default_account")')
     """
         Command "sell"
@@ -563,7 +563,7 @@ def legacyentry():
         '--account',
         type=str,
         required=False,
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='Sell from this account (defaults to "default_account")')
     """
         Command "cancel"
@@ -576,7 +576,7 @@ def legacyentry():
         '--account',
         type=str,
         required=False,
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='Cancel from this account (defaults to "default_account")')
     """
         Command "resteem"
@@ -592,7 +592,7 @@ def legacyentry():
         '--account',
         type=str,
         required=False,
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='Resteem as this user (requires to have the ' +
              'key installed in the wallet)')
     """
@@ -606,7 +606,7 @@ def legacyentry():
         '--account',
         type=str,
         required=False,
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='Follow from this account')
     parser_follow.add_argument(
         '--what',
@@ -627,7 +627,7 @@ def legacyentry():
         '--account',
         type=str,
         required=False,
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='Unfollow from this account')
     parser_unfollow.add_argument(
         '--what',
@@ -646,7 +646,7 @@ def legacyentry():
         '--account',
         type=str,
         required=False,
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='setprofile as this user (requires to have the key ' +
              'installed in the wallet)')
     parser_setprofile_a = parser_setprofile.add_argument_group(
@@ -669,7 +669,7 @@ def legacyentry():
         '--account',
         type=str,
         required=False,
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='delprofile as this user (requires to have the ' +
              'key installed in the wallet)')
     parser_delprofile.add_argument(
@@ -683,7 +683,7 @@ def legacyentry():
     parser_witnessprops.add_argument(
         '--witness',
         type=str,
-        default=configStorage["default_account"],
+        default=config_storage["default_account"],
         help='Witness name')
     parser_witnessprops.add_argument(
         '--maximum_block_size',
@@ -782,15 +782,15 @@ def legacyentry():
         # TODO: Evaluate this line with cli refactor.
         if (args.key in ["default_account"] and args.value[0] == "@"):
             args.value = args.value[1:]
-        configStorage[args.key] = args.value
+        config_storage[args.key] = args.value
 
     elif args.command == "config":
         t = PrettyTable(["Key", "Value"])
         t.align = "l"
-        for key in configStorage:
+        for key in config_storage:
             # hide internal config data
-            if key in availableConfigurationKeys:
-                t.add_row([key, configStorage[key]])
+            if key in available_configuration_keys:
+                t.add_row([key, config_storage[key]])
         print(t)
 
     elif args.command == "info":
@@ -861,7 +861,7 @@ def legacyentry():
                     pass
             # Public Key
             elif re.match("^STM.{48,55}$", obj):
-                account = steem.commit.wallet.getAccountFromPublicKey(obj)
+                account = steem.commit.wallet.get_account_from_public_key(obj)
                 if account:
                     t = PrettyTable(["Account"])
                     t.align = "l"
@@ -887,13 +887,13 @@ def legacyentry():
                 print("Couldn't identify object to read")
 
     elif args.command == "changewalletpassphrase":
-        steem.commit.wallet.changeUserPassphrase()
+        steem.commit.wallet.change_user_passphrase()
 
     elif args.command == "addkey":
         if args.unsafe_import_key:
             for key in args.unsafe_import_key:
                 try:
-                    steem.commit.wallet.addPrivateKey(key)
+                    steem.commit.wallet.add_private_key(key)
                 except Exception as e:  # noqa PERF203
                     print(str(e))
         else:
@@ -903,14 +903,14 @@ def legacyentry():
                 if not wifkey:
                     break
                 try:
-                    steem.commit.wallet.addPrivateKey(wifkey)
+                    steem.commit.wallet.add_private_key(wifkey)
                 except Exception as e:
                     print(str(e))
                     continue
 
-                installed_keys = steem.commit.wallet.getPublicKeys()
+                installed_keys = steem.commit.wallet.get_public_keys()
                 if len(installed_keys) == 1:
-                    name = steem.commit.wallet.getAccountFromPublicKey(
+                    name = steem.commit.wallet.get_account_from_public_key(
                         installed_keys[0])
                     print("=" * 30)
                     print("Would you like to make %s a default user?" % name)
@@ -924,7 +924,7 @@ def legacyentry():
                    "This step is IRREVERSIBLE! If you don't have a backup, "
                    "You may lose access to your account!"):
             for pub in args.pub:
-                steem.commit.wallet.removePrivateKeyFromPublicKey(pub)
+                steem.commit.wallet.remove_private_key_from_public_key(pub)
 
     elif args.command == "parsewif":
         if args.unsafe_import_key:
@@ -945,19 +945,19 @@ def legacyentry():
                     print(str(e))
                     continue
     elif args.command == "getkey":
-        print(steem.commit.wallet.getPrivateKeyForPublicKey(args.pub))
+        print(steem.commit.wallet.get_private_key_for_public_key(args.pub))
 
     elif args.command == "listkeys":
         t = PrettyTable(["Available Key"])
         t.align = "l"
-        for key in steem.commit.wallet.getPublicKeys():
+        for key in steem.commit.wallet.get_public_keys():
             t.add_row([key])
         print(t)
 
     elif args.command == "listaccounts":
         t = PrettyTable(["Name", "Type", "Available Key"])
         t.align = "l"
-        for account in steem.commit.wallet.getAccounts():
+        for account in steem.commit.wallet.get_accounts():
             t.add_row([
                 account["name"] or "n/a", account["type"] or "n/a",
                 account["pubkey"]
@@ -1107,7 +1107,7 @@ def legacyentry():
             memo_privkey = memo_key.get_private_key()
             # Add the key to the wallet
             if not args.no_broadcast:
-                steem.commit.wallet.addPrivateKey(memo_privkey)
+                steem.commit.wallet.add_private_key(memo_privkey)
         print_json(
             steem.commit.update_memo_key(args.key, account=args.account))
 
@@ -1146,7 +1146,7 @@ def legacyentry():
             if owner_pubkey in [x[0] for x in account["owner"]["key_auths"]]:
                 print("Importing owner key!")
                 owner_privkey = owner_key.get_private_key()
-                steem.commit.wallet.addPrivateKey(owner_privkey)
+                steem.commit.wallet.add_private_key(owner_privkey)
                 imported = True
 
         if "active" in args.roles:
@@ -1155,7 +1155,7 @@ def legacyentry():
             if active_pubkey in [x[0] for x in account["active"]["key_auths"]]:
                 print("Importing active key!")
                 active_privkey = active_key.get_private_key()
-                steem.commit.wallet.addPrivateKey(active_privkey)
+                steem.commit.wallet.add_private_key(active_privkey)
                 imported = True
 
         if "posting" in args.roles:
@@ -1166,7 +1166,7 @@ def legacyentry():
             ]:
                 print("Importing posting key!")
                 posting_privkey = posting_key.get_private_key()
-                steem.commit.wallet.addPrivateKey(posting_privkey)
+                steem.commit.wallet.add_private_key(posting_privkey)
                 imported = True
 
         if "memo" in args.roles:
@@ -1175,7 +1175,7 @@ def legacyentry():
             if memo_pubkey == account["memo_key"]:
                 print("Importing memo key!")
                 memo_privkey = memo_key.get_private_key()
-                steem.commit.wallet.addPrivateKey(memo_privkey)
+                steem.commit.wallet.add_private_key(memo_privkey)
                 imported = True
 
         if not imported:
@@ -1208,7 +1208,7 @@ def legacyentry():
             price = 1.0 / args.price
         else:
             price = args.price
-        dex = Dex(steem)
+        dex = Dex(steem) # TODO check type - param should be steemd type
         print_json(
             dex.buy(args.amount, args.asset, price, account=args.account))
 
@@ -1217,12 +1217,12 @@ def legacyentry():
             price = 1.0 / args.price
         else:
             price = args.price
-        dex = Dex(steem)
+        dex = Dex(steem) # TODO check type - param should be steemd type
         print_json(
             dex.sell(args.amount, args.asset, price, account=args.account))
 
     elif args.command == "cancel":
-        dex = Dex(steem)
+        dex = Dex(steem) # TODO check type - param should be steemd type
         print_json(dex.cancel(args.orderid))
 
     elif args.command == "approvewitness":

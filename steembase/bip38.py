@@ -10,6 +10,7 @@ from steem.utils import compat_bytes
 from .account import PrivateKey
 from .base58 import Base58
 from .base58 import base58decode
+from .exceptions import SaltVerificationError
 
 
 log = logging.getLogger(__name__)
@@ -47,7 +48,8 @@ elif 'scrypt' in SCRYPT_MODULE:
 log.debug("Using scrypt module: %s" % SCRYPT_MODULE)
 
 
-class SaltException(Exception):
+class SaltException(Exception):  # noqa: N818
+    """ **Deprecated. Use ``SaltVerificationError`` instead.** """
     pass
 
 
@@ -100,7 +102,7 @@ def decrypt(encrypted_privkey, passphrase):
     :param str passphrase: UTF-8 encoded passphrase for decryption
     :return: BIP0038 non-ec-multiply decrypted key
     :rtype: Base58
-    :raises SaltException: if checksum verification failed (e.g. wrong
+    :raises SaltVerificationError: if checksum verification failed (e.g. wrong
     password)
 
     """
@@ -138,6 +140,6 @@ def decrypt(encrypted_privkey, passphrase):
     a = compat_bytes(addr, 'ascii')
     saltverify = hashlib.sha256(hashlib.sha256(a).digest()).digest()[0:4]
     if saltverify != salt:
-        raise SaltException(
+        raise SaltVerificationError(
             'checksum verification failed! Password may be incorrect.')
     return wif

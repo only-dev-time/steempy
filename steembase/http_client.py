@@ -354,10 +354,10 @@ class HttpClient(object):
         :return: a list of node url's.
         """
 
-        if self._isString(nodes):
+        if self._is_string(nodes):
             nodes = nodes.split(',')
         elif isinstance(nodes, list):
-            if not all(self._isString(node) for node in nodes):
+            if not all(self._is_string(node) for node in nodes):
                 raise ValueError("All nodes in list must be a string.")
         else:
             raise ValueError("nodes arg must be a "
@@ -367,6 +367,6 @@ class HttpClient(object):
 
         return nodes
 
-    def _isString(self, value):
+    def _is_string(self, value):
         return isinstance(value, str) or \
                (sys.version < '3.0' and isinstance(value, unicode))

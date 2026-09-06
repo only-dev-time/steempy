@@ -1,7 +1,7 @@
 import re
 
 
-def decodeRPCErrorMsg(e):
+def decode_rpc_error_msg(e):
     """ Helper function to decode the raised Exception and give it a
         python Exception class
     """
@@ -16,52 +16,66 @@ def decodeRPCErrorMsg(e):
     else:
         return str(e)
 
+def decodeRPCErrorMsg(e):  # noqa: N802
+    """ **Deprecated. Use ``decode_rpc_error_msg`` instead.**
+
+        Helper function to decode the raised Exception and give it a
+        python Exception class
+    """
+    import warnings
+    warnings.warn(
+        "decodeRPCErrorMsg() is deprecated; use decode_rpc_error_msg() "
+        "instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return decode_rpc_error_msg(e)
 
 class RPCError(Exception):
     pass
 
 
-class RPCErrorRecoverable(RPCError):
+class RPCErrorRecoverable(RPCError):  # noqa: N818
     pass
 
 
-class NumRetriesReached(Exception):
+class NumRetriesReached(Exception):  # noqa: N818
     pass
 
 
-class NoAccessApi(RPCError):
+class NoAccessApi(RPCError):  # noqa: N818
     pass
 
 
-class AlreadyTransactedThisBlock(RPCError):
+class AlreadyTransactedThisBlock(RPCError):  # noqa: N818
     pass
 
 
-class VoteWeightTooSmall(RPCError):
+class VoteWeightTooSmall(RPCError):  # noqa: N818
     pass
 
 
-class OnlyVoteOnceEvery3Seconds(RPCError):
+class OnlyVoteOnceEvery3Seconds(RPCError):  # noqa: N818
     pass
 
 
-class AlreadyVotedSimilarily(RPCError):
+class AlreadyVotedSimilarily(RPCError):  # noqa: N818
     pass
 
 
-class NoMethodWithName(RPCError):
+class NoMethodWithName(RPCError):  # noqa: N818
     pass
 
 
-class PostOnlyEvery5Min(RPCError):
+class PostOnlyEvery5Min(RPCError):  # noqa: N818
     pass
 
 
-class DuplicateTransaction(RPCError):
+class DuplicateTransaction(RPCError):  # noqa: N818
     pass
 
 
-class MissingRequiredPostingAuthority(RPCError):
+class MissingRequiredPostingAuthority(RPCError):  # noqa: N818
     pass
 
 
@@ -69,15 +83,15 @@ class UnhandledRPCError(RPCError):
     pass
 
 
-class ExceededAllowedBandwidth(RPCError):
+class ExceededAllowedBandwidth(RPCError):  # noqa: N818
     pass
 
 
-class AccountExistsException(Exception):
+class AccountExistsException(Exception):  # noqa: N818
     pass
 
 
-class AccountDoesNotExistsException(Exception):
+class AccountDoesNotExistsException(Exception):  # noqa: N818
     pass
 
 
@@ -89,19 +103,19 @@ class MissingKeyError(Exception):
     pass
 
 
-class BlockDoesNotExistsException(Exception):
+class BlockDoesNotExistsException(Exception):  # noqa: N818
     pass
 
 
-class WitnessDoesNotExistsException(Exception):
+class WitnessDoesNotExistsException(Exception):  # noqa: N818
     pass
 
 
-class InvalidKeyFormat(Exception):
+class InvalidKeyFormat(Exception):  # noqa: N818
     pass
 
 
-class NoWallet(Exception):
+class NoWallet(Exception):  # noqa: N818
     pass
 
 
@@ -109,13 +123,23 @@ class InvalidWifError(Exception):
     pass
 
 
-class WalletExists(Exception):
+class WalletExists(Exception):  # noqa: N818
     pass
 
 
-class PostDoesNotExist(Exception):
+class PostDoesNotExist(Exception):  # noqa: N818
     pass
 
 
-class VotingInvalidOnArchivedPost(Exception):
+class VotingInvalidOnArchivedPost(Exception):  # noqa: N818
+    pass
+
+
+class SaltVerificationError(Exception):
+    """ Raised when the salt verification fails. """
+    pass
+
+
+class WrongKEKError(Exception):
+    """ Raised when the KEK is wrong. """
     pass
