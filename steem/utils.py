@@ -6,7 +6,8 @@ import re
 import sys
 import time
 from builtins import bytes  # noqa: A004
-from datetime import datetime, timezone
+from datetime import datetime
+from datetime import timezone
 from urllib.parse import urlparse
 
 import future
