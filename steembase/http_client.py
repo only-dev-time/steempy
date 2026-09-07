@@ -62,7 +62,7 @@ class HttpClient(object):
     """
 
     # set of endpoints which were detected to not support condenser_api
-    non_appbase_nodes = set()
+    non_appbase_nodes = set()  # noqa: RUF012
 
     def __init__(self, nodes, **kwargs):
         self.re_raise = kwargs.get('re_raise', True)
@@ -76,8 +76,7 @@ class HttpClient(object):
         tcp_keepalive = kwargs.get('tcp_keepalive', True)
 
         if tcp_keepalive:
-            socket_options = HTTPConnection.default_socket_options + \
-                             [(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1), ]
+            socket_options = [*HTTPConnection.default_socket_options, (socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)]
         else:
             socket_options = HTTPConnection.default_socket_options
 
@@ -254,7 +253,7 @@ class HttpClient(object):
                 body = HttpClient.json_rpc_body(name, *args, **body_kwargs)
                 response = self.request(body=body)
 
-                success_codes = tuple(list(response.REDIRECT_STATUSES) + [200])
+                success_codes = (*list(response.REDIRECT_STATUSES), 200)
                 if response.status not in success_codes:
                     raise RPCErrorRecoverable("non-200 response: %s from %s"
                                               % (response.status, self.hostname))

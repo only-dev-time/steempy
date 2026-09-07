@@ -229,7 +229,7 @@ class Comment(GrapheneObject):
             if len(args) == 1 and len(kwargs) == 0:
                 kwargs = args[0]
             meta = ""
-            if "json_metadata" in kwargs and kwargs["json_metadata"]:
+            if kwargs.get("json_metadata"):
                 if (isinstance(kwargs["json_metadata"], dict)
                         or isinstance(kwargs["json_metadata"], list)):
                     meta = json.dumps(kwargs["json_metadata"])
@@ -369,7 +369,7 @@ class AccountCreate(GrapheneObject):
                        ) <= 16, "Account name must be at most 16 chars long"
 
             meta = ""
-            if "json_metadata" in kwargs and kwargs["json_metadata"]:
+            if kwargs.get("json_metadata"):
                 if isinstance(kwargs["json_metadata"], dict):
                     meta = json.dumps(kwargs["json_metadata"])
                 else:
@@ -400,7 +400,7 @@ class AccountCreateWithDelegation(GrapheneObject):
                        ) <= 16, "Account name must be at most 16 chars long"
 
             meta = ""
-            if "json_metadata" in kwargs and kwargs["json_metadata"]:
+            if kwargs.get("json_metadata"):
                 if isinstance(kwargs["json_metadata"], dict):
                     meta = json.dumps(kwargs["json_metadata"])
                 else:
@@ -430,7 +430,7 @@ class AccountUpdate(GrapheneObject):
             prefix = kwargs.pop("prefix", default_prefix)
 
             meta = ""
-            if "json_metadata" in kwargs and kwargs["json_metadata"]:
+            if kwargs.get("json_metadata"):
                 if isinstance(kwargs["json_metadata"], dict):
                     meta = json.dumps(kwargs["json_metadata"])
                 else:
@@ -779,7 +779,7 @@ class CustomJson(GrapheneObject):
         else:
             if len(args) == 1 and len(kwargs) == 0:
                 kwargs = args[0]
-            if "json" in kwargs and kwargs["json"]:
+            if kwargs.get("json"):
                 if (isinstance(kwargs["json"], dict)
                         or isinstance(kwargs["json"], list)):
                     js = json.dumps(kwargs["json"])
@@ -811,11 +811,11 @@ class CommentOptions(GrapheneObject):
                 kwargs = args[0]
 
             # handle beneficiaries
-            if "beneficiaries" in kwargs and kwargs['beneficiaries']:
+            if kwargs.get('beneficiaries'):
                 kwargs['extensions'] = [[0, {'beneficiaries': kwargs['beneficiaries']}]]
 
             extensions = Array([])
-            if "extensions" in kwargs and kwargs["extensions"]:
+            if kwargs.get("extensions"):
                 extensions = Array([CommentOptionExtensions(o) for o in kwargs["extensions"]])
 
             super(CommentOptions, self).__init__(

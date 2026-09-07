@@ -198,21 +198,20 @@ class Key(DataDir):
 class Configuration(DataDir):
     __tablename__ = "config"
 
-    #: Default configuration
-    config_defaults = {
-        "categories_sorting": "trending",
-        "default_vote_weight": 100.0,
-        "format": "markdown",
-        "limit": 10,
-        "list_sorting": "trending",
-        "post_category": "steem",
-        "prefix": "STM"
-    }
-
     def __init__(self):
         """ This is the configuration storage that stores key/value
             pairs in the `config` table of the SQLite3 database.
         """
+        #: Default configuration
+        self.config_defaults = {
+            "categories_sorting": "trending",
+            "default_vote_weight": 100.0,
+            "format": "markdown",
+            "limit": 10,
+            "list_sorting": "trending",
+            "post_category": "steem",
+            "prefix": "STM"
+        }
         super(Configuration, self).__init__()
 
     def exists_table(self):
@@ -394,8 +393,7 @@ class KeyEncryptionKey(object):
         """ Generate a new random KeyEncryptionKey
         """
         # make sure to not overwrite an existing key
-        if (self.config_key in config_storage
-                and config_storage[self.config_key]):
+        if config_storage.get(self.config_key):
             return
         self.decrypted_kek = hexlify(os.urandom(32)).decode("ascii")
 

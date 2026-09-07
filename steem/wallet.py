@@ -41,6 +41,7 @@ class Wallet:
           any account. This mode is only used for *foreign*
           signatures!
     """
+    # TODO check usage of class attributes
     decrypted_kek = None
 
     # Keys from database
@@ -49,8 +50,8 @@ class Wallet:
     key_storage = None
 
     # Manually provided keys
-    keys = {}  # struct with pubkey as key and wif as value
-    key_map = {}  # type:wif pairs to force certain keys
+    keys = {}  # struct with pubkey as key and wif as value  # noqa: RUF012
+    key_map = {}  # maps permission types to wif keys.  # noqa: RUF012
 
     def __init__(self, steemd_instance=None, **kwargs):
         from steembase.storage import config_storage
@@ -233,7 +234,7 @@ class Wallet:
                 # If there is only one key in my overwrite-storage, then
                 # use that one! Whether it will has sufficient
                 # authorization is left to ensure by the developer
-                return list(self.keys.values())[0]
+                return next(iter(self.keys.values()))
         else:
             # Test if wallet exists
             if not self.created():

@@ -16,10 +16,10 @@ class Dex(object):
         accessing a RPC
 
     """
-    assets = ["STEEM", "SBD"]
 
     def __init__(self, steemd_instance=None):
         self.steemd = steemd_instance or shared_steemd_instance()
+        self.assets = ["STEEM", "SBD"]
         # TODO add an own commit instance to this class, so that we can use directly commit methods
 
     def _get_asset(self, symbol):

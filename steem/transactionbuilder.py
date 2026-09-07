@@ -117,7 +117,7 @@ class TransactionBuilder(dict):
 
         try:
             signedtx = SignedTransaction(**self.json())
-        except Exception as e:  # noqa FIXME(sneak)
+        except Exception as e:  # FIXME(sneak)
             raise e
 
         if not any(self.wifs):
