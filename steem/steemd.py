@@ -1011,7 +1011,7 @@ class Steemd(HttpClient):
 
     def get_key_references(self, public_keys):
         """ get_key_references """
-        if type(public_keys) == str:
+        if isinstance(public_keys, str):
             public_keys = [public_keys]
         return self.call(
             'get_key_references', public_keys, api='account_by_key_api')

@@ -6,7 +6,8 @@ import re
 import sys
 import time
 from builtins import bytes  # noqa: A004
-from datetime import datetime
+from datetime import datetime, timezone
+from urllib.parse import urlparse
 
 import future
 import w3lib.url
@@ -16,11 +17,6 @@ from langdetect.lang_detect_exception import LangDetectException
 from toolz import assoc
 from toolz import update_in
 
-
-if sys.version >= '3.0':
-    from urllib.parse import urlparse
-else:
-    from urlparse import urlparse
 
 logger = logging.getLogger(__name__)
 
@@ -194,9 +190,9 @@ def time_elapsed(posting_time):
     """Takes a string time from a post or blockchain event, and returns a
     time delta from now.
     """
-    if type(posting_time) == str:
+    if isinstance(posting_time, str):
         posting_time = parse_time(posting_time)
-    return datetime.utcnow() - posting_time
+    return datetime.now(timezone.utc) - posting_time
 
 
 def parse_time(block_time):
@@ -215,7 +211,7 @@ def keep_in_dict(obj, allowed_keys=None):
     """
     if allowed_keys is None:
         allowed_keys = []
-    if type(obj) == dict:
+    if isinstance(obj, dict):
         items = obj.items()
     else:
         items = obj.__dict__.items()
@@ -228,7 +224,7 @@ def remove_from_dict(obj, remove_keys=None):
     """
     if remove_keys is None:
         remove_keys = []
-    if type(obj) == dict:
+    if isinstance(obj, dict):
         items = obj.items()
     else:
         items = obj.__dict__.items()
@@ -264,10 +260,10 @@ def construct_identifier(*args):
 
 def json_expand(json_op, key_name='json'):
     """ Convert a string json object to Python dict in an op. """
-    if type(json_op) == dict and key_name in json_op and json_op[key_name]:
+    if isinstance(json_op, dict) and key_name in json_op and json_op[key_name]:
         try:
             return update_in(json_op, [key_name], json.loads)
-        except JSONDecodeError:
+        except json.JSONDecodeError:
             return assoc(json_op, key_name, {})
 
     return json_op
@@ -308,7 +304,7 @@ def resolve_identifier(identifier):
 def fmt_time(t):
     """ Properly Format Time for permlinks
     """
-    return datetime.utcfromtimestamp(t).strftime("%Y%m%dt%H%M%S%Z")
+    return datetime.fromtimestamp(t, timezone.utc).strftime("%Y%m%dt%H%M%S")
 
 
 def fmt_time_string(t):
@@ -326,7 +322,7 @@ def fmt_time_from_now(secs=0):
         :rtype: str
 
     """
-    return datetime.utcfromtimestamp(time.time() + int(secs)).strftime(
+    return datetime.fromtimestamp(time.time() + int(secs), timezone.utc).strftime(
         '%Y-%m-%dT%H:%M:%S')
 
 
@@ -340,7 +336,7 @@ def strfage(time, fmt=None):
     """ Format time/age
     """
     if not hasattr(time, "days"):  # dirty hack
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         if isinstance(time, str):
             time = datetime.strptime(time, '%Y-%m-%dT%H:%M:%S')
         time = (now - time)
@@ -390,29 +386,6 @@ def compat_compose_dictionary(dictionary, **kwargs):
     return composed_dict
 
 
-def compat_json(data, ignore_dicts=False):
-    """
-
-    :param data: Json Data we want to ensure compatibility on.
-    :param ignore_dicts: should only be set to true when first called.
-    :return: Python compatible 2.7 byte-strings when encountering unicode.
-    """
-    # if this is a unicode string, return its string representation
-    if isinstance(data, unicode):
-        return data.encode('utf-8')
-    # if this is a list of values, return list of byte-string values
-    if isinstance(data, list):
-        return [compat_json(item, ignore_dicts=True) for item in data]
-    # if this is a dictionary, return dictionary of byte-string keys and values
-    # but only if we haven't already byte-string it
-    if isinstance(data, dict) and not ignore_dicts:
-        return {
-            compat_json(key, ignore_dicts=True): compat_json(value, ignore_dicts=True)
-            for key, value in data.iteritems()
-        }
-    # if it's anything else, return it in its original form
-    return data
-
 def compat_bytes(item, encoding=None):
     """
     This method is required because Python 2.7 `bytes` is simply an alias for `str`. Without this method,
@@ -447,6 +420,8 @@ def compat_bytes(item, encoding=None):
     :param encoding: optional encoding parameter to handle the Python 3.6 two argument 'bytes' method.
     :return: a bytes object that functions the same across 3.6 and 2.7
     """
+    # TODO method is useful for centralizing the bytes method, but not to maintain compatibility with python 2.7
+    # TODO in this regard the docstring should be updated
     if hasattr(item, '__bytes__'):
         return item.__bytes__()
     else:
@@ -466,7 +441,6 @@ def compat_chr(item):
     :param item: a length 1 string who's `chr` method needs to be invoked
     :return: the unichr code point of the single character string, item
     """
-    if sys.version >= '3.0':
-        return chr(item)
-    else:
-        return unichr(item)
+    # TODO remove this methode because python 2.7 is no longer supported.
+    # TODO removing needs to change all calls to compat_chr to simply use chr() instead.
+    return chr(item)

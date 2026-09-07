@@ -6,7 +6,9 @@ import socket
 import sys
 import time
 from functools import partial
+from http.client import RemoteDisconnected
 from itertools import cycle
+from urllib.parse import urlparse
 
 import certifi
 import urllib3
@@ -18,15 +20,6 @@ from urllib3.exceptions import ReadTimeoutError
 from steembase.exceptions import RPCError
 from steembase.exceptions import RPCErrorRecoverable
 
-
-if sys.version >= '3.5':
-    from http.client import RemoteDisconnected
-
-if sys.version >= '3.0':
-    from urllib.parse import urlparse
-else:
-    from httplib import HTTPException
-    from urlparse import urlparse
 
 logger = logging.getLogger(__name__)
 
@@ -230,17 +223,8 @@ class HttpClient(object):
 
         # tuple of Exceptions which are eligible for retry
         retry_exceptions = (MaxRetryError, ReadTimeoutError,
-                            ProtocolError, RPCErrorRecoverable,)
-
-        if sys.version > '3.5':
-            retry_exceptions += (json.decoder.JSONDecodeError, RemoteDisconnected,)
-        else:
-            retry_exceptions += (ValueError,)
-
-        if sys.version > '3.0':
-            retry_exceptions += (ConnectionResetError,)
-        else:
-            retry_exceptions += (HTTPException,)
+                            ProtocolError, RPCErrorRecoverable,
+                            json.decoder.JSONDecodeError, RemoteDisconnected, ConnectionResetError)
 
         tries = 0
         while True:
@@ -296,8 +280,6 @@ class HttpClient(object):
                 return result['result']
 
             except retry_exceptions as e:
-                if e == ValueError and 'JSON' not in e.args[0]:
-                    raise e  # (python<3.5 lacks json.decoder.JSONDecodeError)
                 if tries >= 10:
                     logging.error('Failed after %d attempts -- %s: %s',
                                   tries, e.__class__.__name__, e)
@@ -314,7 +296,7 @@ class HttpClient(object):
             except Exception as e:
                 extra = {"err": e, "request": self.request}
                 logger.error('Unexpected exception! Please report at ' +
-                             'https://github.com/steemit/steem-python/issues' +
+                             'https://github.com/only-dev-time/steempy/issues' +
                              ' -- %s: %s', e.__class__.__name__, e, extra=extra)
                 raise e
 
@@ -367,5 +349,4 @@ class HttpClient(object):
         return nodes
 
     def _is_string(self, value):
-        return isinstance(value, str) or \
-               (sys.version < '3.0' and isinstance(value, unicode))
+        return isinstance(value, str)

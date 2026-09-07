@@ -220,7 +220,7 @@ class Post(dict):
 
         # Convert Amount class objects into pure dictionaries
         def decompose_amounts(item):
-            if type(item) == Amount:
+            if isinstance(item, Amount):
                 return dict(item)
             return item
 
@@ -255,7 +255,7 @@ class Post(dict):
         """
         # Test if post is archived, if so, voting is worthless but just
         # pollutes the blockchain and account history
-        if self.get('net_rshares', None) == None:
+        if self.get('net_rshares', None) is None:
             raise VotingInvalidOnArchivedPost
         return self.commit.vote(self.identifier, weight, account=voter)
 
@@ -275,8 +275,8 @@ class Post(dict):
         if replace:
             newbody = body
         else:
-            import diff_match_patch
-            dmp = diff_match_patch.diff_match_patch()
+            from diff_match_patch import diff_match_patch
+            dmp = diff_match_patch()
             patch = dmp.patch_make(original_post["body"], body)
             newbody = dmp.patch_toText(patch)
 

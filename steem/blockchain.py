@@ -238,7 +238,7 @@ class Blockchain(object):
 
             # deal with different self.stream_from() outputs
             events = ops
-            if type(ops) == dict:
+            if isinstance(ops, dict):
                 if 'witness_signature' in ops:
                     raise ValueError(
                         'Blockchain.stream() is for operation level streams. '

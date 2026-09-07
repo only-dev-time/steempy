@@ -8,7 +8,6 @@ from binascii import unhexlify
 from calendar import timegm
 
 from steem.utils import compat_bytes
-from steem.utils import compat_json
 
 
 object_type = {
@@ -84,11 +83,7 @@ def json_obj(data):
     """ Returns json object from data
     """
     try:
-        if sys.version >= '3.0':
-            return json.loads(str(data))
-        else:
-            return compat_json(json.loads(str(data), object_hook=compat_json),
-                               ignore_dicts=True)
+        return json.loads(str(data))
     except Exception as e:  # noqa FIXME(sneak)
         try:
             return data.__str__()

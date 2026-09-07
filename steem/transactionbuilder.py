@@ -7,11 +7,11 @@ from steembase.exceptions import InvalidKeyFormat
 from steembase.exceptions import MissingKeyError
 from steembase.operations import Operation
 from steembase.transactions import SignedTransaction
-from steembase.transactions import fmt_time_from_now
 from steembase.transactions import get_block_params
 
 from .account import Account
 from .instance import shared_steemd_instance
+from .utils import fmt_time_from_now
 from .wallet import Wallet
 
 

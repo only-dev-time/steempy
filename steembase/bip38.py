@@ -74,10 +74,7 @@ def encrypt(privkey, passphrase):
     a = compat_bytes(addr, 'ascii')
     salt = hashlib.sha256(hashlib.sha256(a).digest()).digest()[0:4]
     if SCRYPT_MODULE == "scrypt":
-        if sys.version >= '3.0.0':
-            key = scrypt.hash(passphrase, salt, 16384, 8, 8)
-        else:
-            key = scrypt.hash(str(passphrase), str(salt), 16384, 8, 8)
+        key = scrypt.hash(passphrase, salt, 16384, 8, 8)
     elif SCRYPT_MODULE == "pylibscrypt":
         key = scrypt.scrypt(compat_bytes(passphrase, "utf-8"), salt, 16384, 8, 8)
     else:
@@ -115,10 +112,7 @@ def decrypt(encrypted_privkey, passphrase):
     salt = d[0:4]
     d = d[4:-4]
     if SCRYPT_MODULE == "scrypt":
-        if sys.version >= '3.0.0':
-            key = scrypt.hash(passphrase, salt, 16384, 8, 8)
-        else:
-            key = scrypt.hash(str(passphrase), str(salt), 16384, 8, 8)
+        key = scrypt.hash(passphrase, salt, 16384, 8, 8)
     elif SCRYPT_MODULE == "pylibscrypt":
         key = scrypt.scrypt(compat_bytes(passphrase, "utf-8"), salt, 16384, 8, 8)
     else:

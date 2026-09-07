@@ -12,8 +12,9 @@ class Amount(dict):
             self["asset"] = amount_string["asset"]
         elif isinstance(amount_string, str):
             self["amount"], self["asset"] = amount_string.split(" ")
-        elif isinstance(amount_string, unicode):
-            self["amount"], self["asset"] = amount_string.split(" ")
+        # TODO remove this elif, because unicode is not a type in Python 3 anymore
+        # elif isinstance(amount_string, unicode):
+        #     self["amount"], self["asset"] = amount_string.split(" ")
         else:
             raise ValueError(
                 "Need an instance of 'Amount' or a string with amount " +

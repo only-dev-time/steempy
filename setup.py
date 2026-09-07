@@ -18,6 +18,7 @@ AUTHOR = "Moecki"
 REQUIRED = [
     "appdirs",
     "certifi",
+    "diff-match-patch",
     "ecdsa>=0.13",
     "funcy",
     'futures ; python_version < "3.0.0"',

@@ -2,17 +2,16 @@ import array
 import hashlib
 import logging
 import struct
-import sys
 import time
 from binascii import hexlify
 from binascii import unhexlify
 from collections import OrderedDict
-from datetime import datetime
 
 import ecdsa
 
 from steem.utils import compat_bytes
 from steem.utils import compat_chr
+from steem.utils import fmt_time_from_now as utils_fmt_time_from_now
 
 from .account import PrivateKey
 from .account import PublicKey
@@ -281,10 +280,7 @@ class SignedTransaction(GrapheneObject):
 
         for signature in signatures:
             sig = compat_bytes(signature)[1:]
-            if sys.version >= '3.0':
-                recover_parameter = (compat_bytes(signature)[0]) - 4 - 27  # recover parameter only
-            else:
-                recover_parameter = ord((compat_bytes(signature)[0])) - 4 - 27
+            recover_parameter = (compat_bytes(signature)[0]) - 4 - 27  # recover parameter only
 
             if USE_SECP256K1:
                 ALL_FLAGS = secp256k1.lib.SECP256K1_CONTEXT_VERIFY | \
@@ -408,7 +404,7 @@ class SignedTransaction(GrapheneObject):
                     #
                     len_r = sigder[3]
                     len_s = sigder[5 + len_r]
-                    if len_r is 32 and len_s is 32:
+                    if len_r == 32 and len_s == 32:
                         # Derive the recovery parameter
                         #
                         i = self.recover_pubkey_parameter(
@@ -428,9 +424,6 @@ class SignedTransaction(GrapheneObject):
         return self
 
 
-time_format = '%Y-%m-%dT%H:%M:%S%Z'
-
-
 def get_block_params(steem):
     """ Auxiliary method to obtain ``ref_block_num`` and
         ``ref_block_prefix``. Requires a websocket connection to a
@@ -445,12 +438,20 @@ def get_block_params(steem):
 
 
 def fmt_time_from_now(secs=0):
-    """ Properly Format Time that is `x` seconds in the future
+    """ **Deprecated. Use ``fmt_time_from_now`` from ``steem.utils`` instead.**
+
+     Properly Format Time that is `x` seconds in the future
 
      :param int secs: Seconds to go in the future (`x>0`) or the past (`x<0`)
      :return: Properly formated time for Graphene (`%Y-%m-%dT%H:%M:%S`)
      :rtype: str
 
     """
-    return datetime.utcfromtimestamp(time.time() + int(secs)).strftime(
-        time_format)
+    import warnings
+    warnings.warn(
+        "fmt_time_from_now() is deprecated; use fmt_time_from_now() from "
+        "steem.utils instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return utils_fmt_time_from_now(secs)

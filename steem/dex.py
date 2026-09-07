@@ -1,11 +1,11 @@
 import random
 
 from steembase import operations
-from steembase import transactions
 from steembase.storage import config_storage
 
 from .amount import Amount
 from .instance import shared_steemd_instance
+from .utils import fmt_time_from_now
 
 
 class Dex(object):
@@ -95,8 +95,8 @@ class Dex(object):
         """
         assert limit <= 100, "'limit' has to be smaller than 100"
         return self.steemd.get_trade_history(
-            transactions.fmt_time_from_now(-time),
-            transactions.fmt_time_from_now(),
+            fmt_time_from_now(-time),
+            fmt_time_from_now(),
             limit,
         )
 
@@ -140,8 +140,8 @@ class Dex(object):
         """
         return self.steemd.get_market_history(
             bucket_seconds,
-            transactions.fmt_time_from_now(-start_age - end_age),
-            transactions.fmt_time_from_now(-end_age),
+            fmt_time_from_now(-start_age - end_age),
+            fmt_time_from_now(-end_age),
         )
 
     def buy(self,
@@ -202,7 +202,7 @@ class Dex(object):
                 "fill_or_kill":
                     killfill,
                 "expiration":
-                    transactions.fmt_time_from_now(expiration)
+                    fmt_time_from_now(expiration)
             })
         return self.steemd.commit.finalize_op(op, account, "active")
 
@@ -263,7 +263,7 @@ class Dex(object):
                 "fill_or_kill":
                     killfill,
                 "expiration":
-                    transactions.fmt_time_from_now(expiration)
+                    fmt_time_from_now(expiration)
             })
         return self.steemd.commit.finalize_op(op, account, "active")
 
