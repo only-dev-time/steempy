@@ -15,13 +15,11 @@ class Testcases(unittest.TestCase):
         to_priv = "5K2JRPe1iRwD2He5DyDRtHs3Z1wpom3YXguFxEd57kNTHhQuZ2k"
 
         for msg in [
-                "foobar",
-                "just a donation",
-                "1124safafASFasc",
+            "foobar",
+            "just a donation",
+            "1124safafASFasc",
         ]:
             nonce = random.getrandbits(64)
-            memo = memo_module.encode_memo(
-                PrivateKey(from_priv),
-                PrivateKey(to_priv).pubkey, nonce, msg)
+            memo = memo_module.encode_memo(PrivateKey(from_priv), PrivateKey(to_priv).pubkey, nonce, msg)
             plain = memo_module.decode_memo(PrivateKey(to_priv), memo)
             self.assertEqual(msg, plain)

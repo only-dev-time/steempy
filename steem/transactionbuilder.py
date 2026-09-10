@@ -19,16 +19,11 @@ log = logging.getLogger(__name__)
 
 
 class TransactionBuilder(dict):
-    """ This class simplifies the creation of transactions by adding
-        operations and signers.
+    """This class simplifies the creation of transactions by adding
+    operations and signers.
     """
 
-    def __init__(self,
-                 tx=None,
-                 steemd_instance=None,
-                 wallet_instance=None,
-                 no_broadcast=False,
-                 expiration=60):
+    def __init__(self, tx=None, steemd_instance=None, wallet_instance=None, no_broadcast=False, expiration=60):
         self.steemd = steemd_instance or shared_steemd_instance()
         self.no_broadcast = no_broadcast
         self.expiration = expiration
@@ -49,8 +44,7 @@ class TransactionBuilder(dict):
         self.construct_tx()
 
     def append_signer(self, account, permission):
-        assert permission in ["active", "owner",
-                              "posting"], "Invalid permission"
+        assert permission in ["active", "owner", "posting"], "Invalid permission"
         account = Account(account, steemd_instance=self.steemd)
 
         required_treshold = account[permission]["weight_threshold"]
@@ -67,8 +61,7 @@ class TransactionBuilder(dict):
             if sum([x[1] for x in r]) < required_treshold:
                 # go one level deeper
                 for authority in account[permission]["account_auths"]:
-                    auth_account = Account(
-                        authority[0], steemd_instance=self.steemd)
+                    auth_account = Account(authority[0], steemd_instance=self.steemd)
                     r.extend(fetchkeys(auth_account, level + 1))
 
             return r
@@ -92,20 +85,18 @@ class TransactionBuilder(dict):
         expiration = fmt_time_from_now(self.expiration)
         ref_block_num, ref_block_prefix = get_block_params(self.steemd)
         tx = SignedTransaction(
-            ref_block_num=ref_block_num,
-            ref_block_prefix=ref_block_prefix,
-            expiration=expiration,
-            operations=ops)
+            ref_block_num=ref_block_num, ref_block_prefix=ref_block_prefix, expiration=expiration, operations=ops
+        )
         super(TransactionBuilder, self).__init__(tx.json())
 
     def sign(self):
-        """ Sign a provided transaction witht he provided key(s)
+        """Sign a provided transaction witht he provided key(s)
 
-            :param dict tx: The transaction to be signed and returned
-            :param string wifs: One or many wif keys to use for signing
-                a transaction. If not present, the keys will be loaded
-                from the wallet as defined in "missing_signatures" key
-                of the transactions.
+        :param dict tx: The transaction to be signed and returned
+        :param string wifs: One or many wif keys to use for signing
+            a transaction. If not present, the keys will be loaded
+            from the wallet as defined in "missing_signatures" key
+            of the transactions.
         """
 
         # We need to set the default prefix, otherwise pubkeys are
@@ -127,10 +118,7 @@ class TransactionBuilder(dict):
         self["signatures"].extend(signedtx.json().get("signatures"))
 
     def broadcast(self):
-        """ Broadcast a transaction to the Steem network
-
-            :param tx tx: Signed transaction to broadcast
-        """
+        """Broadcast a transaction to the Steem network."""
         if self.no_broadcast:
             log.warning("Not broadcasting anything!")
             return self
@@ -155,9 +143,9 @@ class TransactionBuilder(dict):
         return self
 
     def add_signing_information(self, account, permission):
-        """ This method adds side information to a
-            unsigned/partial transaction in order to simplify later
-            signing (e.g. for multisig or coldstorage)
+        """This method adds side information to a
+        unsigned/partial transaction in order to simplify later
+        signing (e.g. for multisig or coldstorage)
         """
         account_obj = Account(account, steemd_instance=self.steemd)
         authority = account_obj[permission]
@@ -166,21 +154,15 @@ class TransactionBuilder(dict):
         # may later want to allow multiple operations per tx
         self.update({"required_authorities": {account: authority}})
         for account_auth in authority["account_auths"]:
-            account_auth_account = Account(
-                account_auth[0], steemd_instance=self.steemd)
-            self["required_authorities"].update({
-                account_auth[0]:
-                    account_auth_account.get(permission)
-            })
+            account_auth_account = Account(account_auth[0], steemd_instance=self.steemd)
+            self["required_authorities"].update({account_auth[0]: account_auth_account.get(permission)})
 
         # Try to resolve required signatures for offline signing
         self["missing_signatures"] = [x[0] for x in authority["key_auths"]]
         # Add one recursion of keys from account_auths:
         for account_auth in authority["account_auths"]:
-            account_auth_account = Account(
-                account_auth[0], steemd_instance=self.steemd)
-            self["missing_signatures"].extend(
-                [x[0] for x in account_auth_account[permission]["key_auths"]])
+            account_auth_account = Account(account_auth[0], steemd_instance=self.steemd)
+            self["missing_signatures"].extend([x[0] for x in account_auth_account[permission]["key_auths"]])
         self["blockchain"] = self.steemd.chain_params
 
     def json(self):
@@ -195,60 +177,66 @@ class TransactionBuilder(dict):
 
     def appendOps(self, ops):  # noqa: N802
         import warnings
+
         warnings.warn(
             "appendOps() is deprecated; use append_ops()",
             DeprecationWarning,
             stacklevel=2,
-            )
+        )
         self.append_ops(ops)
 
     def appendSigner(self, account, permission):  # noqa: N802
         import warnings
+
         warnings.warn(
             "appendSigner() is deprecated; use append_signer()",
             DeprecationWarning,
             stacklevel=2,
-            )
+        )
         return self.append_signer(account, permission)
 
     def appendWif(self, wif):  # noqa: N802
         import warnings
+
         warnings.warn(
             "appendWif() is deprecated; use append_wif()",
             DeprecationWarning,
             stacklevel=2,
-            )
+        )
         self.append_wif(wif)
 
     def constructTx(self):  # noqa: N802
         import warnings
+
         warnings.warn(
             "constructTx() is deprecated; use construct_tx()",
             DeprecationWarning,
             stacklevel=2,
-            )
+        )
         self.construct_tx()
 
     def addSigningInformation(self, account, permission):  # noqa: N802
-        """ **Deprecated. Use ``add_signing_information`` instead.**
+        """**Deprecated. Use ``add_signing_information`` instead.**
 
-            This is a private method that adds side information to a
-            unsigned/partial transaction in order to simplify later
-            signing (e.g. for multisig or coldstorage)
+        This is a private method that adds side information to a
+        unsigned/partial transaction in order to simplify later
+        signing (e.g. for multisig or coldstorage)
         """
         import warnings
+
         warnings.warn(
             "addSigningInformation() is deprecated; use add_signing_information()",
             DeprecationWarning,
             stacklevel=2,
-            )
+        )
         self.add_signing_information(account, permission)
 
     def appendMissingSignatures(self, wifs):  # noqa: N802
         import warnings
+
         warnings.warn(
             "appendMissingSignatures() is deprecated; use append_missing_signatures()",
             DeprecationWarning,
             stacklevel=2,
-            )
+        )
         self.append_missing_signatures(wifs)

@@ -33,7 +33,7 @@ from .wallet import Wallet
 log = logging.getLogger(__name__)
 
 STEEMIT_100_PERCENT = 10000
-STEEMIT_1_PERCENT = (STEEMIT_100_PERCENT / 100)
+STEEMIT_1_PERCENT = STEEMIT_100_PERCENT / 100
 
 
 # TODO
@@ -61,34 +61,34 @@ STEEMIT_1_PERCENT = (STEEMIT_100_PERCENT / 100)
 
 
 class Commit(object):
-    """ Commit things to the Steem network.
+    """Commit things to the Steem network.
 
-        This class contains helper methods to construct, sign and broadcast
-        common transactions, such as posting, voting, sending funds, etc.
+    This class contains helper methods to construct, sign and broadcast
+    common transactions, such as posting, voting, sending funds, etc.
 
-        :param Steemd steemd: Steemd node to connect to*
-        :param bool offline: Do **not** broadcast transactions! *(optional)*
-        :param bool debug: Enable Debugging *(optional)*
+    :param Steemd steemd_instance: Steemd node to connect to*
+    :param bool no_broadcast: Do **not** broadcast transactions! *(optional)*
+    :param bool debug: Enable Debugging *(optional)*
 
-        :param list,dict,string keys: Predefine the wif keys to shortcut the
-        wallet database
+    :param list,dict,string keys: Predefine the wif keys to shortcut the
+    wallet database
 
-        Three wallet operation modes are possible:
+    Three wallet operation modes are possible:
 
-        * **Wallet Database**: Here, the steemlibs load the keys from the
-          locally stored wallet SQLite database (see ``storage.py``).
-          To use this mode, simply call ``Steem()`` without the
-          ``keys`` parameter
-        * **Providing Keys**: Here, you can provide the keys for
-          your accounts manually. All you need to do is add the wif
-          keys for the accounts you want to use as a simple array
-          using the ``keys`` parameter to ``Steem()``.
-        * **Force keys**: This more is for advanced users and
-          requires that you know what you are doing. Here, the
-          ``keys`` parameter is a dictionary that overwrite the
-          ``active``, ``owner``, ``posting`` or ``memo`` keys for
-          any account. This mode is only used for *foreign*
-          signatures!
+    * **Wallet Database**: Here, the steemlibs load the keys from the
+      locally stored wallet SQLite database (see ``storage.py``).
+      To use this mode, simply call ``Steem()`` without the
+      ``keys`` parameter
+    * **Providing Keys**: Here, you can provide the keys for
+      your accounts manually. All you need to do is add the wif
+      keys for the accounts you want to use as a simple array
+      using the ``keys`` parameter to ``Steem()``.
+    * **Force keys**: This more is for advanced users and
+      requires that you know what you are doing. Here, the
+      ``keys`` parameter is a dictionary that overwrite the
+      ``active``, ``owner``, ``posting`` or ``memo`` keys for
+      any account. This mode is only used for *foreign*
+      signatures!
 
     """
 
@@ -100,64 +100,66 @@ class Commit(object):
 
         self.wallet = Wallet(self.steemd, **kwargs)
 
-    def finalizeOp(self, ops, account, permission): #noqa: N802
-        """ **Deprecated. Use ``finalize_op`` instead.**
+    def finalizeOp(self, ops, account, permission):  # noqa: N802
+        """**Deprecated. Use ``finalize_op`` instead.**
 
-            This method obtains the required private keys if present in
-            the wallet, finalizes the transaction, signs it and
-            broadacasts it
+        This method obtains the required private keys if present in
+        the wallet, finalizes the transaction, signs it and
+        broadacasts it
 
-            :param operation ops: The operation (or list of operaions) to
-                broadcast
+        :param operation ops: The operation (or list of operaions) to
+            broadcast
 
-            :param operation account: The account that authorizes the
-                operation
-            :param string permission: The required permission for
-                signing (active, owner, posting)
+        :param operation account: The account that authorizes the
+            operation
+        :param string permission: The required permission for
+            signing (active, owner, posting)
 
-            ... note::
+        ... note::
 
-                If ``ops`` is a list of operation, they all need to be
-                signable by the same key! Thus, you cannot combine ops
-                that require active permission with ops that require
-                posting permission. Neither can you use different
-                accounts for different operations!
+            If ``ops`` is a list of operation, they all need to be
+            signable by the same key! Thus, you cannot combine ops
+            that require active permission with ops that require
+            posting permission. Neither can you use different
+            accounts for different operations!
         """
         import warnings
+
         warnings.warn(
             "finalizeOp() is deprecated; use finalize_op()",
             DeprecationWarning,
             stacklevel=2,
-            )
+        )
         return self.finalize_op(ops, account, permission)
 
     def finalize_op(self, ops, account, permission):
-        """ This method obtains the required private keys if present in
-            the wallet, finalizes the transaction, signs it and
-            broadacasts it
+        """This method obtains the required private keys if present in
+        the wallet, finalizes the transaction, signs it and
+        broadacasts it
 
-            :param operation ops: The operation (or list of operaions) to
-                broadcast
+        :param operation ops: The operation (or list of operaions) to
+            broadcast
 
-            :param operation account: The account that authorizes the
-                operation
-            :param string permission: The required permission for
-                signing (active, owner, posting)
+        :param operation account: The account that authorizes the
+            operation
+        :param string permission: The required permission for
+            signing (active, owner, posting)
 
-            ... note::
+        ... note::
 
-                If ``ops`` is a list of operation, they all need to be
-                signable by the same key! Thus, you cannot combine ops
-                that require active permission with ops that require
-                posting permission. Neither can you use different
-                accounts for different operations!
+            If ``ops`` is a list of operation, they all need to be
+            signable by the same key! Thus, you cannot combine ops
+            that require active permission with ops that require
+            posting permission. Neither can you use different
+            accounts for different operations!
         """
         tx = TransactionBuilder(
             None,
             steemd_instance=self.steemd,
             wallet_instance=self.wallet,
             no_broadcast=self.no_broadcast,
-            expiration=self.expiration)
+            expiration=self.expiration,
+        )
         tx.append_ops(ops)
 
         if self.unsigned:
@@ -170,13 +172,13 @@ class Commit(object):
         return tx.broadcast()
 
     def sign(self, unsigned_trx, wifs=None):
-        """ Sign a provided transaction with the provided key(s)
+        """Sign a provided transaction with the provided key(s)
 
-            :param dict unsigned_trx: The transaction to be signed and returned
-            :param string wifs: One or many wif keys to use for signing
-                a transaction. If not present, the keys will be loaded
-                from the wallet as defined in "missing_signatures" key
-                of the transactions.
+        :param dict unsigned_trx: The transaction to be signed and returned
+        :param string wifs: One or many wif keys to use for signing
+            a transaction. If not present, the keys will be loaded
+            from the wallet as defined in "missing_signatures" key
+            of the transactions.
         """
         if wifs is None:
             wifs = []
@@ -186,37 +188,41 @@ class Commit(object):
             steemd_instance=self.steemd,
             wallet_instance=self.wallet,
             no_broadcast=self.no_broadcast,
-            expiration=self.expiration)
+            expiration=self.expiration,
+        )
         tx.append_missing_signatures(wifs)
         tx.sign()
         return tx.json()
 
     def broadcast(self, signed_trx):
-        """ Broadcast a transaction to the Steem network
+        """Broadcast a transaction to the Steem network
 
-            :param tx signed_trx: Signed transaction to broadcast
+        :param tx signed_trx: Signed transaction to broadcast
         """
         tx = TransactionBuilder(
             signed_trx,
             steemd_instance=self.steemd,
             wallet_instance=self.wallet,
             no_broadcast=self.no_broadcast,
-            expiration=self.expiration)
+            expiration=self.expiration,
+        )
         return tx.broadcast()
 
-    def post(self,
-             title,
-             body,
-             author,
-             permlink=None,
-             reply_identifier=None,
-             json_metadata=None,
-             comment_options=None,
-             community=None,
-             tags=None,
-             beneficiaries=None,
-             self_vote=False):
-        """ Create a new post.
+    def post(
+        self,
+        title,
+        body,
+        author,
+        permlink=None,
+        reply_identifier=None,
+        json_metadata=None,
+        comment_options=None,
+        community=None,
+        tags=None,
+        beneficiaries=None,
+        self_vote=False,
+    ):
+        """Create a new post.
 
         If this post is intended as a reply/comment, `reply_identifier` needs
         to be set with the identifier of the parent post/comment (eg.
@@ -228,56 +234,53 @@ class Commit(object):
         Setting category, tags or community will override the values provided
         in json_metadata and/or comment_options where appropriate.
 
-        Args:
-
-        title (str): Title of the post
-        body (str): Body of the post/comment
-        author (str): Account are you posting from
-        permlink (str): Manually set the permlink (defaults to None).
+        :param str title: Title of the post
+        :param str body: Body of the post/comment
+        :param str author: Account are you posting from
+        :param str permlink: Manually set the permlink (defaults to None).
             If left empty, it will be derived from title automatically.
-        reply_identifier (str): Identifier of the parent post/comment (only
+        :param str reply_identifier: Identifier of the parent post/comment (only
             if this post is a reply/comment).
-        json_metadata (str, dict): JSON meta object that can be attached to
+        :param str, dict json_metadata: JSON meta object that can be attached to
             the post.
-        comment_options (str, dict): JSON options object that can be
+        :param str, dict comment_options: JSON options object that can be
             attached to the post.
 
-        Example::
-            comment_options = {
-                'max_accepted_payout': '1000000.000 SBD',
-                'percent_steem_dollars': 10000,
-                'allow_votes': True,
-                'allow_curation_rewards': True,
-                'extensions': [[0, {
-                    'beneficiaries': [
-                        {'account': 'account1', 'weight': 5000},
-                        {'account': 'account2', 'weight': 5000},
-                    ]}
-                ]]
-            }
+            Example::
 
-        community (str): (Optional) Name of the community we are posting
+                comment_options = {
+                    'max_accepted_payout': '1000000.000 SBD',
+                    'percent_steem_dollars': 10000,
+                    'allow_votes': True,
+                    'allow_curation_rewards': True,
+                    'extensions': [[0, {
+                        'beneficiaries': [
+                            {'account': 'account1', 'weight': 5000},
+                            {'account': 'account2', 'weight': 5000},
+                        ]}
+                    ]]
+                }
+
+        :param str community: (Optional) Name of the community we are posting
             into. This will also override the community specified in
             `json_metadata`.
-
-        tags (str, list): (Optional) A list of tags (5 max) to go with the
+        :param str, list tags: (Optional) A list of tags (5 max) to go with the
             post. This will also override the tags specified in
             `json_metadata`. The first tag will be used as a 'category'. If
             provided as a string, it should be space separated.
-
-        beneficiaries (list of dicts): (Optional) A list of beneficiaries
+        :param list of dicts beneficiaries: (Optional) A list of beneficiaries
             for posting reward distribution. This argument overrides
             beneficiaries as specified in `comment_options`.
 
-        For example, if we would like to split rewards between account1 and
-        account2::
+            For example, if we would like to split rewards between account1 and
+            account2::
 
-            beneficiaries = [
-                {'account': 'account1', 'weight': 5000},
-                {'account': 'account2', 'weight': 5000}
-            ]
+                beneficiaries = [
+                    {'account': 'account1', 'weight': 5000},
+                    {'account': 'account2', 'weight': 5000}
+                ]
 
-        self_vote (bool): (Optional) Upvote the post as author, right after
+        :param bool self_vote: (Optional) Upvote the post as author, right after
             posting.
 
         """
@@ -311,8 +314,7 @@ class Commit(object):
 
         # deal with replies/categories
         if reply_identifier:
-            parent_author, parent_permlink = resolve_identifier(
-                reply_identifier)
+            parent_author, parent_permlink = resolve_identifier(reply_identifier)
             if not permlink:
                 permlink = derive_permlink(title, parent_permlink)
         elif category:
@@ -334,49 +336,45 @@ class Commit(object):
                 "permlink": permlink,
                 "title": title,
                 "body": body,
-                "json_metadata": json_metadata
-            })
+                "json_metadata": json_metadata,
+            }
+        )
         ops = [post_op]
 
         # if comment_options are used, add a new op to the transaction
         if comment_options or beneficiaries:
-            options = keep_in_dict(comment_options or {}, [
-                'max_accepted_payout', 'percent_steem_dollars', 'allow_votes',
-                'allow_curation_rewards', 'extensions'
-            ])
+            options = keep_in_dict(
+                comment_options or {},
+                ['max_accepted_payout', 'percent_steem_dollars', 'allow_votes', 'allow_curation_rewards', 'extensions'],
+            )
             # override beneficiaries extension
             if beneficiaries:
                 # validate schema
                 # or just simply vo.Schema([{'account': str, 'weight': int}])
-                schema = vo.Schema([{
-                    vo.Required('account'):
-                        vo.All(str, vo.Length(max=16)),
-                    vo.Required('weight', default=10000):
-                        vo.All(int, vo.Range(min=1, max=10000))
-                }])
+                schema = vo.Schema(
+                    [
+                        {
+                            vo.Required('account'): vo.All(str, vo.Length(max=16)),
+                            vo.Required('weight', default=10000): vo.All(int, vo.Range(min=1, max=10000)),
+                        }
+                    ]
+                )
                 schema(beneficiaries)
                 options['beneficiaries'] = beneficiaries
 
             default_max_payout = "1000000.000 SBD"
             comment_op = operations.CommentOptions(
                 **{
-                    "author":
-                        author,
-                    "permlink":
-                        permlink,
-                    "max_accepted_payout":
-                        options.get("max_accepted_payout", default_max_payout),
-                    "percent_steem_dollars":
-                        int(options.get("percent_steem_dollars", 10000)),
-                    "allow_votes":
-                        options.get("allow_votes", True),
-                    "allow_curation_rewards":
-                        options.get("allow_curation_rewards", True),
-                    "extensions":
-                        options.get("extensions", []),
-                    "beneficiaries":
-                        options.get("beneficiaries"),
-                })
+                    "author": author,
+                    "permlink": permlink,
+                    "max_accepted_payout": options.get("max_accepted_payout", default_max_payout),
+                    "percent_steem_dollars": int(options.get("percent_steem_dollars", 10000)),
+                    "allow_votes": options.get("allow_votes", True),
+                    "allow_curation_rewards": options.get("allow_curation_rewards", True),
+                    "extensions": options.get("extensions", []),
+                    "beneficiaries": options.get("beneficiaries"),
+                }
+            )
             ops.append(comment_op)
 
         if self_vote:
@@ -386,26 +384,25 @@ class Commit(object):
                     'author': author,
                     'permlink': permlink,
                     'weight': 10000,
-                })
+                }
+            )
             ops.append(vote_op)
 
         return self.finalize_op(ops, author, "posting")
 
     def vote(self, identifier, weight, account=None):
-        """ Vote for a post
+        """Vote for a post
 
-            :param str identifier: Identifier for the post to upvote Takes
-                                   the form ``author/permlink``
-            :param float weight: Voting weight. Range: -100.0 - +100.0. May
-                                 not be 0.0
-            :param str account: Voter to use for voting. (Optional)
+        :param str identifier: Identifier for the post to upvote Takes the form ``author/permlink``
+        :param float weight: Voting weight. Range: -100.0 - +100.0. May not be 0.0
+        :param str account: Voter to use for voting. (Optional)
 
-            If ``voter`` is not defines, the ``default_account`` will be taken
-            or a ValueError will be raised
+        If ``voter`` is not defines, the ``default_account`` will be taken
+        or a ValueError will be raised
 
-            .. code-block:: python
+        .. code-block:: python
 
-                steempy set default_account <account>
+            steempy set default_account <account>
         """
         if not account:
             account = config_storage.get("default_account")
@@ -419,114 +416,115 @@ class Commit(object):
                 "voter": account,
                 "author": post_author,
                 "permlink": post_permlink,
-                "weight": int(weight * STEEMIT_1_PERCENT)
-            })
+                "weight": int(weight * STEEMIT_1_PERCENT),
+            }
+        )
 
         return self.finalize_op(op, account, "posting")
 
     def create_account(
-            self,
-            account_name,
-            json_meta=None,
-            password=None,
-            owner_key=None,
-            active_key=None,
-            posting_key=None,
-            memo_key=None,
-            additional_owner_keys=None,
-            additional_active_keys=None,
-            additional_posting_keys=None,
-            additional_owner_accounts=None,
-            additional_active_accounts=None,
-            additional_posting_accounts=None,
-            store_keys=True,
-            store_owner_key=False,
-            delegation_fee_steem='0 STEEM',
-            creator=None,
+        self,
+        account_name,
+        json_meta=None,
+        password=None,
+        owner_key=None,
+        active_key=None,
+        posting_key=None,
+        memo_key=None,
+        additional_owner_keys=None,
+        additional_active_keys=None,
+        additional_posting_keys=None,
+        additional_owner_accounts=None,
+        additional_active_accounts=None,
+        additional_posting_accounts=None,
+        store_keys=True,
+        store_owner_key=False,
+        delegation_fee_steem='0 STEEM',
+        creator=None,
     ):
-        """ Create new account in Steem
+        """Create new account in Steem
 
-            The brainkey/password can be used to recover all generated keys
-            (see `steembase.account` for more details.
+        The brainkey/password can be used to recover all generated keys
+        (see `steembase.account` for more details.
 
-            By default, this call will use ``default_account`` to
-            register a new name ``account_name`` with all keys being
-            derived from a new brain key that will be returned. The
-            corresponding keys will automatically be installed in the
-            wallet.
+        By default, this call will use ``default_account`` to
+        register a new name ``account_name`` with all keys being
+        derived from a new brain key that will be returned. The
+        corresponding keys will automatically be installed in the
+        wallet.
 
-            .. note:: Account creations cost a fee that is defined by
-               the network. If you create an account, you will
-               need to pay for that fee!
+        .. note:: Account creations cost a fee that is defined by
+            the network. If you create an account, you will
+            need to pay for that fee!
 
-               **You can partially pay that fee by delegating VESTS.**
+            **You can partially pay that fee by delegating VESTS.**
 
-               To pay the fee in full in STEEM, leave
-               ``delegation_fee_steem`` set to ``0 STEEM`` (Default).
+            To pay the fee in full in STEEM, leave
+            ``delegation_fee_steem`` set to ``0 STEEM`` (Default).
 
-               To pay the fee partially in STEEM, partially with delegated
-               VESTS, set ``delegation_fee_steem`` to a value greater than ``1
-               STEEM``. `Required VESTS will be calculated automatically.`
+            To pay the fee partially in STEEM, partially with delegated
+            VESTS, set ``delegation_fee_steem`` to a value greater than ``1
+            STEEM``. `Required VESTS will be calculated automatically.`
 
-               To pay the fee with maximum amount of delegation, set
-               ``delegation_fee_steem`` to ``1 STEEM``. `Required VESTS will be
-               calculated automatically.`
+            To pay the fee with maximum amount of delegation, set
+            ``delegation_fee_steem`` to ``1 STEEM``. `Required VESTS will be
+            calculated automatically.`
 
-            .. warning:: Don't call this method unless you know what
-                          you are doing! Be sure to understand what this
-                          method does and where to find the private keys
-                          for your account.
+        .. warning:: Don't call this method unless you know what
+            you are doing! Be sure to understand what this
+            method does and where to find the private keys
+            for your account.
 
         .. note:: Please note that this imports private keys (if password is
-        present) into the wallet by default. However, it **does not import
-        the owner key** unless `store_owner_key` is set to True (default
-        False). Do NOT expect to be able to recover it from the wallet if
-        you lose your password!
+            present) into the wallet by default. However, it **does not import
+            the owner key** unless `store_owner_key` is set to True (default
+            False). Do NOT expect to be able to recover it from the wallet if
+            you lose your password!
 
-            :param str account_name: (**required**) new account name
-            :param str json_meta: Optional meta data for the account
-            :param str owner_key: Main owner key
-            :param str active_key: Main active key
-            :param str posting_key: Main posting key
-            :param str memo_key: Main memo_key
-            :param str password: Alternatively to providing keys, one
-                                 can provide a password from which the
-                                 keys will be derived
-            :param list additional_owner_keys:  Additional owner public keys
+        :param str account_name: (**required**) new account name
 
-            :param list additional_active_keys: Additional active public keys
+        :param str json_meta: Optional meta data for the account
 
-            :param list additional_posting_keys: Additional posting public keys
+        :param str owner_key: Main owner key
 
-            :param list additional_owner_accounts: Additional owner account
-            names
+        :param str active_key: Main active key
 
-            :param list additional_active_accounts: Additional active account
-            names
+        :param str posting_key: Main posting key
 
-            :param list additional_posting_accounts: Additional posting account
-            names
+        :param str memo_key: Main memo_key
 
-            :param bool store_keys: Store new keys in the wallet (default:
-            ``True``)
+        :param str password: Alternatively to providing keys, one
+            can provide a password from which the
+            keys will be derived
 
-            :param bool store_owner_key: Store owner key in the wallet
-            (default: ``False``)
+        :param list additional_owner_keys:  Additional owner public keys
 
-            :param str delegation_fee_steem: (Optional) If set, `creator` pay a
+        :param list additional_active_keys: Additional active public keys
+
+        :param list additional_posting_keys: Additional posting public keys
+
+        :param list additional_owner_accounts: Additional owner account names
+
+        :param list additional_active_accounts: Additional active account names
+
+        :param list additional_posting_accounts: Additional posting account names
+
+        :param bool store_keys: Store new keys in the wallet (default: ``True``)
+
+        :param bool store_owner_key: Store owner key in the wallet (default: ``False``)
+
+        :param str delegation_fee_steem: (Optional) If set, `creator` pay a
             fee of this amount, and delegate the rest with VESTS (calculated
             automatically). Minimum: 1 STEEM. If left to 0 (Default), full fee
             is paid without VESTS delegation.
 
-            :param str creator: which account should pay the registration fee
-                                (defaults to ``default_account``)
+        :param str creator: which account should pay the registration fee
+            (defaults to ``default_account``)
 
-        :raises AccountExistsException: if the account already exists on the
-        blockchain
+        :raises AccountExistsException: if the account already exists on the blockchain
 
         """
-        assert len(
-            account_name) <= 16, "Account name must be at most 16 chars long"
+        assert len(account_name) <= 16, "Account name must be at most 16 chars long"
 
         if additional_owner_keys is None:
             additional_owner_keys = []
@@ -545,8 +543,8 @@ class Commit(object):
             creator = config_storage.get("default_account")
         if not creator:
             raise ValueError(
-                "Not creator account given. Define it with " +
-                "creator=x, or set the default_account using steempy")
+                "Not creator account given. Define it with " + "creator=x, or set the default_account using steempy"
+            )
         if password and (owner_key or posting_key or active_key or memo_key):
             raise ValueError("You cannot use 'password' AND provide keys!")
 
@@ -561,6 +559,7 @@ class Commit(object):
         " Generate new keys from password"
         from steembase.account import PasswordKey
         from steembase.account import PublicKey
+
         if password:
             posting_key = PasswordKey(account_name, password, role="posting")
             active_key = PasswordKey(account_name, password, role="active")
@@ -582,17 +581,12 @@ class Commit(object):
                 self.wallet.add_private_key(posting_privkey)
                 self.wallet.add_private_key(memo_privkey)
         elif owner_key and posting_key and active_key and memo_key:
-            posting_pubkey = PublicKey(
-                posting_key, prefix=self.steemd.chain_params["prefix"])
-            active_pubkey = PublicKey(
-                active_key, prefix=self.steemd.chain_params["prefix"])
-            owner_pubkey = PublicKey(
-                owner_key, prefix=self.steemd.chain_params["prefix"])
-            memo_pubkey = PublicKey(
-                memo_key, prefix=self.steemd.chain_params["prefix"])
+            posting_pubkey = PublicKey(posting_key, prefix=self.steemd.chain_params["prefix"])
+            active_pubkey = PublicKey(active_key, prefix=self.steemd.chain_params["prefix"])
+            owner_pubkey = PublicKey(owner_key, prefix=self.steemd.chain_params["prefix"])
+            memo_pubkey = PublicKey(memo_key, prefix=self.steemd.chain_params["prefix"])
         else:
-            raise ValueError(
-                "Call incomplete! Provide either a password or public keys!")
+            raise ValueError("Call incomplete! Provide either a password or public keys!")
 
         owner = format(owner_pubkey, self.steemd.chain_params["prefix"])
         active = format(active_pubkey, self.steemd.chain_params["prefix"])
@@ -629,9 +623,7 @@ class Commit(object):
             delegated_sp_fee_mult = 5
 
             if delegation_fee_steem < 1:
-                raise ValueError(
-                    "When creating account with delegation, at least " +
-                    "1 STEEM in fee must be paid.")
+                raise ValueError("When creating account with delegation, at least " + "1 STEEM in fee must be paid.")
 
             # calculate required remaining fee in vests
             remaining_fee = required_fee_steem - delegation_fee_steem
@@ -649,19 +641,19 @@ class Commit(object):
             'owner': {
                 'account_auths': owner_accounts_authority,
                 'key_auths': owner_key_authority,
-                'weight_threshold': 1
+                'weight_threshold': 1,
             },
             'active': {
                 'account_auths': active_accounts_authority,
                 'key_auths': active_key_authority,
-                'weight_threshold': 1
+                'weight_threshold': 1,
             },
             'posting': {
                 'account_auths': posting_accounts_authority,
                 'key_auths': posting_key_authority,
-                'weight_threshold': 1
+                'weight_threshold': 1,
             },
-            'prefix': self.steemd.chain_params["prefix"]
+            'prefix': self.steemd.chain_params["prefix"],
         }
 
         op = operations.AccountCreateWithDelegation(**s)
@@ -669,19 +661,19 @@ class Commit(object):
         return self.finalize_op(op, creator, "active")
 
     def transfer(self, to, amount, asset, memo="", account=None):
-        """ Transfer SBD or STEEM to another account.
+        """Transfer SBD or STEEM to another account.
 
-            :param str to: Recipient
+        :param str to: Recipient
 
-            :param float amount: Amount to transfer
+        :param float amount: Amount to transfer
 
-            :param str asset: Asset to transfer (``SBD`` or ``STEEM``)
+        :param str asset: Asset to transfer (``SBD`` or ``STEEM``)
 
-            :param str memo: (optional) Memo, may begin with `#` for encrypted
-            messaging
+        :param str memo: (optional) Memo, may begin with `#` for encrypted
+        messaging
 
-            :param str account: (optional) the source account for the transfer
-            if not ``default_account``
+        :param str account: (optional) the source account for the transfer
+        if not ``default_account``
 
         """
         if not account:
@@ -699,37 +691,29 @@ class Commit(object):
             nonce = random.getrandbits(64)
             memo = memo_module.encode_memo(
                 PrivateKey(memo_wif),
-                PublicKey(
-                    to_account["memo_key"],
-                    prefix=self.steemd.chain_params["prefix"]),
+                PublicKey(to_account["memo_key"], prefix=self.steemd.chain_params["prefix"]),
                 nonce,
                 memo,
-                prefix=self.steemd.chain_params["prefix"])
+                prefix=self.steemd.chain_params["prefix"],
+            )
 
         op = operations.Transfer(
             **{
-                "from":
-                    account,
-                "to":
-                    to,
-                "amount":
-                    '{:.{prec}f} {asset}'.format(
-                        float(amount), prec=3, asset=asset),
-                "memo":
-                    memo
-            })
+                "from": account,
+                "to": to,
+                "amount": '{:.{prec}f} {asset}'.format(float(amount), prec=3, asset=asset),
+                "memo": memo,
+            }
+        )
         return self.finalize_op(op, account, "active")
 
     def withdraw_vesting(self, amount, account=None):
-        """ Withdraw VESTS from the vesting account.
+        """Withdraw VESTS from the vesting account.
 
-            :param float amount: number of VESTS to withdraw over a period of
-            104 weeks
+        :param float amount: number of VESTS to withdraw over a period of 4 weeks
+        :param str account: (optional) the source account for the transfer if not ``default_account``
 
-            :param str account: (optional) the source account for the transfer
-            if not ``default_account``
-
-    """
+        """
         if not account:
             account = config_storage.get("default_account")
         if not account:
@@ -737,27 +721,21 @@ class Commit(object):
 
         op = operations.WithdrawVesting(
             **{
-                "account":
-                    account,
-                "vesting_shares":
-                    '{:.{prec}f} {asset}'.format(
-                        float(amount), prec=6, asset="VESTS"),
-            })
+                "account": account,
+                "vesting_shares": '{:.{prec}f} {asset}'.format(float(amount), prec=6, asset="VESTS"),
+            }
+        )
 
         return self.finalize_op(op, account, "active")
 
     def transfer_to_vesting(self, amount, to=None, account=None):
-        """ Vest STEEM
+        """Vest STEEM
 
         :param float amount: number of STEEM to vest
+        :param str to: (optional) the source account for the transfer if not ``default_account``
+        :param str account: (optional) the source account for the transfer if not ``default_account``
 
-        :param str to: (optional) the source account for the transfer if not
-        ``default_account``
-
-        :param str account: (optional) the source account for the transfer
-        if not ``default_account``
-
-    """
+        """
         if not account:
             account = config_storage.get("default_account")
         if not account:
@@ -767,29 +745,17 @@ class Commit(object):
             to = account  # powerup on the same account
 
         op = operations.TransferToVesting(
-            **{
-                "from":
-                    account,
-                "to":
-                    to,
-                "amount":
-                    '{:.{prec}f} {asset}'.format(
-                        float(amount), prec=3, asset='STEEM')
-            })
+            **{"from": account, "to": to, "amount": '{:.{prec}f} {asset}'.format(float(amount), prec=3, asset='STEEM')}
+        )
 
         return self.finalize_op(op, account, "active")
 
     def convert(self, amount, account=None, request_id=None):
-        """ Convert SteemDollars to Steem (takes one week to settle)
+        """Convert SteemDollars to Steem (takes one week to settle)
 
-            :param float amount: number of VESTS to withdraw
-
-            :param str account: (optional) the source account for the transfer
-            if not ``default_account``
-
-            :param str request_id: (optional) identifier for tracking the
-            conversion`
-
+        :param float amount: number of VESTS to withdraw
+        :param str account: (optional) the source account for the transfer if not ``default_account``
+        :param str request_id: (optional) identifier for tracking the conversion`
         """
         if not account:
             account = config_storage.get("default_account")
@@ -802,27 +768,22 @@ class Commit(object):
             request_id = random.getrandbits(32)
         op = operations.Convert(
             **{
-                "owner":
-                    account,
-                "requestid":
-                    request_id,
-                "amount":
-                    '{:.{prec}f} {asset}'.format(
-                        float(amount), prec=3, asset='SBD')
-            })
+                "owner": account,
+                "requestid": request_id,
+                "amount": '{:.{prec}f} {asset}'.format(float(amount), prec=3, asset='SBD'),
+            }
+        )
 
         return self.finalize_op(op, account, "active")
 
     def transfer_to_savings(self, amount, asset, memo, to=None, account=None):
-        """ Transfer SBD or STEEM into a 'savings' account.
+        """Transfer SBD or STEEM into a 'savings' account.
 
-            :param float amount: STEEM or SBD amount
-            :param float asset: 'STEEM' or 'SBD'
-            :param str memo: (optional) Memo
-            :param str to: (optional) the source account for the transfer if
-            not ``default_account``
-            :param str account: (optional) the source account for the transfer
-            if not ``default_account``
+        :param float amount: STEEM or SBD amount
+        :param float asset: 'STEEM' or 'SBD'
+        :param str memo: (optional) Memo
+        :param str to: (optional) the source account for the transfer if not ``default_account``
+        :param str account: (optional) the source account for the transfer if not ``default_account``
         """
         assert asset in ['STEEM', 'SBD']
 
@@ -836,36 +797,23 @@ class Commit(object):
 
         op = operations.TransferToSavings(
             **{
-                "from":
-                    account,
-                "to":
-                    to,
-                "amount":
-                    '{:.{prec}f} {asset}'.format(
-                        float(amount), prec=3, asset=asset),
-                "memo":
-                    memo,
-            })
+                "from": account,
+                "to": to,
+                "amount": '{:.{prec}f} {asset}'.format(float(amount), prec=3, asset=asset),
+                "memo": memo,
+            }
+        )
         return self.finalize_op(op, account, "active")
 
-    def transfer_from_savings(self,
-                              amount,
-                              asset,
-                              memo,
-                              request_id=None,
-                              to=None,
-                              account=None):
-        """ Withdraw SBD or STEEM from 'savings' account.
+    def transfer_from_savings(self, amount, asset, memo, request_id=None, to=None, account=None):
+        """Withdraw SBD or STEEM from 'savings' account.
 
-            :param float amount: STEEM or SBD amount
-            :param float asset: 'STEEM' or 'SBD'
-            :param str memo: (optional) Memo
-            :param str request_id: (optional) identifier for tracking or
-            cancelling the withdrawal
-            :param str to: (optional) the source account for the transfer if
-            not ``default_account``
-            :param str account: (optional) the source account for the transfer
-            if not ``default_account``
+        :param float amount: STEEM or SBD amount
+        :param float asset: 'STEEM' or 'SBD'
+        :param str memo: (optional) Memo
+        :param str request_id: (optional) identifier for tracking or cancelling the withdrawal
+        :param str to: (optional) the source account for the transfer if not ``default_account``
+        :param str account: (optional) the source account for the transfer if not ``default_account``
         """
         assert asset in ['STEEM', 'SBD']
 
@@ -884,56 +832,45 @@ class Commit(object):
 
         op = operations.TransferFromSavings(
             **{
-                "from":
-                    account,
-                "request_id":
-                    request_id,
-                "to":
-                    to,
-                "amount":
-                    '{:.{prec}f} {asset}'.format(
-                        float(amount), prec=3, asset=asset),
-                "memo":
-                    memo,
-            })
+                "from": account,
+                "request_id": request_id,
+                "to": to,
+                "amount": '{:.{prec}f} {asset}'.format(float(amount), prec=3, asset=asset),
+                "memo": memo,
+            }
+        )
         return self.finalize_op(op, account, "active")
 
     def transfer_from_savings_cancel(self, request_id, account=None):
-        """ Cancel a withdrawal from 'savings' account.
+        """Cancel a withdrawal from 'savings' account.
 
-            :param str request_id: Identifier for tracking or cancelling
-            the withdrawal
-            :param str account: (optional) the source account for the transfer
-            if not ``default_account``
+        :param str request_id: Identifier for tracking or cancelling the withdrawal
+        :param str account: (optional) the source account for the transfer if not ``default_account``
         """
         if not account:
             account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
 
-        op = operations.CancelTransferFromSavings(**{
-            "from": account,
-            "request_id": request_id,
-        })
+        op = operations.CancelTransferFromSavings(
+            **{
+                "from": account,
+                "request_id": request_id,
+            }
+        )
         return self.finalize_op(op, account, "active")
 
-    def claim_reward_balance(self,
-                             reward_steem='0 STEEM',
-                             reward_sbd='0 SBD',
-                             reward_vests='0 VESTS',
-                             account=None):
-        """ Claim reward balances.
+    def claim_reward_balance(self, reward_steem='0 STEEM', reward_sbd='0 SBD', reward_vests='0 VESTS', account=None):
+        """Claim reward balances.
 
         By default, this will claim ``all`` outstanding balances. To bypass
         this behaviour, set desired claim amount by setting any of
         `reward_steem`, `reward_sbd` or `reward_vests`.
 
-        Args:
-            reward_steem (string): Amount of STEEM you would like to claim.
-            reward_sbd (string): Amount of SBD you would like to claim.
-            reward_vests (string): Amount of VESTS you would like to claim.
-            account (string): The source account for the claim if not
-            ``default_account`` is used.
+        :param str reward_steem: Amount of STEEM you would like to claim.
+        :param str reward_sbd: Amount of SBD you would like to claim.
+        :param str reward_vests: Amount of VESTS you would like to claim.
+        :param str account: The source account for the claim if not ``default_account`` is used.
         """
         if not account:
             account = config_storage.get("default_account")
@@ -942,9 +879,7 @@ class Commit(object):
 
         # if no values were set by user, claim all outstanding balances on
         # account
-        if none(
-                float(first(x.split(' ')))
-                for x in [reward_sbd, reward_steem, reward_vests]):
+        if none(float(first(x.split(' '))) for x in [reward_sbd, reward_steem, reward_vests]):
             a = Account(account)
             reward_steem = a['reward_steem_balance']
             reward_sbd = a['reward_sbd_balance']
@@ -956,20 +891,16 @@ class Commit(object):
                 "reward_steem": reward_steem,
                 "reward_sbd": reward_sbd,
                 "reward_vests": reward_vests,
-            })
+            }
+        )
         return self.finalize_op(op, account, "posting")
 
-    def delegate_vesting_shares(self, to_account, vesting_shares,
-                                account=None):
-        """ Delegate SP to another account.
+    def delegate_vesting_shares(self, to_account, vesting_shares, account=None):
+        """Delegate SP to another account.
 
-        Args:
-            to_account (string): Account we are delegating shares to
-            (delegatee).
-            vesting_shares (string): Amount of VESTS to delegate eg. `10000
-            VESTS`.
-            account (string): The source account (delegator). If not specified,
-            ``default_account`` is used.
+        :param str to_account: Account we are delegating shares to (delegatee).
+        :param str vesting_shares: Amount of VESTS to delegate eg. `10000 VESTS`.
+        :param str account: The source account (delegator). If not specified, ``default_account`` is used.
         """
         if not account:
             account = config_storage.get("default_account")
@@ -981,20 +912,17 @@ class Commit(object):
                 "delegator": account,
                 "delegatee": to_account,
                 "vesting_shares": str(Amount(vesting_shares)),
-            })
+            }
+        )
         return self.finalize_op(op, account, "active")
 
-    def witness_feed_publish(self,
-                             steem_usd_price,
-                             quote="1.000",
-                             account=None):
-        """ Publish a feed price as a witness.
+    def witness_feed_publish(self, steem_usd_price, quote="1.000", account=None):
+        """Publish a feed price as a witness.
 
-            :param float steem_usd_price: Price of STEEM in USD (implied price)
-            :param float quote: (optional) Quote Price. Should be 1.000, unless
-            we are adjusting the feed to support the peg.
-            :param str account: (optional) the source account for the transfer
-            if not ``default_account``
+        :param float steem_usd_price: Price of STEEM in USD (implied price)
+        :param float quote: (optional) Quote Price. Should be 1.000, unless
+        we are adjusting the feed to support the peg.
+        :param str account: (optional) the publishing account. If not specified, ``default_account`` is used.
         """
         if not account:
             account = config_storage.get("default_account")
@@ -1007,25 +935,26 @@ class Commit(object):
                 "exchange_rate": {
                     "base": "%s SBD" % steem_usd_price,
                     "quote": "%s STEEM" % quote,
-                }
-            })
+                },
+            }
+        )
         return self.finalize_op(op, account, "active")
 
     def witness_update(self, signing_key, url, props, account=None):
-        """ Update witness
+        """Update witness
 
-            :param pubkey signing_key: Signing key
-            :param str url: URL
-            :param dict props: Properties
-            :param str account: (optional) witness account name
+        :param pubkey signing_key: Signing key
+        :param str url: URL
+        :param dict props: Properties
 
-             Properties:::
+            Example::
 
                 {
                     "account_creation_fee": x,
                     "maximum_block_size": x,
                     "sbd_interest_rate": x,
                 }
+        :param str account: (optional) witness account name
 
         """
         if not account:
@@ -1045,24 +974,26 @@ class Commit(object):
                 "block_signing_key": signing_key,
                 "props": props,
                 "fee": "0.000 STEEM",
-                "prefix": self.steemd.chain_params["prefix"]
-            })
+                "prefix": self.steemd.chain_params["prefix"],
+            }
+        )
         return self.finalize_op(op, account, "active")
 
     def witness_set_properties(self, signing_key, props, account=None):
-        """ Update witness
+        """Update witness
 
-            :param pubkey signing_key: Signing key
-            :param dict props: Properties
-            :param str account: (optional) witness account name
+        :param pubkey signing_key: Signing key
+        :param dict props: Properties
 
-             Properties:::
+            Example::
 
                 [
                     ["account_creation_fee": x]
                     ["maximum_block_size": x]
                     ["sbd_interest_rate": x]
                 ]
+
+        :param str account: (optional) witness account name
 
         """
         if not account:
@@ -1075,19 +1006,12 @@ class Commit(object):
         except Exception as e:
             raise e
 
-        op = operations.WitnessSetProperties(
-            **{
-                "owner": account,
-                "props": props,
-                "extensions": []
-            })
+        op = operations.WitnessSetProperties(**{"owner": account, "props": props, "extensions": []})
         return self.finalize_op(op, account, "active")
 
     def decode_memo(self, enc_memo):
-        """ Try to decode an encrypted memo
-        """
-        assert enc_memo[
-                   0] == "#", "decode memo requires memos to start with '#'"
+        """Try to decode an encrypted memo"""
+        assert enc_memo[0] == "#", "decode memo requires memos to start with '#'"
         keys = memo_module.involved_keys(enc_memo)
         wif = None
         for key in keys:
@@ -1099,17 +1023,15 @@ class Commit(object):
         return memo_module.decode_memo(PrivateKey(wif), enc_memo)
 
     def interest(self, account):
-        """ Caluclate interest for an account
+        """Caluclate interest for an account
 
-            :param str account: Account name to get interest for
+        :param str account: Account name to get interest for
         """
         account = Account(account, steemd_instance=self.steemd)
         last_payment = fmt_time_string(account["sbd_last_interest_payment"])
         next_payment = last_payment + timedelta(days=30)
-        interest_rate = self.steemd.get_dynamic_global_properties()[
-                            "sbd_interest_rate"] / 100  # percent
-        interest_amount = (interest_rate / 100) * int(
-            int(account["sbd_seconds"]) / (60 * 60 * 24 * 356)) * 10 ** -3
+        interest_rate = self.steemd.get_dynamic_global_properties()["sbd_interest_rate"] / 100  # percent
+        interest_amount = (interest_rate / 100) * int(int(account["sbd_seconds"]) / (60 * 60 * 24 * 356)) * 10**-3
 
         return {
             "interest": interest_amount,
@@ -1119,22 +1041,18 @@ class Commit(object):
             "interest_rate": interest_rate,
         }
 
-    def set_withdraw_vesting_route(self,
-                                   to,
-                                   percentage=100,
-                                   account=None,
-                                   auto_vest=False):
-        """ Set up a vesting withdraw route. When vesting shares are
-            withdrawn, they will be routed to these accounts based on the
-            specified weights.
+    def set_withdraw_vesting_route(self, to, percentage=100, account=None, auto_vest=False):
+        """Set up a vesting withdraw route. When vesting shares are
+        withdrawn, they will be routed to these accounts based on the
+        specified weights.
 
-            :param str to: Recipient of the vesting withdrawal
-            :param float percentage: The percent of the withdraw to go
-                to the 'to' account.
-            :param str account: (optional) the vesting account
-            :param bool auto_vest: Set to true if the from account
-                should receive the VESTS as VESTS, or false if it should
-                receive them as STEEM. (defaults to ``False``)
+        :param str to: Recipient of the vesting withdrawal
+        :param float percentage: The percent of the withdraw to go
+            to the 'to' account.
+        :param str account: (optional) the vesting account
+        :param bool auto_vest: Set to true if the from account
+            should receive the VESTS as VESTS, or false if it should
+            receive them as STEEM. (defaults to ``False``)
         """
         if not account:
             account = config_storage.get("default_account")
@@ -1146,8 +1064,9 @@ class Commit(object):
                 "from_account": account,
                 "to_account": to,
                 "percent": int(percentage * STEEMIT_1_PERCENT),
-                "auto_vest": auto_vest
-            })
+                "auto_vest": auto_vest,
+            }
+        )
 
         return self.finalize_op(op, account, "active")
 
@@ -1161,26 +1080,21 @@ class Commit(object):
         if authority["weight_threshold"] > weights:
             raise ValueError("Threshold too restrictive!")
 
-    def allow(self,
-              foreign,
-              weight=None,
-              permission="posting",
-              account=None,
-              threshold=None):
-        """ Give additional access to an account by some other public
-            key or account.
+    def allow(self, foreign, weight=None, permission="posting", account=None, threshold=None):
+        """Give additional access to an account by some other public
+        key or account.
 
-            :param str foreign: The foreign account that will obtain access
-            :param int weight: (optional) The weight to use. If not
-                define, the threshold will be used. If the weight is
-                smaller than the threshold, additional signatures will
-                be required. (defaults to threshold)
-            :param str permission: (optional) The actual permission to
-                modify (defaults to ``posting``)
-            :param str account: (optional) the account to allow access
-                to (defaults to ``default_account``)
-            :param int threshold: The threshold that needs to be reached
-                by signatures to be able to interact
+        :param str foreign: The foreign account that will obtain access
+        :param int weight: (optional) The weight to use. If not
+            define, the threshold will be used. If the weight is
+            smaller than the threshold, additional signatures will
+            be required. (defaults to threshold)
+        :param str permission: (optional) The actual permission to
+            modify (defaults to ``posting``)
+        :param str account: (optional) the account to allow access
+            to (defaults to ``default_account``)
+        :param int threshold: The threshold that needs to be reached
+            by signatures to be able to interact
         """
         if not account:
             account = config_storage.get("default_account")
@@ -1188,8 +1102,7 @@ class Commit(object):
             raise ValueError("You need to provide an account")
 
         if permission not in ["owner", "posting", "active"]:
-            raise ValueError(
-                "Permission needs to be either 'owner', 'posting', or 'active")
+            raise ValueError("Permission needs to be either 'owner', 'posting', or 'active")
         account = Account(account, steemd_instance=self.steemd)
         if not weight:
             weight = account[permission]["weight_threshold"]
@@ -1201,11 +1114,9 @@ class Commit(object):
         except:  # noqa FIXME(sneak)
             try:
                 foreign_account = Account(foreign, steemd_instance=self.steemd)
-                authority["account_auths"].append(
-                    [foreign_account["name"], weight])
+                authority["account_auths"].append([foreign_account["name"], weight])
             except:  # noqa FIXME(sneak)
-                raise ValueError(
-                    "Unknown foreign account or unvalid public key") from None
+                raise ValueError("Unknown foreign account or unvalid public key") from None
         if threshold:
             authority["weight_threshold"] = threshold
             self._test_weights_treshold(authority)
@@ -1216,28 +1127,25 @@ class Commit(object):
                 permission: authority,
                 "memo_key": account["memo_key"],
                 "json_metadata": account["json_metadata"],
-                'prefix': self.steemd.chain_params["prefix"]
-            })
+                'prefix': self.steemd.chain_params["prefix"],
+            }
+        )
         if permission == "owner":
             return self.finalize_op(op, account["name"], "owner")
         else:
             return self.finalize_op(op, account["name"], "active")
 
-    def disallow(self,
-                 foreign,
-                 permission="posting",
-                 account=None,
-                 threshold=None):
-        """ Remove additional access to an account by some other public
-            key or account.
+    def disallow(self, foreign, permission="posting", account=None, threshold=None):
+        """Remove additional access to an account by some other public
+        key or account.
 
-            :param str foreign: The foreign account that will obtain access
-            :param str permission: (optional) The actual permission to
-                modify (defaults to ``posting``)
-            :param str account: (optional) the account to allow access
-                to (defaults to ``default_account``)
-            :param int threshold: The threshold that needs to be reached
-                by signatures to be able to interact
+        :param str foreign: The foreign account that will obtain access
+        :param str permission: (optional) The actual permission to
+            modify (defaults to ``posting``)
+        :param str account: (optional) the account to allow access
+            to (defaults to ``default_account``)
+        :param int threshold: The threshold that needs to be reached
+            by signatures to be able to interact
         """
         if not account:
             account = config_storage.get("default_account")
@@ -1245,30 +1153,23 @@ class Commit(object):
             raise ValueError("You need to provide an account")
 
         if permission not in ["owner", "posting", "active"]:
-            raise ValueError(
-                "Permission needs to be either 'owner', 'posting', or 'active")
+            raise ValueError("Permission needs to be either 'owner', 'posting', or 'active")
         account = Account(account, steemd_instance=self.steemd)
         authority = account[permission]
 
         try:
-            pubkey = PublicKey(
-                foreign, prefix=self.steemd.chain_params["prefix"])
-            affected_items = list(
-                filter(lambda x: x[0] == str(pubkey), authority["key_auths"]))
-            authority["key_auths"] = list(
-                filter(lambda x: x[0] != str(pubkey), authority["key_auths"]))
+            pubkey = PublicKey(foreign, prefix=self.steemd.chain_params["prefix"])
+            affected_items = list(filter(lambda x: x[0] == str(pubkey), authority["key_auths"]))
+            authority["key_auths"] = list(filter(lambda x: x[0] != str(pubkey), authority["key_auths"]))
         except:  # noqa FIXME(sneak)
             try:
                 foreign_account = Account(foreign, steemd_instance=self.steemd)
-                affected_items = list(
-                    filter(lambda x: x[0] == foreign_account["name"],
-                           authority["account_auths"]))
+                affected_items = list(filter(lambda x: x[0] == foreign_account["name"], authority["account_auths"]))
                 authority["account_auths"] = list(
-                    filter(lambda x: x[0] != foreign_account["name"],
-                           authority["account_auths"]))
+                    filter(lambda x: x[0] != foreign_account["name"], authority["account_auths"])
+                )
             except:  # noqa FIXME(sneak)
-                raise ValueError(
-                    "Unknown foreign account or unvalid public key") from None
+                raise ValueError("Unknown foreign account or unvalid public key") from None
 
         removed_weight = affected_items[0][1]
 
@@ -1281,8 +1182,7 @@ class Commit(object):
         try:
             self._test_weights_treshold(authority)
         except:  # noqa FIXME(sneak)
-            log.critical("The account's threshold will be reduced by %d" %
-                         removed_weight)
+            log.critical("The account's threshold will be reduced by %d" % removed_weight)
             authority["weight_threshold"] -= removed_weight
             self._test_weights_treshold(authority)
 
@@ -1291,22 +1191,22 @@ class Commit(object):
                 "account": account["name"],
                 permission: authority,
                 "memo_key": account["memo_key"],
-                "json_metadata": account["json_metadata"]
-            })
+                "json_metadata": account["json_metadata"],
+            }
+        )
         if permission == "owner":
             return self.finalize_op(op, account["name"], "owner")
         else:
             return self.finalize_op(op, account["name"], "active")
 
     def update_memo_key(self, key, account=None):
-        """ Update an account's memo public key
+        """Update an account's memo public key
 
-            This method does **not** add any private keys to your
-            wallet but merely changes the memo public key.
+        This method does **not** add any private keys to your
+        wallet but merely changes the memo public key.
 
-            :param str key: New memo public key
-            :param str account: (optional) the account to allow access
-                to (defaults to ``default_account``)
+        :param str key: New memo public key
+        :param str account: (optional) the account to allow access to (defaults to ``default_account``)
         """
         if not account:
             account = config_storage.get("default_account")
@@ -1316,58 +1216,50 @@ class Commit(object):
         PublicKey(key)  # raises exception if invalid
         account = Account(account, steemd_instance=self.steemd)
         op = operations.AccountUpdate(
-            **{
-                "account": account["name"],
-                "memo_key": key,
-                "json_metadata": account["json_metadata"]
-            })
+            **{"account": account["name"], "memo_key": key, "json_metadata": account["json_metadata"]}
+        )
         return self.finalize_op(op, account["name"], "active")
 
     def approve_witness(self, witness, account=None, approve=True):
-        """ Vote **for** a witness. This method adds a witness to your
-            set of approved witnesses. To remove witnesses see
-            ``disapprove_witness``.
+        """Vote **for** a witness. This method adds a witness to your
+        set of approved witnesses. To remove witnesses see
+        ``disapprove_witness``.
 
-            :param str witness: witness to approve
-            :param str account: (optional) the account to allow access
-                to (defaults to ``default_account``)
+        :param str witness: witness to approve
+        :param str account: (optional) the account to allow access to (defaults to ``default_account``)
         """
         if not account:
             account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
         account = Account(account, steemd_instance=self.steemd)
-        op = operations.AccountWitnessVote(**{
-            "account": account["name"],
-            "witness": witness,
-            "approve": approve,
-        })
+        op = operations.AccountWitnessVote(
+            **{
+                "account": account["name"],
+                "witness": witness,
+                "approve": approve,
+            }
+        )
         return self.finalize_op(op, account["name"], "active")
 
     def disapprove_witness(self, witness, account=None):
-        """ Remove vote for a witness. This method removes
-            a witness from your set of approved witnesses. To add
-            witnesses see ``approve_witness``.
+        """Remove vote for a witness. This method removes
+        a witness from your set of approved witnesses. To add
+        witnesses see ``approve_witness``.
 
-            :param str witness: witness to approve
-            :param str account: (optional) the account to allow access
-                to (defaults to ``default_account``)
+        :param str witness: witness to approve
+        :param str account: (optional) the account to allow access to (defaults to ``default_account``)
         """
-        return self.approve_witness(
-            witness=witness, account=account, approve=False)
+        return self.approve_witness(witness=witness, account=account, approve=False)
 
-    def custom_json(self,
-                    custom_json_id,
-                    json,
-                    required_auths=None,
-                    required_posting_auths=None):
-        """ Create a custom json operation
+    def custom_json(self, custom_json_id, json, required_auths=None, required_posting_auths=None):
+        """Create a custom json operation
 
-            :param str id: identifier for the custom json (max length 32 bytes)
-            :param json json: the json data to put into the custom_json
-                operation
-            :param list required_auths: (optional) required auths
-            :param list required_posting_auths: (optional) posting auths
+        :param str id: identifier for the custom json (max length 32 bytes)
+        :param json json: the json data to put into the custom_json
+            operation
+        :param list required_auths: (optional) required auths
+        :param list required_posting_auths: (optional) posting auths
         """
         if required_auths is None:
             required_auths = []
@@ -1386,40 +1278,31 @@ class Commit(object):
                 "json": json,
                 "required_auths": required_auths,
                 "required_posting_auths": required_posting_auths,
-                "id": custom_json_id
-            })
+                "id": custom_json_id,
+            }
+        )
         return self.finalize_op(op, account, "posting")
 
     def resteem(self, identifier, account=None):
-        """ Resteem a post
+        """Resteem a post
 
-            :param str identifier: post identifier (<account>/<permlink>)
-            :param str account: (optional) the account to allow access
-                to (defaults to ``default_account``)
+        :param str identifier: post identifier (<account>/<permlink>)
+        :param str account: (optional) the account to allow access to (defaults to ``default_account``)
         """
         if not account:
             account = config_storage.get("default_account")
         if not account:
             raise ValueError("You need to provide an account")
         author, permlink = resolve_identifier(identifier)
-        json_body = [
-            "reblog", {
-                "account": account,
-                "author": author,
-                "permlink": permlink
-            }
-        ]
-        return self.custom_json(
-            custom_json_id="follow", json=json_body, required_posting_auths=[account])
+        json_body = ["reblog", {"account": account, "author": author, "permlink": permlink}]
+        return self.custom_json(custom_json_id="follow", json=json_body, required_posting_auths=[account])
 
     def unfollow(self, unfollow, what=None, account=None):
-        """ Unfollow another account's blog
+        """Unfollow another account's blog
 
-            :param str unfollow: Follow this account
-            :param list what: List of states to follow
-                (defaults to ``['blog']``)
-            :param str account: (optional) the account to allow access
-                to (defaults to ``default_account``)
+        :param str unfollow: Follow this account
+        :param list what: List of states to follow (defaults to ``['blog']``)
+        :param str account: (optional) the account to allow access to (defaults to ``default_account``)
         """
         if what is None:
             what = ["blog"]
@@ -1428,13 +1311,11 @@ class Commit(object):
         return self.follow(unfollow, what=[], account=account)
 
     def follow(self, follow, what=None, account=None):
-        """ Follow another account's blog
+        """Follow another account's blog
 
-            :param str follow: Follow this account
-            :param list what: List of states to follow
-                (defaults to ``['blog']``)
-            :param str account: (optional) the account to allow access
-                to (defaults to ``default_account``)
+        :param str follow: Follow this account
+        :param list what: List of states to follow (defaults to ``['blog']``)
+        :param str account: (optional) the account to allow access to (defaults to ``default_account``)
         """
         if what is None:
             what = ["blog"]
@@ -1443,23 +1324,14 @@ class Commit(object):
         if not account:
             raise ValueError("You need to provide an account")
 
-        json_body = [
-            'follow', {
-                'follower': account,
-                'following': follow,
-                'what': what
-            }
-        ]
-        return self.custom_json(
-            custom_json_id="follow", json=json_body, required_posting_auths=[account])
+        json_body = ['follow', {'follower': account, 'following': follow, 'what': what}]
+        return self.custom_json(custom_json_id="follow", json=json_body, required_posting_auths=[account])
 
     def update_account_profile(self, profile, account=None):
-        """ Update an account's meta data (json_meta)
+        """Update an account's meta data (json_meta)
 
-            :param dict json: The meta data to use (i.e. use Profile() from
-                account.py)
-            :param str account: (optional) the account to allow access
-                to (defaults to ``default_account``)
+        :param dict json: The meta data to use (i.e. use Profile() from account.py)
+        :param str account: (optional) the account to allow access to (defaults to ``default_account``)
         """
         if not account:
             account = config_storage.get("default_account")
@@ -1467,31 +1339,28 @@ class Commit(object):
             raise ValueError("You need to provide an account")
         account = Account(account, steemd_instance=self.steemd)
         op = operations.AccountUpdate(
-            **{
-                "account": account["name"],
-                "memo_key": account["memo_key"],
-                "json_metadata": profile
-            })
+            **{"account": account["name"], "memo_key": account["memo_key"], "json_metadata": profile}
+        )
         return self.finalize_op(op, account["name"], "active")
 
     def comment_options(self, identifier, options, account=None):
-        """ Set the comment options
+        """Set the comment options
 
-            :param str identifier: Post identifier
-            :param dict options: The options to define.
-            :param str account: (optional) the account to allow access
-                to (defaults to ``default_account``)
+        :param str identifier: Post identifier
+        :param dict options: The options to define.
 
-            For the options, you have these defaults:::
+            For the options, you have these defaults::
 
-                    {
-                        "author": "",
-                        "permlink": "",
-                        "max_accepted_payout": "1000000.000 SBD",
-                        "percent_steem_dollars": 10000,
-                        "allow_votes": True,
-                        "allow_curation_rewards": True,
-                    }
+                {
+                    "author": "",
+                    "permlink": "",
+                    "max_accepted_payout": "1000000.000 SBD",
+                    "percent_steem_dollars": 10000,
+                    "allow_votes": True,
+                    "allow_curation_rewards": True,
+                }
+
+        :param str account: (optional) the account to allow access to (defaults to ``default_account``)
 
         """
         if not account:
@@ -1503,19 +1372,14 @@ class Commit(object):
         default_max_payout = "1000000.000 SBD"
         op = operations.CommentOptions(
             **{
-                "author":
-                    author,
-                "permlink":
-                    permlink,
-                "max_accepted_payout":
-                    options.get("max_accepted_payout", default_max_payout),
-                "percent_steem_dollars":
-                    options.get("percent_steem_dollars", 100) * STEEMIT_1_PERCENT,
-                "allow_votes":
-                    options.get("allow_votes", True),
-                "allow_curation_rewards":
-                    options.get("allow_curation_rewards", True),
-            })
+                "author": author,
+                "permlink": permlink,
+                "max_accepted_payout": options.get("max_accepted_payout", default_max_payout),
+                "percent_steem_dollars": options.get("percent_steem_dollars", 100) * STEEMIT_1_PERCENT,
+                "allow_votes": options.get("allow_votes", True),
+                "allow_curation_rewards": options.get("allow_curation_rewards", True),
+            }
+        )
         return self.finalize_op(op, account["name"], "posting")
 
 

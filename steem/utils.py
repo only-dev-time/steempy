@@ -3,14 +3,12 @@ import json
 import logging
 import os
 import re
-import sys
 import time
 from builtins import bytes  # noqa: A004
 from datetime import datetime
 from datetime import timezone
 from urllib.parse import urlparse
 
-import future
 import w3lib.url
 from langdetect import DetectorFactory
 from langdetect import detect
@@ -23,9 +21,7 @@ logger = logging.getLogger(__name__)
 
 # https://github.com/matiasb/python-unidiff/blob/master/unidiff/constants.py#L37
 # @@ (source offset, length) (target offset, length) @@ (section header)
-RE_HUNK_HEADER = re.compile(
-    r"^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))?\ @@[ ]?(.*)$",
-    flags=re.MULTILINE)
+RE_HUNK_HEADER = re.compile(r"^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))?\ @@[ ]?(.*)$", flags=re.MULTILINE)
 
 # ensure deterministec language detection
 DetectorFactory.seed = 0
@@ -34,24 +30,24 @@ MIN_TEXT_LENGTH_FOR_DETECTION = 20
 
 def block_num_from_hash(block_hash):
     """
-    return the first 4 bytes (8 hex digits) of the block ID (the block_num)
-    Args:
-        block_hash (str):
+    Return the first 4 bytes (8 hex digits) of the block ID (the block_num).
+
+    :param str block_hash:
 
     Returns:
-        int:
+        int: block number
     """
     return int(str(block_hash)[:8], base=16)
 
 
 def block_num_from_previous(previous_block_hash):
     """
+    Return the block number of the block following the given previous block hash.
 
-    Args:
-        previous_block_hash (str):
+    :param str previous_block_hash: The hash of the previous block.
 
     Returns:
-        int:
+        int: block number of the following block.
     """
     return block_num_from_hash(previous_block_hash) + 1
 
@@ -59,12 +55,11 @@ def block_num_from_previous(previous_block_hash):
 def chunkify(iterable, chunksize=10000):
     """Yield successive chunksized chunks from iterable.
 
-    Args:
-      iterable:
-      chunksize:  (Default value = 10000)
+    :param ... iterable: iterable data structure
+    :param int chunksize: Size of each chunk. (Default value = 10000)
 
     Returns:
-
+        generator: yields successive chunks of the iterable.
     """
     i = 0
     chunk = []
@@ -95,8 +90,7 @@ def ensure_decoded(thing):
         elif isinstance(single_encoded_dict, str):
             logger.debug('ensure_decoded thing is single encoded str')
             if single_encoded_dict == "":
-                logger.debug(
-                    'ensure_decoded thing is single encoded str == ""')
+                logger.debug('ensure_decoded thing is single encoded str == ""')
                 return None
             else:
                 double_encoded_dict = json.loads(single_encoded_dict)
@@ -104,10 +98,11 @@ def ensure_decoded(thing):
                 return double_encoded_dict
     except Exception as e:
         extra = {
-            "thing":thing,
-            "single_encoded_dict":single_encoded_dict,
-            "double_encoded_dict":double_encoded_dict,
-            "error":e}
+            "thing": thing,
+            "single_encoded_dict": single_encoded_dict,
+            "double_encoded_dict": double_encoded_dict,
+            "error": e,
+        }
         logger.error('ensure_decoded error', extra=extra)
         return None
 
@@ -148,18 +143,18 @@ def canonicalize_url(url, **kwargs):
     try:
         canonical_url = w3lib.url.canonicalize_url(url, **kwargs)
     except Exception as e:
-        logger.warning('url preparation error', extra={"url":url, "error":e})
+        logger.warning('url preparation error', extra={"url": url, "error": e})
         return None
     if canonical_url != url:
         logger.debug('canonical_url changed %s to %s', url, canonical_url)
     try:
         parsed_url = urlparse(canonical_url)
         if not parsed_url.scheme and not parsed_url.netloc:
-            _log = {"url":url, "canonical_url":canonical_url, "parsed_url":parsed_url}
+            _log = {"url": url, "canonical_url": canonical_url, "parsed_url": parsed_url}
             logger.warning('bad url encountered', extra=_log)
             return None
     except Exception as e:
-        logger.warning('url parse error', extra={"url":url, "error":e})
+        logger.warning('url parse error', extra={"url": url, "error": e})
         return None
     return canonical_url
 
@@ -208,8 +203,7 @@ def time_diff(time1, time2):
 
 
 def keep_in_dict(obj, allowed_keys=None):
-    """ Prune a class or dictionary of all but allowed keys.
-    """
+    """Prune a class or dictionary of all but allowed keys."""
     if allowed_keys is None:
         allowed_keys = []
     if isinstance(obj, dict):
@@ -221,8 +215,7 @@ def keep_in_dict(obj, allowed_keys=None):
 
 
 def remove_from_dict(obj, remove_keys=None):
-    """ Prune a class or dictionary of specified keys.
-    """
+    """Prune a class or dictionary of specified keys."""
     if remove_keys is None:
         remove_keys = []
     if isinstance(obj, dict):
@@ -234,7 +227,7 @@ def remove_from_dict(obj, remove_keys=None):
 
 
 def construct_identifier(*args):
-    """ Create a post identifier from comment/post object or arguments.
+    """Create a post identifier from comment/post object or arguments.
 
     Examples:
 
@@ -250,17 +243,16 @@ def construct_identifier(*args):
     elif len(args) == 2:
         author, permlink = args
     else:
-        raise ValueError(
-            'construct_identifier() received unparsable arguments')
+        raise ValueError('construct_identifier() received unparsable arguments')
 
     # remove the @ sign in case it was passed in by the user.
     author = author.replace('@', '')
-    fields = {"author":author, "permlink":permlink}
+    fields = {"author": author, "permlink": permlink}
     return "{author}/{permlink}".format(**fields)
 
 
 def json_expand(json_op, key_name='json'):
-    """ Convert a string json object to Python dict in an op. """
+    """Convert a string json object to Python dict in an op."""
     if isinstance(json_op, dict) and key_name in json_op and json_op[key_name]:
         try:
             return update_in(json_op, [key_name], json.loads)
@@ -303,44 +295,38 @@ def resolve_identifier(identifier):
 
 
 def fmt_time(t):
-    """ Properly Format Time for permlinks
-    """
+    """Properly Format Time for permlinks"""
     return datetime.fromtimestamp(t, timezone.utc).strftime("%Y%m%dt%H%M%S")
 
 
 def fmt_time_string(t):
-    """ Properly Format Time for permlinks
-    """
+    """Properly Format Time for permlinks"""
     return datetime.strptime(t, '%Y-%m-%dT%H:%M:%S')
 
 
 def fmt_time_from_now(secs=0):
-    """ Properly Format Time that is `x` seconds in the future
+    """Properly Format Time that is `x` seconds in the future.
 
-        :param int secs: Seconds to go in the future (`x>0`) or the
-                         past (`x<0`)
-        :return: Properly formated time for Graphene (`%Y-%m-%dT%H:%M:%S`)
-        :rtype: str
+    :param int secs: Seconds to go in the future (`x>0`) or the past (`x<0`)
+    :return str: Properly formated time for Graphene (`%Y-%m-%dT%H:%M:%S`)
 
     """
-    return datetime.fromtimestamp(time.time() + int(secs), timezone.utc).strftime(
-        '%Y-%m-%dT%H:%M:%S')
+    return datetime.fromtimestamp(time.time() + int(secs), timezone.utc).strftime('%Y-%m-%dT%H:%M:%S')
 
 
 def env_unlocked():
-    """ Check if wallet passphrase is provided as ENV variable. """
+    """Check if wallet passphrase is provided as ENV variable."""
     return os.getenv('UNLOCK', False)
 
 
 # todo remove these
 def strfage(time, fmt=None):
-    """ Format time/age
-    """
+    """Format time/age"""
     if not hasattr(time, "days"):  # dirty hack
         now = datetime.now(timezone.utc)
         if isinstance(time, str):
             time = datetime.strptime(time, '%Y-%m-%dT%H:%M:%S')
-        time = (now - time)
+        time = now - time
 
     d = {"days": time.days}
     d["hours"], rem = divmod(time.seconds, 3600)
@@ -357,8 +343,7 @@ def strfage(time, fmt=None):
 
 
 def strfdelta(tdelta, fmt):
-    """ Format time/age
-    """
+    """Format time/age"""
     if not tdelta or not hasattr(tdelta, "days"):  # dirty hack
         return None
 
@@ -377,9 +362,9 @@ def compat_compose_dictionary(dictionary, **kwargs):
     This method allows us the one line dictionary composition that is offered by the ** dictionary unpacking
     available in 3.6.
 
-    :param dictionary: the dictionary to add the kwargs elements to.
-    :param kwargs: a set of key/value pairs to add to `dictionary`.
-    :return: the composed dictionary.
+    :param dict dictionary: the dictionary to add the kwargs elements to.
+    :param dict kwargs: a set of key/value pairs to add to `dictionary`.
+    :return dict: the composed dictionary.
     """
     composed_dict = dictionary.copy()
     composed_dict.update(kwargs)
@@ -392,33 +377,36 @@ def compat_bytes(item, encoding=None):
     This method is required because Python 2.7 `bytes` is simply an alias for `str`. Without this method,
     code execution would look something like:
 
-    class clazz(object):
+    ::
 
-        def __bytes__(self):
-            return bytes(5)
-
+        class clazz(object):
+            def __bytes__(self):
+                return bytes(5)
 
     Python 2.7:
+    ::
 
-    c = clazz()
-    bytes(c)
-    >>'<__main__.clazz object at 0x105171a90>'
+        c = clazz()
+        bytes(c)
+        >>'<__main__.clazz object at 0x105171a90>'
 
     In this example, when `bytes(c)` is invoked, the interpreter then calls `str(c)`, and prints the above string.
     the method `__bytes__` is never invoked.
 
     Python 3.6:
-    c = clazz()
-    bytes(c)
-    >>b'\x00\x00\x00\x00\x00'
+    ::
+
+        c = clazz()
+        bytes(c)
+        >>b'\x00\x00\x00\x00\x00'
 
     This is the expected and necessary behavior across both platforms.
 
-    w/ compat_bytes method, we will ensure that the correct bytes method is always invoked, avoiding the `str` alias in
-    2.7.
+    w/ compat_bytes method, we will ensure that the correct bytes method is always invoked,
+    avoiding the `str` alias in 2.7.
 
     :param item: this is the object who's bytes method needs to be invoked
-    :param encoding: optional encoding parameter to handle the Python 3.6 two argument 'bytes' method.
+    :param str encoding: optional encoding parameter to handle the Python 3.6 two argument 'bytes' method.
     :return: a bytes object that functions the same across 3.6 and 2.7
     """
     # TODO method is useful for centralizing the bytes method, but not to maintain compatibility with python 2.7

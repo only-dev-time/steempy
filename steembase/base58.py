@@ -28,19 +28,7 @@ class Base58(object):
     strings and their corresponding hex and binary representation
     throughout the library.
 
-    :param data: Data to initialize object, e.g. pubkey data, address data,
-    ...
-
-    :type data: hex, wif, bip38 encrypted wif, base58 string
-
-    :param str prefix: Prefix to use for Address/PubKey strings (defaults
-    to ``GPH``)
-
-    :return: Base58 object initialized with ``data``
-
-    :rtype: Base58
-
-    :raises ValueError: if data cannot be decoded
+    Methods:
 
     * ``bytes(Base58)``: Returns the raw data
     * ``str(Base58)``:   Returns the readable ``base58_check_encoded`` data.
@@ -54,6 +42,15 @@ class Base58(object):
         * ``"bts"``: prefixed with ``BTS``
         * etc.
 
+    :param data: Data to initialize object, e.g. pubkey data, address data, ...
+    :type data: hex, wif, bip38 encrypted wif, base58 string
+    :param str prefix: Prefix to use for Address/PubKey strings (defaults to ``GPH``)
+
+    :return Base58: Base58 object initialized with ``data``
+
+    :raises ValueError: if data cannot be decoded
+
+
     """
 
     def __init__(self, data, prefix=PREFIX):
@@ -64,17 +61,16 @@ class Base58(object):
             self._hex = base58_check_decode(data)
         elif data[0] == "K" or data[0] == "L":
             self._hex = base58_check_decode(data)[:-2]
-        elif data[:len(self._prefix)] == self._prefix:
-            self._hex = gph_base58_check_decode(data[len(self._prefix):])
+        elif data[: len(self._prefix)] == self._prefix:
+            self._hex = gph_base58_check_decode(data[len(self._prefix) :])
         else:
             raise ValueError("Error loading Base58 object")
 
     def __format__(self, _format):
-        """ Format output according to argument _format (wif,btc,...)
+        """Format output according to argument _format (wif,btc,...)
 
-            :param str _format: Format to use
-            :return: formatted data according to _format
-            :rtype: str
+        :param str _format: Format to use
+        :return str: formatted data according to _format
 
         """
         if _format.upper() == "WIF":
@@ -90,27 +86,23 @@ class Base58(object):
             return _format.upper() + str(self)
 
     def __repr__(self):
-        """ Returns hex value of object
+        """Returns hex value of object
 
-            :return: Hex string of instance's data
-            :rtype: hex string
+        :return hex strin: Hex string of instance's data
         """
         return self._hex
 
     def __str__(self):
-        """ Return graphene-base58_check_encoded string of data
+        """Return graphene-base58_check_encoded string of data
 
-            :return: Base58 encoded data
-            :rtype: str
+        :return str: Base58 encoded data
         """
         return gph_base58_check_encode(self._hex)
 
     def __bytes__(self):
-        """ Return raw bytes
+        """Return raw bytes
 
-            :return: Raw bytes of instance
-            :rtype: bytes
-
+        :return bytes: Raw bytes of instance
         """
         return unhexlify(self._hex)
 
@@ -188,7 +180,7 @@ def base58_check_decode(s):
     s = unhexlify(base58decode(s))
     dec = hexlify(s[:-4]).decode('ascii')
     checksum = doublesha256(dec)[:4]
-    assert (s[-4:] == checksum)
+    assert s[-4:] == checksum
     return dec[2:]
 
 
@@ -202,15 +194,14 @@ def gph_base58_check_decode(s):
     s = unhexlify(base58decode(s))
     dec = hexlify(s[:-4]).decode('ascii')
     checksum = ripemd160(dec)[:4]
-    assert (s[-4:] == checksum)
+    assert s[-4:] == checksum
     return dec
 
 
 def base58CheckEncode(version, payload):  # noqa: N802
-    """ **Deprecated. Use ``base58_check_encode()`` instead.** """
+    """**Deprecated. Use ``base58_check_encode()`` instead.**"""
     warnings.warn(
-        "base58CheckEncode() is deprecated; use base58_check_encode() "
-        "instead.",
+        "base58CheckEncode() is deprecated; use base58_check_encode() instead.",
         DeprecationWarning,
         stacklevel=2,
     )
@@ -218,10 +209,9 @@ def base58CheckEncode(version, payload):  # noqa: N802
 
 
 def base58CheckDecode(s):  # noqa: N802
-    """ **Deprecated. Use ``base58_check_decode()`` instead.** """
+    """**Deprecated. Use ``base58_check_decode()`` instead.**"""
     warnings.warn(
-        "base58CheckDecode() is deprecated; use base58_check_decode() "
-        "instead.",
+        "base58CheckDecode() is deprecated; use base58_check_decode() instead.",
         DeprecationWarning,
         stacklevel=2,
     )
@@ -231,8 +221,7 @@ def base58CheckDecode(s):  # noqa: N802
 def gphBase58CheckEncode(s):  # noqa: N802
     """Deprecated alias for :func:`gph_base58_check_encode`."""
     warnings.warn(
-        "gphBase58CheckEncode() is deprecated; use "
-        "gph_base58_check_encode() instead.",
+        "gphBase58CheckEncode() is deprecated; use gph_base58_check_encode() instead.",
         DeprecationWarning,
         stacklevel=2,
     )
@@ -242,8 +231,7 @@ def gphBase58CheckEncode(s):  # noqa: N802
 def gphBase58CheckDecode(s):  # noqa: N802
     """Deprecated alias for :func:`gph_base58_check_decode`."""
     warnings.warn(
-        "gphBase58CheckDecode() is deprecated; use "
-        "gph_base58_check_decode() instead.",
+        "gphBase58CheckDecode() is deprecated; use gph_base58_check_decode() instead.",
         DeprecationWarning,
         stacklevel=2,
     )

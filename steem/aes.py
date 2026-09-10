@@ -26,12 +26,11 @@ class AESCipher(object):
         return data
 
     def _pad(self, s):
-        return s + (self.bs - len(s) % self.bs) * AESCipher.str_to_bytes(
-            chr(self.bs - len(s) % self.bs))
+        return s + (self.bs - len(s) % self.bs) * AESCipher.str_to_bytes(chr(self.bs - len(s) % self.bs))
 
     @staticmethod
     def _unpad(s):
-        return s[:-ord(s[len(s) - 1:])]
+        return s[: -ord(s[len(s) - 1 :])]
 
     def encrypt(self, raw):
         raw = self._pad(AESCipher.str_to_bytes(raw))
@@ -41,7 +40,6 @@ class AESCipher(object):
 
     def decrypt(self, enc):
         enc = base64.b64decode(enc)
-        iv = enc[:AES.block_size]
+        iv = enc[: AES.block_size]
         cipher = AES.new(self.key, AES.MODE_CBC, iv)
-        return self._unpad(cipher.decrypt(
-            enc[AES.block_size:])).decode('utf-8')
+        return self._unpad(cipher.decrypt(enc[AES.block_size :])).decode('utf-8')

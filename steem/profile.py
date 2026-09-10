@@ -1,17 +1,17 @@
-import collections
+import collections.abc
 import json
 
 
 class DotDict(dict):
     def __init__(self, *args):
-        """ This class simplifies the use of "."-separated
-            keys when defining a nested dictionary:::
+        """This class simplifies the use of "."-separated
+        keys when defining a nested dictionary::
 
-                >>> keys = ['profile.url', 'profile.img']
-                >>> values = ["http:", "foobar"]
-                >>> print(Profile(keys, values))
+            >>> keys = ['profile.url', 'profile.img']
+            >>> values = ["http:", "foobar"]
+            >>> print(Profile(keys, values))
 
-                {"profile": {"url": "http:", "img": "foobar"}}
+            {"profile": {"url": "http:", "img": "foobar"}}
 
         """
         if len(args) == 2:
@@ -32,10 +32,10 @@ class DotDict(dict):
 
 
 class Profile(DotDict):
-    """ This class is a template to model a user's on-chain
-        profile according to
+    """This class is a template to model a user's on-chain
+    profile according to
 
-            * https://github.com/adcpm/steemscript
+        * https://github.com/adcpm/steemscript
     """
 
     def __init__(self, *args, **kwargs):
@@ -44,9 +44,9 @@ class Profile(DotDict):
     def __str__(self):
         return json.dumps(self)
 
-    def update(self, u):
+    def update(self, u):  # type: ignore[override]
         for k, v in u.items():
-            if isinstance(v, collections.Mapping):
+            if isinstance(v, collections.abc.Mapping):
                 self.setdefault(k, {}).update(v)
             else:
                 self[k] = u[k]

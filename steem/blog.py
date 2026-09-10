@@ -10,41 +10,38 @@ from .utils import is_comment
 
 
 class Blog:
-    """ Obtain a list of blog posts for an account
+    """Obtain a list of blog posts for an account
 
-        Args:
-            account_name (str): Name of the account
-            comments_only (bool): (Default False). Toggle between posts
-                and comments.
-            steemd_instance (Steemd): Steemd instance overload
+    Args:
+        account_name (str): Name of the account
+        comments_only (bool): (Default False). Toggle between posts
+            and comments.
+        steemd_instance (Steemd): Steemd instance overload
 
-        Returns:
-            Generator with Post objects in reverse chronological order.
+    Returns:
+        Generator with Post objects in reverse chronological order.
 
-        Example:
-            To get all posts, you can use either generator:
+    Example:
+        To get all posts, you can use either generator:
 
-            ::
+        ::
 
-                gen1 = Blog('furion')
-                gen2 = b.all()
+            gen1 = Blog('furion')
+            gen2 = b.all()
 
-                next(gen1)
-                next(gen2)
+            next(gen1)
+            next(gen2)
 
-            To get some posts, you can call `take()`:
+        To get some posts, you can call `take()`:
 
-            ::
+        ::
 
-                b = Blog('furion')
-                posts = b.take(5)
+            b = Blog('furion')
+            posts = b.take(5)
 
     """
 
-    def __init__(self,
-                 account_name,
-                 comments_only=False,
-                 steemd_instance=None):
+    def __init__(self, account_name, comments_only=False, steemd_instance=None):
         self.steem = steemd_instance or shared_steemd_instance()
         self.comments_only = comments_only
         self.account = Account(account_name)
@@ -52,7 +49,7 @@ class Blog:
         self.seen_items = set()
 
     def take(self, limit=5):
-        """ Take up to n (n = limit) posts/comments at a time.
+        """Take up to n (n = limit) posts/comments at a time.
 
         You can call this method as many times as you want. Once
         there are no more posts to take, it will return [].
@@ -61,8 +58,7 @@ class Blog:
             List of posts/comments in a batch of size up to `limit`.
         """
         # get main posts only
-        comment_filter = is_comment if self.comments_only else complement(
-            is_comment)
+        comment_filter = is_comment if self.comments_only else complement(is_comment)
         hist = filter(comment_filter, self.history)
 
         # filter out reblogs
@@ -86,7 +82,7 @@ class Blog:
         return batch
 
     def all(self):
-        """ A generator that will return ALL of account history. """
+        """A generator that will return ALL of account history."""
         while True:
             chunk = self.take(10)
             if chunk:

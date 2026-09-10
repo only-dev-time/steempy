@@ -2,34 +2,30 @@ import re
 
 
 def decode_rpc_error_msg(e):
-    """ Helper function to decode the raised Exception and give it a
-        python Exception class
-    """
+    """Helper function to decode the raised Exception and give it a python Exception class."""
     found = re.search(
-        ("(10 assert_exception: Assert Exception\n|"
-         "3030000 tx_missing_posting_auth)"
-         ".*: (.*)\n"),
-        str(e),
-        flags=re.M)
+        ("(10 assert_exception: Assert Exception\n|3030000 tx_missing_posting_auth).*: (.*)\n"), str(e), flags=re.M
+    )
     if found:
         return found.group(2).strip()
     else:
         return str(e)
 
-def decodeRPCErrorMsg(e):  # noqa: N802
-    """ **Deprecated. Use ``decode_rpc_error_msg`` instead.**
 
-        Helper function to decode the raised Exception and give it a
-        python Exception class
+def decodeRPCErrorMsg(e):  # noqa: N802
+    """**Deprecated. Use ``decode_rpc_error_msg`` instead.**
+
+    Helper function to decode the raised Exception and give it a python Exception class.
     """
     import warnings
+
     warnings.warn(
-        "decodeRPCErrorMsg() is deprecated; use decode_rpc_error_msg() "
-        "instead.",
+        "decodeRPCErrorMsg() is deprecated; use decode_rpc_error_msg() instead.",
         DeprecationWarning,
         stacklevel=2,
     )
     return decode_rpc_error_msg(e)
+
 
 class RPCError(Exception):
     pass
@@ -136,10 +132,12 @@ class VotingInvalidOnArchivedPost(Exception):  # noqa: N818
 
 
 class SaltVerificationError(Exception):
-    """ Raised when the salt verification fails. """
+    """Raised when the salt verification fails."""
+
     pass
 
 
 class WrongKEKError(Exception):
-    """ Raised when the KEK is wrong. """
+    """Raised when the KEK is wrong."""
+
     pass

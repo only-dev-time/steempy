@@ -21,17 +21,15 @@ default_prefix = "STM"
 
 
 def get_shared_secret(priv, pub):
-    """ Derive the share secret between ``priv`` and ``pub``
+    """Derive the share secret between ``priv`` and ``pub``.
 
-        :param `Base58` priv: Private Key
-        :param `Base58` pub: Public Key
-        :return: Shared secret
-        :rtype: hex
+    :param Base58 priv: Private Key
+    :param Base58 pub: Public Key
+    :return hex: Shared secret
 
-        The shared secret is generated such that::
+    The shared secret is generated such that::
 
-            Pub(Alice) * Priv(Bob) = Pub(Bob) * Priv(Alice)
-
+        Pub(Alice) * Priv(Bob) = Pub(Bob) * Priv(Alice)
     """
     pub_point = pub.point()
     priv_point = int(repr(priv), 16)
@@ -43,13 +41,11 @@ def get_shared_secret(priv, pub):
 
 
 def init_aes(shared_secret, nonce):
-    """ Initialize AES instance
+    """Initialize AES instance.
 
-        :param hex shared_secret: Shared Secret to use as encryption key
-        :param int nonce: Random nonce
-        :return: AES instance and checksum of the encryption key
-        :rtype: length 2 tuple
-
+    :param hex shared_secret: Shared Secret to use as encryption key
+    :param int nonce: Random nonce
+    :return length 2 tuple: AES instance and checksum of the encryption key
     """
     " Seed "
     ss = unhexlify(shared_secret)
@@ -65,7 +61,7 @@ def init_aes(shared_secret, nonce):
 
 
 def _pad(s, bs):
-    num_bytes = (bs - len(s) % bs)
+    num_bytes = bs - len(s) % bs
     return s + num_bytes * struct.pack('B', num_bytes)
 
 
@@ -77,17 +73,16 @@ def _unpad(s, bs):
 
 
 def encode_memo(priv, pub, nonce, message, **kwargs):
-    """ Encode a message with a shared secret between Alice and Bob
+    """Encode a message with a shared secret between Alice and Bob.
 
-        :param PrivateKey priv: Private Key (of Alice)
-        :param PublicKey pub: Public Key (of Bob)
-        :param int nonce: Random nonce
-        :param str message: Memo message
-        :return: Encrypted message
-        :rtype: hex
-
+    :param PrivateKey priv: Private Key (of Alice)
+    :param PublicKey pub: Public Key (of Bob)
+    :param int nonce: Random nonce
+    :param str message: Memo message
+    :return hex: Encrypted message
     """
     from steembase import transactions
+
     shared_secret = get_shared_secret(priv, pub)
     aes, check = init_aes(shared_secret, nonce)
     raw = compat_bytes(message, 'utf8')
@@ -99,30 +94,30 @@ def encode_memo(priv, pub, nonce, message, **kwargs):
     " Encryption "
     cipher = hexlify(aes.encrypt(raw)).decode('ascii')
     prefix = kwargs.pop("prefix", default_prefix)
-    s = OrderedDict([
-        ("from", format(priv.pubkey, prefix)),
-        ("to", format(pub, prefix)),
-        ("nonce", nonce),
-        ("check", check),
-        ("encrypted", cipher),
-        ("from_priv", repr(priv)),
-        ("to_pub", repr(pub)),
-        ("shared_secret", shared_secret),
-    ])
+    s = OrderedDict(
+        [
+            ("from", format(priv.pubkey, prefix)),
+            ("to", format(pub, prefix)),
+            ("nonce", nonce),
+            ("check", check),
+            ("encrypted", cipher),
+            ("from_priv", repr(priv)),
+            ("to_pub", repr(pub)),
+            ("shared_secret", shared_secret),
+        ]
+    )
     tx = Memo(**s)
 
     return "#" + base58encode(hexlify(compat_bytes(tx)).decode("ascii"))
 
 
 def decode_memo(priv, message):
-    """ Decode a message with a shared secret between Alice and Bob
+    """Decode a message with a shared secret between Alice and Bob
 
-        :param PrivateKey priv: Private Key (of Bob)
-        :param base58encoded message: Encrypted Memo message
-        :return: Decrypted message
-        :rtype: str
-        :raise ValueError: if message cannot be decoded as valid UTF-8
-               string
+    :param PrivateKey priv: Private Key (of Bob)
+    :param base58encoded message: Encrypted Memo message
+    :return str: Decrypted message
+    :raise ValueError: if message cannot be decoded as valid UTF-8 string
 
     """
     " decode structure "
@@ -161,7 +156,7 @@ def decode_memo(priv, message):
 
 
 def involved_keys(message):
-    " decode structure "
+    "decode structure"
     raw = base58decode(message[1:])
     from_key = PublicKey(raw[:66])
     raw = raw[66:]

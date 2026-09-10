@@ -4,11 +4,10 @@ from .instance import shared_steemd_instance
 
 
 class Witness(dict):
-    """ Read data about a witness in the chain
+    """Read data about a witness in the chain.
 
-        :param str witness: Name of the witness
-        :param Steemd steemd_instance: Steemd() instance to use when
-        accessing a RPC
+    :param str witness: Name of the witness
+    :param Steemd steemd_instance: Steemd() instance to use when accessing a RPC
 
     """
 

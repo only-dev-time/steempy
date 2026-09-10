@@ -16,15 +16,10 @@ known_chains = {
         "vests_symbol": "GESTS",
     },
     "TESTS": {
-        "chain_id":
-            "46d82ab7d8db682eb1959aed0ada039a6d49afa1602491f93dde9cac3e8e6c32",
-        "prefix":
-            "TST",
-        "steem_symbol":
-            "TESTS",
-        "sbd_symbol":
-            "TBD",
-        "vests_symbol":
-            "VESTS",
+        "chain_id": "46d82ab7d8db682eb1959aed0ada039a6d49afa1602491f93dde9cac3e8e6c32",
+        "prefix": "TST",
+        "steem_symbol": "TESTS",
+        "sbd_symbol": "TBD",
+        "vests_symbol": "VESTS",
     },
 }

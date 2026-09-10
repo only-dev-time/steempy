@@ -1,9 +1,8 @@
 class Amount(dict):
-    """ This class helps deal and calculate with the different assets on the
-            chain.
+    """This class helps deal and calculate with the different assets on the chain.
 
-        :param str amountString: Amount string as used by the backend
-            (e.g. "10 SBD")
+    :param str amountString: Amount string as used by the backend
+        (e.g. "10 SBD")
     """
 
     def __init__(self, amount_string="0 SBD"):
@@ -16,9 +15,7 @@ class Amount(dict):
         # elif isinstance(amount_string, unicode):
         #     self["amount"], self["asset"] = amount_string.split(" ")
         else:
-            raise ValueError(
-                "Need an instance of 'Amount' or a string with amount " +
-                "and asset")
+            raise ValueError("Need an instance of 'Amount' or a string with amount " + "and asset")
 
         self["amount"] = float(self["amount"])
 
@@ -46,8 +43,7 @@ class Amount(dict):
         # default
         else:
             prec = 6
-        return "{:.{prec}f} {}".format(
-            self["amount"], self["asset"], prec=prec)
+        return "{:.{prec}f} {}".format(self["amount"], self["asset"], prec=prec)
 
     def __float__(self):
         return self["amount"]
@@ -215,12 +211,12 @@ if __name__ == "__main__":
     print(a + b)
     print(b)
     b **= 2
-    b += .5
+    b += 0.5
     print(b)
     print(b > a)
 
     c = Amount("100 STEEM")
-    print(c * .10)
+    print(c * 0.10)
 
     # print(a + c)
     # print(a < c)

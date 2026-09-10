@@ -13,7 +13,7 @@ from steembase import *
 # pylint: disable=unused-import,unused-variable
 def test_import():
     _ = Steem()
-    _ = account.PasswordKey
+    _ = account.PasswordKey  # type: ignore[name-defined]
 
 
 def test_cli_help():

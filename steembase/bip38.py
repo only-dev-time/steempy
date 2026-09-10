@@ -42,32 +42,30 @@ elif 'scrypt' in SCRYPT_MODULE:
     try:
         import scrypt
     except ImportError:
-            raise ImportError("Missing dependency: scrypt explicitly set but missing") from None
+        raise ImportError("Missing dependency: scrypt explicitly set but missing") from None
 
 
 log.debug("Using scrypt module: %s" % SCRYPT_MODULE)
 
 
 class SaltException(Exception):  # noqa: N818
-    """ **Deprecated. Use ``SaltVerificationError`` instead.** """
+    """**Deprecated. Use ``SaltVerificationError`` instead.**"""
+
     pass
 
 
 def _encrypt_xor(a, b, aes):
-    """ Returns encrypt(a ^ b). """
+    """Returns encrypt(a ^ b)."""
     a = unhexlify('%0.32x' % (int((a), 16) ^ int(hexlify(b), 16)))
     return aes.encrypt(a)
 
 
 def encrypt(privkey, passphrase):
-    """ BIP0038 non-ec-multiply encryption. Returns BIP0038 encrypted privkey.
+    """BIP0038 non-ec-multiply encryption. Returns BIP0038 encrypted privkey.
 
-    :param privkey: Private key
-    :type privkey: Base58
+    :param Base58 privkey: Private key
     :param str passphrase: UTF-8 encoded passphrase for encryption
-    :return: BIP0038 non-ec-multiply encrypted wif key
-    :rtype: Base58
-
+    :return Base58: BIP0038 non-ec-multiply encrypted wif key
     """
     privkeyhex = repr(privkey)  # hex
     addr = format(privkey.uncompressed.address, "BTC")
@@ -84,8 +82,7 @@ def encrypt(privkey, passphrase):
     encrypted_half1 = _encrypt_xor(privkeyhex[:32], derived_half1[:16], aes)
     encrypted_half2 = _encrypt_xor(privkeyhex[32:], derived_half1[16:], aes)
     " flag byte is forced 0xc0 because Graphene only uses compressed keys "
-    payload = (
-            b'\x01' + b'\x42' + b'\xc0' + salt + encrypted_half1 + encrypted_half2)
+    payload = b'\x01' + b'\x42' + b'\xc0' + salt + encrypted_half1 + encrypted_half2
     " Checksum "
     checksum = hashlib.sha256(hashlib.sha256(payload).digest()).digest()[:4]
     privatekey = hexlify(payload + checksum).decode('ascii')
@@ -97,11 +94,8 @@ def decrypt(encrypted_privkey, passphrase):
 
     :param Base58 encrypted_privkey: Private key
     :param str passphrase: UTF-8 encoded passphrase for decryption
-    :return: BIP0038 non-ec-multiply decrypted key
-    :rtype: Base58
-    :raises SaltVerificationError: if checksum verification failed (e.g. wrong
-    password)
-
+    :return Base58: BIP0038 non-ec-multiply decrypted key
+    :raises SaltVerificationError: if checksum verification failed (e.g. wrong password)
     """
 
     d = unhexlify(base58decode(encrypted_privkey))
@@ -125,8 +119,7 @@ def decrypt(encrypted_privkey, passphrase):
     decryptedhalf2 = aes.decrypt(encryptedhalf2)
     decryptedhalf1 = aes.decrypt(encryptedhalf1)
     privraw = decryptedhalf1 + decryptedhalf2
-    privraw = ('%064x' %
-               (int(hexlify(privraw), 16) ^ int(hexlify(derivedhalf1), 16)))
+    privraw = '%064x' % (int(hexlify(privraw), 16) ^ int(hexlify(derivedhalf1), 16))
     wif = Base58(privraw)
     """ Verify Salt """
     privkey = PrivateKey(format(wif, "wif"))
@@ -134,6 +127,5 @@ def decrypt(encrypted_privkey, passphrase):
     a = compat_bytes(addr, 'ascii')
     saltverify = hashlib.sha256(hashlib.sha256(a).digest()).digest()[0:4]
     if saltverify != salt:
-        raise SaltVerificationError(
-            'checksum verification failed! Password may be incorrect.')
+        raise SaltVerificationError('checksum verification failed! Password may be incorrect.')
     return wif

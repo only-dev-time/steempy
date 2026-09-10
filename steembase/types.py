@@ -36,24 +36,22 @@ timeformat = '%Y-%m-%dT%H:%M:%S%Z'
 
 
 def varint(n):
-    """ Varint encoding
-    """
+    """Varint encoding"""
     data = b''
     while n >= 0x80:
-        data += compat_bytes([(n & 0x7f) | 0x80])
+        data += compat_bytes([(n & 0x7F) | 0x80])
         n >>= 7
     data += compat_bytes([n])
     return data
 
 
 def varintdecode(data):
-    """ Varint decoding
-    """
+    """Varint decoding"""
     shift = 0
     result = 0
     for c in data:
         b = ord(c)
-        result |= ((b & 0x7f) << shift)
+        result |= (b & 0x7F) << shift
         if not (b & 0x80):
             break
         shift += 7
@@ -61,17 +59,17 @@ def varintdecode(data):
 
 
 def variable_buffer(s):
-    """ Encode variable length buffer
-    """
+    """Encode variable length buffer"""
     return varint(len(s)) + s
 
 
 def JsonObj(data):  # noqa: N802
-    """ **Deprecated. Use ``json_obj`` instead.**
+    """**Deprecated. Use ``json_obj`` instead.**
 
-        Returns json object from data
+    Returns json object from data
     """
     import warnings
+
     warnings.warn(
         "JsonObj() is deprecated; use json_obj() instead.",
         DeprecationWarning,
@@ -79,17 +77,16 @@ def JsonObj(data):  # noqa: N802
     )
     return json_obj(data)
 
+
 def json_obj(data):
-    """ Returns json object from data
-    """
+    """Returns json object from data."""
     try:
         return json.loads(str(data))
     except Exception as e:  # noqa FIXME(sneak)
         try:
             return data.__str__()
         except:  # noqa FIXME(sneak)
-            raise ValueError('json_obj could not parse %s:\n%s' %
-                             (type(data).__name__, data.__class__)) from None
+            raise ValueError('json_obj could not parse %s:\n%s' % (type(data).__name__, data.__class__)) from None
 
 
 class Uint8:
@@ -274,9 +271,7 @@ class PointInTime:
         self.data = d
 
     def __bytes__(self):
-        return struct.pack("<I",
-                           timegm(
-                               time.strptime((self.data + "UTC"), timeformat)))
+        return struct.pack("<I", timegm(time.strptime((self.data + "UTC"), timeformat)))
 
     def __str__(self):
         return self.data
@@ -325,8 +320,7 @@ class Optional:
         if not self.data:
             return compat_bytes(Bool(0))
         else:
-            return compat_bytes(Bool(1)) + compat_bytes(self.data) if compat_bytes(
-                self.data) else compat_bytes(Bool(0))
+            return compat_bytes(Bool(1)) + compat_bytes(self.data) if compat_bytes(self.data) else compat_bytes(Bool(0))
 
     def __str__(self):
         return str(self.data)
@@ -384,7 +378,7 @@ class VoteId:
         self.instance = int(parts[1])
 
     def __bytes__(self):
-        binary = (self.type & 0xff) | (self.instance << 8)
+        binary = (self.type & 0xFF) | (self.instance << 8)
         return struct.pack("<I", binary)
 
     def __str__(self):
@@ -392,8 +386,7 @@ class VoteId:
 
 
 class ObjectId:
-    """ Encodes object/protocol ids
-    """
+    """Encodes object/protocol ids"""
 
     def __init__(self, object_str, type_verify=None):
         if len(object_str.split(".")) == 3:
@@ -403,10 +396,10 @@ class ObjectId:
             self.instance = Id(int(o_id))
             self.Id = object_str
             if type_verify:
-                assert object_type[type_verify] == int(o_type), \
-                    "Object id does not match object type! " + \
-                    "Excpected %d, got %d" % \
-                    (object_type[type_verify], int(o_type))
+                assert object_type[type_verify] == int(o_type), (
+                    "Object id does not match object type! "
+                    + "Excpected %d, got %d" % (object_type[type_verify], int(o_type))
+                )
         else:
             raise Exception("Object id is invalid")
 

@@ -8,6 +8,7 @@ import time
 from functools import partial
 from http.client import RemoteDisconnected
 from itertools import cycle
+from typing import Set
 from urllib.parse import urlparse
 
 import certifi
@@ -25,37 +26,34 @@ logger = logging.getLogger(__name__)
 
 
 class HttpClient(object):
-    """ Simple Steem JSON-HTTP-RPC API
+    """Simple Steem JSON-HTTP-RPC API
 
     This class serves as an abstraction layer for easy use of the Steem API.
 
-    Args:
-      nodes (list): A list of Steem HTTP RPC nodes to connect to.
+    :param list nodes: A list of Steem HTTP RPC nodes to connect to.
 
     .. code-block:: python
+        from steem.http_client import HttpClient
 
-       from steem.http_client import HttpClient
+        rpc = HttpClient([
+            'https://steemd-node1.com',
+            'https://steemd-node2.com'])
 
-       rpc = HttpClient(['https://steemd-node1.com',
-       'https://steemd-node2.com'])
-
-    any call available to that port can be issued using the instance
+    Any call available to that port can be issued using the instance
     via the syntax ``rpc.call('command', *parameters)``.
 
-    Example:
+    Example::
 
-    .. code-block:: python
-
-       rpc.call(
-           'get_followers',
-           'furion', 'abit', 'blog', 10,
-           api='follow_api'
-       )
+        rpc.call(
+            'get_followers',
+            'furion', 'abit', 'blog', 10,
+            api='follow_api'
+        )
 
     """
 
     # set of endpoints which were detected to not support condenser_api
-    non_appbase_nodes = set()  # noqa: RUF012
+    non_appbase_nodes: Set[str] = set()  # noqa: RUF012
 
     def __init__(self, nodes, **kwargs):
         self.re_raise = kwargs.get('re_raise', True)
@@ -82,7 +80,8 @@ class HttpClient(object):
             socket_options=socket_options,
             headers={'Content-Type': 'application/json'},
             cert_reqs='CERT_REQUIRED',
-            ca_certs=certifi.where())
+            ca_certs=certifi.where(),
+        )
         '''
             urlopen(method, url, body=None, headers=None, retries=None,
             redirect=True, assert_same_host=True, timeout=<object object>,
@@ -135,18 +134,17 @@ class HttpClient(object):
         return False
 
     def next_node(self):
-        """ Switch to the next available node.
+        """Switch to the next available node.
 
         This method will change base URL of our requests.
 
-        Use it when the current node goes down to change to a fallback
-        node.
+        Use it when the current node goes down to change to a fallback node.
 
         """
         self.set_node(next(self.nodes))
 
     def set_node(self, node_url):
-        """ Change current node to provided node URL. """
+        """Change current node to provided node URL."""
         self.url = node_url
         self.request = partial(self.http.urlopen, 'POST', self.url)
 
@@ -156,30 +154,21 @@ class HttpClient(object):
 
     @staticmethod
     def json_rpc_body(name, *args, **kwargs):
-        """ Build request body for steemd RPC requests.
+        """Build request body for steemd RPC requests.
 
-        Args:
+        :param str name: Name of a method we are trying to call. (ie: `get_accounts`)
+        :param list args: A list of arguments belonging to the calling method.
 
-            name (str): Name of a method we are trying to call. (ie:
-            `get_accounts`)
+            **api** : *None, str*: If api is provided (ie: `follow_api`),
+                we generate a body that uses `call` method appropriately.
 
-            args: A list of arguments belonging to the calling method.
+            **as_json** : *bool*: Should this function return json as dictionary or string.
 
-            api (None, str): If api is provided (ie: `follow_api`),
-             we generate a body that uses `call` method appropriately.
+            **_id** : *int*: This is an arbitrary number that can be used for
+                request/response tracking in multi-threaded scenarios.
 
-            as_json (bool): Should this function return json as dictionary
-            or string.
-
-            _id (int): This is an arbitrary number that can be used for
-            request/response tracking in multi-threaded scenarios.
-
-        Returns:
-
-            (dict,str): If `as_json` is set to `True`, we get json
-            formatted as a string.
-
-            Otherwise, a Python dictionary is returned.
+            :return dict, str: If `as_json` is set to `True`, we get json formatted as a string.
+                Otherwise, a Python dictionary is returned.
 
         """
 
@@ -193,28 +182,19 @@ class HttpClient(object):
         params = kwargs if kwargs else args
 
         if api:
-            body = {'jsonrpc': '2.0',
-                    'id': _id,
-                    'method': 'call',
-                    'params': [api, name, params]}
+            body = {'jsonrpc': '2.0', 'id': _id, 'method': 'call', 'params': [api, name, params]}
         else:
-            body = {'jsonrpc': '2.0',
-                    'id': _id,
-                    'method': name,
-                    'params': params}
+            body = {'jsonrpc': '2.0', 'id': _id, 'method': name, 'params': params}
 
         if as_json:
             return json.dumps(body, ensure_ascii=False).encode('utf8')
 
         return body
 
-    def call(self,
-             name,
-             *args,
-             **kwargs):
-        """ Call a remote procedure in steemd.
+    def call(self, name, *args, **kwargs):
+        """Call a remote procedure in steemd.
 
-        Warnings:
+        .. Warnings::
 
             This command will auto-retry in case of node failure, as well
             as handle node fail-over.
@@ -222,14 +202,19 @@ class HttpClient(object):
         """
 
         # tuple of Exceptions which are eligible for retry
-        retry_exceptions = (MaxRetryError, ReadTimeoutError,
-                            ProtocolError, RPCErrorRecoverable,
-                            json.decoder.JSONDecodeError, RemoteDisconnected, ConnectionResetError)
+        retry_exceptions = (
+            MaxRetryError,
+            ReadTimeoutError,
+            ProtocolError,
+            RPCErrorRecoverable,
+            json.decoder.JSONDecodeError,
+            RemoteDisconnected,
+            ConnectionResetError,
+        )
 
         tries = 0
         while True:
             try:
-
                 body_kwargs = kwargs.copy()
                 if not self._curr_node_downgraded():
                     body_kwargs['api'] = 'condenser_api'
@@ -239,8 +224,7 @@ class HttpClient(object):
 
                 success_codes = (*list(response.REDIRECT_STATUSES), 200)
                 if response.status not in success_codes:
-                    raise RPCErrorRecoverable("non-200 response: %s from %s"
-                                              % (response.status, self.hostname))
+                    raise RPCErrorRecoverable("non-200 response: %s from %s" % (response.status, self.hostname))
 
                 result = json.loads(response.data.decode('utf-8'))
                 assert result, 'result entirely blank'
@@ -269,8 +253,7 @@ class HttpClient(object):
                             logging.error('Downgrade-retry %s', self.hostname)
                             continue
 
-                    detail = ('%s from %s (%s) in %s' % (
-                        error, self.hostname, detail, name))
+                    detail = '%s from %s (%s) in %s' % (error, self.hostname, detail, name)
 
                     if self._is_error_recoverable(result['error']):
                         raise RPCErrorRecoverable(detail)
@@ -281,12 +264,10 @@ class HttpClient(object):
 
             except retry_exceptions as e:
                 if tries >= 10:
-                    logging.error('Failed after %d attempts -- %s: %s',
-                                  tries, e.__class__.__name__, e)
+                    logging.error('Failed after %d attempts -- %s: %s', tries, e.__class__.__name__, e)
                     raise e
                 tries += 1
-                logging.warning('Retry in %ds -- %s: %s', tries,
-                                e.__class__.__name__, e)
+                logging.warning('Retry in %ds -- %s: %s', tries, e.__class__.__name__, e)
                 time.sleep(tries)
                 self.next_node()
                 continue
@@ -295,28 +276,28 @@ class HttpClient(object):
             #       define exceptions for which we refuse to retry.
             except Exception as e:
                 extra = {"err": e, "request": self.request}
-                logger.error('Unexpected exception! Please report at ' +
-                             'https://github.com/only-dev-time/steempy/issues' +
-                             ' -- %s: %s', e.__class__.__name__, e, extra=extra)
+                logger.error(
+                    'Unexpected exception! Please report at '
+                    + 'https://github.com/only-dev-time/steempy/issues'
+                    + ' -- %s: %s',
+                    e.__class__.__name__,
+                    e,
+                    extra=extra,
+                )
                 raise e
 
-    def call_multi_with_futures(self, name, params, api=None,
-                                max_workers=None):
-        with concurrent.futures.ThreadPoolExecutor(
-                max_workers=max_workers) as executor:
+    def call_multi_with_futures(self, name, params, api=None, max_workers=None):
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
             # Start the load operations and mark each future with its URL
             def ensure_list(val):
                 return val if isinstance(val, (list, tuple, set)) else [val]
 
-            futures = (executor.submit(
-                self.call, name, *ensure_list(param), api=api)
-                for param in params)
+            futures = (executor.submit(self.call, name, *ensure_list(param), api=api) for param in params)
             for future in concurrent.futures.as_completed(futures):
                 yield future.result()
 
     def sanitize_nodes(self, nodes):
         """
-
         This method is designed to explicitly validate the user defined
         nodes that are passed to http_client. If left unvalidated, improper
         input causes a variety of explicit-to-red herring errors in the code base.
@@ -331,8 +312,8 @@ class HttpClient(object):
 
         Any other input will result in a ValueError being thrown.
 
-        :param nodes: the nodes argument passed to http_client
-        :return: a list of node url's.
+        :param str, list nodes: the nodes argument passed to http_client
+        :return list: a list of node url's.
         """
 
         if self._is_string(nodes):
@@ -341,10 +322,9 @@ class HttpClient(object):
             if not all(self._is_string(node) for node in nodes):
                 raise ValueError("All nodes in list must be a string.")
         else:
-            raise ValueError("nodes arg must be a "
-                             "comma separated string of node url's, "
-                             "a single string url, "
-                             "or a list of strings.")
+            raise ValueError(
+                "nodes arg must be a comma separated string of node url's, a single string url, or a list of strings."
+            )
 
         return nodes
 

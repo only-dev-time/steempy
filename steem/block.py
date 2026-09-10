@@ -5,11 +5,11 @@ from .utils import parse_time
 
 
 class Block(dict):
-    """ Read a single block from the chain
+    """Read a single block from the chain
 
-        :param int block: block number
-        :param Steemd steemd_instance: Steemd() instance to use when
-            accessing a RPC
+    :param int block: block number
+    :param Steemd steemd_instance: Steemd() instance to use when
+        accessing a RPC
 
     """
 

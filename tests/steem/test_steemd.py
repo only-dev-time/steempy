@@ -4,7 +4,7 @@ from steem.steemd import Steemd
 
 
 def test_get_version():
-    """ We should be able to call get_version on steemd """
+    """We should be able to call `get_version` on steemd."""
     s = Steemd()
     response = s.call('get_version', api='login_api')
     version = response['blockchain_version']
@@ -12,14 +12,14 @@ def test_get_version():
 
 
 def test_get_dgp():
-    """ We should be able to call get_dynamic_global_properties on steemd """
+    """We should be able to call `get_dynamic_global_properties` on steemd."""
     s = Steemd()
     response = s.call('get_dynamic_global_properties', api='database_api')
     assert response['head_block_number'] > 20e6
 
 
 def test_get_block():
-    """ We should be able to fetch some blocks. """
+    """We should be able to fetch some blocks."""
     s = Steemd()
 
     for num in [1000, 1000000, 10000000, 20000000, 21000000]:
@@ -39,10 +39,9 @@ def test_get_block():
 
 
 def test_ensured_block_ranges():
-    """ Post should load correctly if passed a dict or string identifier. """
+    """Post should load correctly if passed a dict or string identifier."""
     s = Steemd()
-    assert list(pluck('block_num', s.get_blocks_range(1000, 2000))) == list(
-        range(1000, 2000))
+    assert list(pluck('block_num', s.get_blocks_range(1000, 2000))) == list(range(1000, 2000))
 
     # for fuzzing in s.get_block_range_ensured() use:
     # degraded_results = [x for x in results if x['block_num'] %

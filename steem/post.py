@@ -25,15 +25,12 @@ log = logging.getLogger(__name__)
 
 
 class Post(dict):
-    """ This object gets instantiated by Steem.streams and is used as an
-        abstraction layer for Comments in Steem
+    """This object gets instantiated by Steem.streams and is used as an
+    abstraction layer for Comments in Steem.
 
-        Args:
-
-            post (str or dict): ``author/permlink`` or raw ``comment`` as
-            dictionary.
-
-            steemd_instance (Steemd): Steemd node to connect to
+    :param str, dict post: ``author/permlink`` or raw ``comment`` as
+        dictionary.
+    :param Steemd steemd_instance: Steemd node to connect to
 
     """
 
@@ -48,20 +45,16 @@ class Post(dict):
 
         if isinstance(post, str):  # From identifier
             self.identifier = self.parse_identifier(post)
-        elif isinstance(post,
-                        dict) and "author" in post and "permlink" in post:
-
-            self.identifier = construct_identifier(post["author"],
-                                                   post["permlink"])
+        elif isinstance(post, dict) and "author" in post and "permlink" in post:
+            self.identifier = construct_identifier(post["author"], post["permlink"])
         else:
-            raise ValueError("Post expects an identifier or a dict "
-                             "with author and permlink!")
+            raise ValueError("Post expects an identifier or a dict with author and permlink!")
 
         self.refresh()
 
     @staticmethod
     def parse_identifier(uri):
-        """ Extract canonical post id/url (i.e. strip any leading `@`). """
+        """Extract canonical post id/url (i.e. strip any leading `@`)."""
         return uri.split('@')[-1]
 
     def refresh(self):
@@ -75,10 +68,7 @@ class Post(dict):
             self.patched = True
 
         # Parse Times
-        parse_times = [
-            "active", "cashout_time", "created", "last_payout", "last_update",
-            "max_cashout_time"
-        ]
+        parse_times = ["active", "cashout_time", "created", "last_payout", "last_update", "max_cashout_time"]
         for p in parse_times:
             post[p] = parse_time(post.get(p, "1970-01-01T00:00:00"))
 
@@ -106,8 +96,7 @@ class Post(dict):
                 tags += get_in(post, ['json_metadata', 'tags'], default=[])
                 post["tags"] = set(tags)
 
-            post['community'] = get_in(
-                post, ['json_metadata', 'community'], default='')
+            post['community'] = get_in(post, ['json_metadata', 'community'], default='')
 
         # If this post is a comment, retrieve the root comment
         self.root_identifier, self.category = self._get_root_identifier(post)
@@ -150,15 +139,14 @@ class Post(dict):
             return construct_identifier(author, permlink), category
 
     def get_replies(self):
-        """ Return **first-level** comments of the post.
-        """
+        """Return **first-level** comments of the post."""
         post_author, post_permlink = resolve_identifier(self.identifier)
         replies = self.steemd.get_content_replies(post_author, post_permlink)
         return map(silent(Post), replies)
 
     @staticmethod
     def get_all_replies(root_post=None, comments=None, all_comments=None):
-        """ Recursively fetch all the child comments, and return them as a list.
+        """Recursively fetch all the child comments, and return them as a list.
 
         Usage: all_comments = Post.get_all_replies(Post('foo/bar'))
         """
@@ -177,42 +165,36 @@ class Post(dict):
         children = list(flatten([list(x.get_replies()) for x in comments]))
         if not children:
             return all_comments or comments
-        return Post.get_all_replies(
-            comments=children, all_comments=comments + children)
+        return Post.get_all_replies(comments=children, all_comments=comments + children)
 
     @property
     def reward(self):
-        """Return a float value of estimated total SBD reward.
-        """
-        return Amount(self.get("total_payout_value", "0 SBD")) + \
-               Amount(self.get("pending_payout_value", "0 SBD"))
+        """Return a float value of estimated total SBD reward."""
+        return Amount(self.get("total_payout_value", "0 SBD")) + Amount(self.get("pending_payout_value", "0 SBD"))
 
     def time_elapsed(self):
-        """Return a timedelta on how old the post is.
-        """
+        """Return a timedelta on how old the post is."""
         return datetime.utcnow() - self['created']
 
     def is_main_post(self):
-        """ Retuns True if main post, and False if this is a comment (reply).
-        """
+        """Retuns True if main post, and False if this is a comment (reply)."""
         return self['depth'] == 0
 
     def is_comment(self):
-        """ Retuns True if post is a comment
-        """
+        """Retuns True if post is a comment"""
         return self['depth'] > 0
 
     def curation_reward_pct(self):
-        """ If post is less than 15 minutes old, it will incur a curation
-        reward penalty.  """
+        """If post is less than 15 minutes old, it will incur a curation
+        reward penalty."""
         reward = (self.time_elapsed().seconds / 900) * 100
         if reward > 100:
             reward = 100
         return reward
 
     def export(self):
-        """ This method returns a dictionary that is type-safe to store as
-        JSON or in a database.  """
+        """This method returns a dictionary that is type-safe to store as
+        JSON or in a database."""
         self.refresh()
 
         # Remove Steem instance object
@@ -230,28 +212,26 @@ class Post(dict):
     # Commital Properties
     ######################
     def upvote(self, weight=+100, voter=None):
-        """ Upvote the post
+        """Upvote the post
 
-            :param float weight: (optional) Weight for posting (-100.0 -
-            +100.0) defaults to +100.0
-            :param str voter: (optional) Voting account
+        :param float weight: (optional) Weight for posting (-100.0 - +100.0), defaults to +100.0
+        :param str voter: (optional) Voting account
         """
         return self.vote(weight, voter=voter)
 
     def downvote(self, weight=-100, voter=None):
-        """ Downvote the post
+        """Downvote the post
 
-            :param float weight: (optional) Weight for posting (-100.0 -
-            +100.0) defaults to -100.0
-            :param str voter: (optional) Voting account
+        :param float weight: (optional) Weight for posting (-100.0 - +100.0), defaults to -100.0
+        :param str voter: (optional) Voting account
         """
         return self.vote(weight, voter=voter)
 
     def vote(self, weight, voter=None):
-        """ Vote the post
+        """Vote the post
 
-            :param float weight: Weight for posting (-100.0 - +100.0)
-            :param str voter: Voting account
+        :param float weight: Weight for posting (-100.0 - +100.0)
+        :param str voter: Voting account
         """
         # Test if post is archived, if so, voting is worthless but just
         # pollutes the blockchain and account history
@@ -260,13 +240,13 @@ class Post(dict):
         return self.commit.vote(self.identifier, weight, account=voter)
 
     def edit(self, body, meta=None, replace=False):
-        """ Edit an existing post
+        """Edit an existing post
 
-            :param str body: Body of the reply
-            :param json meta: JSON meta object that can be attached to the
-                              post. (optional)
-            :param bool replace: Instead of calculating a *diff*, replace
-                                 the post entirely (defaults to ``False``)
+        :param str body: Body of the reply
+        :param json meta: JSON meta object that can be attached to the
+            post. (optional)
+        :param bool replace: Instead of calculating a *diff*, replace
+            the post entirely (defaults to ``False``)
         """
         if not meta:
             meta = {}
@@ -276,6 +256,7 @@ class Post(dict):
             newbody = body
         else:
             from diff_match_patch import diff_match_patch
+
             dmp = diff_match_patch()
             patch = dmp.patch_make(original_post["body"], body)
             newbody = dmp.patch_toText(patch)
@@ -284,13 +265,13 @@ class Post(dict):
                 log.info("No changes made! Skipping ...")
                 return
 
-        reply_identifier = construct_identifier(
-            original_post["parent_author"], original_post["parent_permlink"])
+        reply_identifier = construct_identifier(original_post["parent_author"], original_post["parent_permlink"])
 
         new_meta = {}
         if meta:
             if original_post["json_metadata"]:
                 import json
+
                 new_meta = original_post["json_metadata"].update(meta)
             else:
                 new_meta = meta
@@ -305,41 +286,29 @@ class Post(dict):
         )
 
     def reply(self, body, title="", author="", meta=None):
-        """ Reply to an existing post
+        """Reply to an existing post
 
-            :param str body: Body of the reply
-            :param str title: Title of the reply post
-            :param str author: Author of reply (optional) if not provided
-                               ``default_user`` will be used, if present, else
-                               a ``ValueError`` will be raised.
-            :param json meta: JSON meta object that can be attached to the
-                              post. (optional)
+        :param str body: Body of the reply
+        :param str title: Title of the reply post
+        :param str author: Author of reply (optional) if not provided
+            ``default_user`` will be used, if present, else
+            a ``ValueError`` will be raised.
+        :param json meta: JSON meta object that can be attached to the
+            post. (optional)
         """
-        return self.commit.post(
-            title,
-            body,
-            json_metadata=meta,
-            author=author,
-            reply_identifier=self.identifier)
+        return self.commit.post(title, body, json_metadata=meta, author=author, reply_identifier=self.identifier)
 
     def set_comment_options(self, options):
         op = CommentOptions(
             **{
-                "author":
-                    self["author"],
-                "permlink":
-                    self["permlink"],
-                "max_accepted_payout":
-                    options.get("max_accepted_payout",
-                                str(self["max_accepted_payout"])),
-                "percent_steem_dollars":
-                    int(
-                        options.get("percent_steem_dollars",
-                                    self["percent_steem_dollars"] / 100) * 100),
-                "allow_votes":
-                    options.get("allow_votes", self["allow_votes"]),
-                "allow_curation_rewards":
-                    options.get("allow_curation_rewards", self[
-                        "allow_curation_rewards"]),
-            })
+                "author": self["author"],
+                "permlink": self["permlink"],
+                "max_accepted_payout": options.get("max_accepted_payout", str(self["max_accepted_payout"])),
+                "percent_steem_dollars": int(
+                    options.get("percent_steem_dollars", self["percent_steem_dollars"] / 100) * 100
+                ),
+                "allow_votes": options.get("allow_votes", self["allow_votes"]),
+                "allow_curation_rewards": options.get("allow_curation_rewards", self["allow_curation_rewards"]),
+            }
+        )
         return self.commit.finalize_op(op, self["author"], "posting")

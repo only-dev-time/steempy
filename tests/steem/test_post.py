@@ -5,13 +5,9 @@ from steem.utils import findall_patch_hunks
 
 
 def test_post_refresh():
-    """ Post should load correctly if passed a dict or string identifier. """
-    p1 = Post('https://steemit.com/marketing/@steemitblog/'
-              'marketing-w-mitchell-a-steem-ecosystem')
-    p2 = Post({
-        'author': 'steemitblog',
-        'permlink': 'marketing-w-mitchell-a-steem-ecosystem'
-    })
+    """Post should load correctly if passed a dict or string identifier."""
+    p1 = Post('https://steemit.com/marketing/@steemitblog/marketing-w-mitchell-a-steem-ecosystem')
+    p2 = Post({'author': 'steemitblog', 'permlink': 'marketing-w-mitchell-a-steem-ecosystem'})
 
     # did post load?
     assert 'json_metadata' in p1 and 'json_metadata' in p2
@@ -22,15 +18,17 @@ def test_post_refresh():
 
 def test_post_edit_creates_patch():
     post = Post.__new__(Post)
-    post.update({
-        "author": "alice",
-        "permlink": "original",
-        "parent_author": "parent",
-        "parent_permlink": "root",
-        "title": "Title",
-        "body": "old body",
-        "json_metadata": {},
-    })
+    post.update(
+        {
+            "author": "alice",
+            "permlink": "original",
+            "parent_author": "parent",
+            "parent_permlink": "root",
+            "title": "Title",
+            "body": "old body",
+            "json_metadata": {},
+        }
+    )
     post.commit = Mock()
 
     post.edit("new body", meta={"app": "steempy"})
@@ -52,15 +50,17 @@ def test_post_edit_creates_patch():
 
 def test_post_edit_replace():
     post = Post.__new__(Post)
-    post.update({
-        "author": "alice",
-        "permlink": "original",
-        "parent_author": "parent",
-        "parent_permlink": "root",
-        "title": "Title",
-        "body": "old body",
-        "json_metadata": {},
-    })
+    post.update(
+        {
+            "author": "alice",
+            "permlink": "original",
+            "parent_author": "parent",
+            "parent_permlink": "root",
+            "title": "Title",
+            "body": "old body",
+            "json_metadata": {},
+        }
+    )
     post.commit = Mock()
 
     post.edit("new body", replace=True)
