@@ -13,6 +13,11 @@ exclude = [
   "venv*",
 ]
 
+[tool.ruff.format]
+# preserve existing quote style instead of forcing double quotes,
+# to minimize the diff against the previously yapf-formatted code
+quote-style = "preserve"
+
 [tool.ruff.lint]
 select = ["E", "F"]
 extend-select = ["W", "B", "C4", "PERF", "A", "N", "RUF"]
@@ -21,6 +26,15 @@ ignore = [
     "F403",
     "F405",
 ]
+
+[tool.ruff.lint.pycodestyle]
+ignore-overlong-task-comments = true
+
+[tool.ruff.lint.pydocstyle]
+# closest match to the existing Sphinx-style (:param x:) docstrings;
+# only relevant once "D" is added to select/extend-select
+# should be activated when working on the documentation
+convention = "pep257"
 
 [tool.isort]
 py_version = 38
@@ -42,16 +56,47 @@ default_section = "THIRDPARTY"
 known_first_party = ["steem", "steembase"]
 
 [tool.mypy]
+# Platform configuration
 python_version = "3.8"
+# imports related
 ignore_missing_imports = true
 follow_imports = "silent"
-show_error_codes = true
-pretty = true
-check_untyped_defs = false
+# None and Optional handling
+no_implicit_optional = false
+strict_optional = true  # should not be ignored
+# Configuring warnings
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = false
 warn_return_any = false
-warn_unused_ignores = false
-disable_error_code = ["attr-defined", "name-defined", "call-arg", "arg-type", "assignment", "index", "operator", "misc"]
-exclude = "^(build|dist|\\.tox|venv.*)/"
+# Untyped definitions and calls
+check_untyped_defs = true
+disallow_untyped_calls = false
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+disallow_untyped_decorators = false
+# Disallow dynamic typing
+disallow_subclassing_any = false
+disallow_any_unimported = false
+disallow_any_expr = false
+disallow_any_decorated = false
+disallow_any_explicit = false
+disallow_any_generics = false
+# Miscellaneous strictness flags
+allow_untyped_globals = true
+allow_redefinition = false
+local_partial_types = false
+implicit_reexport = true
+strict_equality = true
+# Configuring error messages
+show_error_context = true
+show_column_numbers = true
+show_error_codes = true
+# misc
+pretty = true
+disable_error_code = ["union-attr", "var-annotated", "arg-type", "assignment", "index", "operator", "misc"]
 
 [tool.pytest.ini_options]
 norecursedirs = ["dist", "docs", "build", "deploy"]

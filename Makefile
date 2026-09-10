@@ -1,7 +1,7 @@
 PROJECT := $(shell basename $(shell pwd))
 PYTHON_FILES := steem steembase tests setup.py
 
-.PHONY: help clean test test-all lint package build-check verify-release install-check show-tox-tools fmt install
+.PHONY: help clean test test-all lint mypy-all package build-check verify-release install-check show-tox-tools fmt install
 
 help: ## Show available make targets
 	@echo "Available targets:"
@@ -19,6 +19,9 @@ test-all: clean ## Run tests on Python 3.8-3.12 via tox
 
 lint: ## Run linting and static checks via tox
 	tox -e lint
+
+mypy-all: ## Run mypy against all supported target Python versions via tox
+	tox -e mypy-py38,mypy-py39,mypy-py310,mypy-py311,mypy-py312
 
 package: clean ## Build sdist/wheel and validate metadata
 	tox -e package
@@ -54,9 +57,10 @@ show-tox-tools: ## Show runtime and build tool versions across tox envs
 		echo; \
 	done
 
-fmt: ## Format imports and auto-fix lints
+fmt: ## Format imports, auto-fix lints, and apply code formatting
 	isort $(PYTHON_FILES)
 	ruff check --fix $(PYTHON_FILES)
+	ruff format $(PYTHON_FILES)
 
 install: ## Legacy local install via setup.py
 	python setup.py install
